@@ -85,7 +85,7 @@ exit 0
 
 def discover_transmission():
     try:
-        return subprocess.check_output(['which', 'transmission-daemon'])
+        return subprocess.check_output(['which', 'transmission-daemon']).strip()
     except subprocess.CalledProcessError:
         raise Exception(
             'transmission-daemon was not found. Make sure "which transmission-daemon" returns the right thing.')
