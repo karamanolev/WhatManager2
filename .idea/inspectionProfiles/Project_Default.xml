@@ -1,0 +1,26 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0" is_locked="false">
+    <option name="myName" value="Project Default" />
+    <option name="myLocal" value="false" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="11">
+            <item index="0" class="java.lang.String" itemvalue="transmissionrpc" />
+            <item index="1" class="java.lang.String" itemvalue="requests" />
+            <item index="2" class="java.lang.String" itemvalue="kombu" />
+            <item index="3" class="java.lang.String" itemvalue="mutagen" />
+            <item index="4" class="java.lang.String" itemvalue="billiard" />
+            <item index="5" class="java.lang.String" itemvalue="pyquery" />
+            <item index="6" class="java.lang.String" itemvalue="django-celery" />
+            <item index="7" class="java.lang.String" itemvalue="bencode" />
+            <item index="8" class="java.lang.String" itemvalue="MySQL-python" />
+            <item index="9" class="java.lang.String" itemvalue="Django" />
+            <item index="10" class="java.lang.String" itemvalue="pytz" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="SqlNoDataSourceInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+  </profile>
+</component>
