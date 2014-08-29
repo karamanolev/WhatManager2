@@ -24,7 +24,7 @@ transmission_init_script_template = '''#!/bin/sh -e
 ### END INIT INFO
 
 NAME=transmission-daemon-<<<name>>>
-DAEMON=/usr/local/bin/transmission-daemon
+DAEMON=<<<daemon_path>>>
 ENABLE_DAEMON=1
 USER=debian-transmission-<<<name>>>
 STOP_TIMEOUT=30
@@ -83,9 +83,14 @@ exit 0
 '''
 
 
+def discover_transmission():
+    pass
+
+
 def get_transmission_init_script(name, files_path):
     return (
         transmission_init_script_template
+        .replace('<<<daemon_path>>>', discover_transmission())
         .replace('<<<files_path>>>', files_path)
         .replace('<<<name>>>', name)
     )

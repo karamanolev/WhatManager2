@@ -7,8 +7,6 @@ import mutagen
 from home.models import WhatTorrent, DownloadLocation
 
 
-ALLOWED_DIRS = list(DownloadLocation.objects.values_list('path', flat=True))
-
 ALLOWED_EXTS = ['.mp3', '.flac']
 
 COVER_FILENAMES = ['cover.jpg', 'cover.jpeg', 'folder.jpg', 'folder.jpeg']
@@ -19,8 +17,9 @@ def is_allowed_ext(file):
 
 
 def is_allowed_file(file):
+    allowed_dirs = list(DownloadLocation.objects.values_list('path', flat=True))
     file = os.path.realpath(file.encode('utf-8')).decode('utf-8')
-    if not any(file.startswith(d) for d in ALLOWED_DIRS):
+    if not any(file.startswith(d) for d in allowed_dirs):
         return False
     if not is_allowed_ext(file):
         return False
