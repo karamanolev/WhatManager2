@@ -84,7 +84,11 @@ exit 0
 
 
 def discover_transmission():
-    pass
+    try:
+        return subprocess.check_output(['which', 'transmission-daemon'])
+    except subprocess.CalledProcessError:
+        raise Exception(
+            'transmission-daemon was not found. Make sure "which transmission-daemon" returns the right thing.')
 
 
 def get_transmission_init_script(name, files_path):
