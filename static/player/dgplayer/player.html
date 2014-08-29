@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="player.css">
+    <!--[if IE 9]>
+    <script src="resources/classlist.js"></script>
+    <![endif]-->
+    <style>
+    body {
+        background: url(resources/bg.png);
+        margin: 0;
+    }
+    </style>
+</head>
+<body>
+    <div class="player">
+        <div class="avatar">
+            <img src="resources/avatar.jpeg">
+        </div>
+        
+        <p>Amos Wenger's Live Stream</p>
+        <span>Get your own at <a href="http://plugandplay.fm/" target="_blank">plugandplay.fm</a>!</span>
+        
+        <div class="ring">
+            <canvas width="90" height="90" class="hidden"></canvas>
+            <div class="button"></div>
+        </div>
+        <div class="counter">0:00</div>
+        
+        <div class="volume">
+            <img src="resources/volume_low.png">
+            <div class="track">
+                <div class="progress"></div>
+                <div class="handle"></div>
+            </div>
+            <img src="resources/volume_high.png">
+        </div>
+    </div>
+    <script src="player.js"></script>
+    <script>
+        DGPlayer.on('play', function() {
+            // Simulate buffering
+            DGPlayer.state = 'buffering';
+            DGPlayer.bufferProgress = 0;
+        
+            setTimeout(function() {
+                if (DGPlayer.state != 'buffering') return;
+            
+                DGPlayer.bufferProgress += 1.5;
+                if (DGPlayer.bufferProgress < 100)
+                    setTimeout(arguments.callee, 20);
+                else 
+                    DGPlayer.state = 'playing'; // start the timer and hide the buffering indicator
+            }, 20);
+        });
+    
+        DGPlayer.on('pause', function() {
+            DGPlayer.state = 'paused';
+        });
+    
+        DGPlayer.on('volume', function(value) {
+            console.log("Volume " + value + "%");
+        });
+    </script>
+</body>
+</html>

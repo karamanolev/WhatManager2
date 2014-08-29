@@ -1,0 +1,239 @@
+/**
+ * Unicorn Admin Template
+ * Version 2.2.0
+ * Diablo9983 -> diablo9983@gmail.com
+**/
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+body {
+  background-color: #444444;
+  background-image: -webkit-gradient(linear, left 0%, left 100%, from(#555555), to(#111111));
+  background-image: -webkit-linear-gradient(top, #555555, 0%, #111111, 100%);
+  background-image: -moz-linear-gradient(top, #555555 0%, #111111 100%);
+  background-image: linear-gradient(to bottom, #555555 0%, #111111 100%);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff555555', endColorstr='#ff111111', GradientType=0);
+  background-attachment: fixed;
+  padding: 0;
+  margin: 0;
+}
+a.grey {
+  color: #aaaaaa;
+}
+a.blue {
+  font-weight: bold;
+}
+@media (max-width: 400px) {
+  a.grey,
+  a.blue {
+    font-size: 12px;
+  }
+}
+#container {
+  top: 0;
+  position: absolute;
+  left: 50%;
+  margin-left: -200px;
+  margin-top: 20px;
+  padding-bottom: 25px;
+}
+@media (max-width: 480px) {
+  #container {
+    margin: 20px 5% 0;
+    left: auto;
+    width: 90%;
+  }
+}
+#logo,
+#loginbox {
+  width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+@media (max-width: 480px) {
+  #logo,
+  #loginbox {
+    width: 100%;
+  }
+}
+#logo {
+  padding: 20px 0 20px 5px;
+}
+#logo img {
+  width: 215px;
+  margin: 0 auto;
+  display: block;
+}
+#user {
+  width: 100%;
+  height: 100px;
+  opacity: 0;
+}
+#user,
+#user .avatar,
+#user .inner,
+#user .text {
+  position: absolute;
+}
+#user .avatar {
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.7);
+  left: 45px;
+  top: 10px;
+}
+#user .inner {
+  background-image: -moz-linear-gradient(-55deg, rgba(255, 255, 255, 0.7) 0%, transparent 100%);
+}
+#user .avatar,
+#user .inner {
+  width: 75px;
+  height: 75px;
+  overflow: hidden;
+  border-radius: 40px;
+}
+#user .text {
+  top: 17px;
+  left: 150px;
+  font-size: 16px;
+  color: #ffffff;
+  text-shadow: 0 1px 0 #000000;
+}
+#user .user_name {
+  display: block;
+  font-size: 24px;
+}
+#loginbox {
+  height: 255px;
+  background: #ffffff;
+  box-shadow: 0 0 4px #000000;
+  border-radius: 7px;
+  overflow: hidden !important;
+  text-align: center;
+  position: relative;
+}
+#loginbox form {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+#loginbox form#loginform {
+  z-index: 200;
+}
+#loginbox form#recoverform {
+  z-index: 100;
+  opacity: 0;
+  display: none;
+}
+#loginbox form#recoverform .control-group {
+  margin: 23px 0;
+}
+#loginbox form#registerform {
+  z-index: 100;
+  opacity: 0;
+  display: none;
+}
+#loginbox p {
+  margin-top: 15px;
+  padding: 0 20px;
+}
+@media (max-width: 400px) {
+  #loginbox p {
+    font-size: 12px !important;
+  }
+}
+#loginbox .form-actions {
+  padding: 5px 20px 15px;
+  border-radius: 0 0 30px 30px;
+}
+#loginbox .form-actions .pull-left,
+#loginbox .form-actions .pull-right {
+  margin-bottom: 10px;
+}
+#loginbox .form-actions .pull-left {
+  text-align: left;
+}
+#loginbox .form-actions .pull-right {
+  text-align: right;
+}
+.input-group {
+  padding: 0 20px 5px;
+}
+.footer-login {
+  border-top: 1px solid #e6e6e6;
+}
+.footer-login .text {
+  font-size: 16px;
+  font-weight: bold;
+  color: #555555;
+  padding: 12px 20px;
+}
+.btn-inverse {
+  color: #ffffff;
+  background-color: #555555;
+  border-color: #494949;
+}
+.btn-inverse:hover,
+.btn-inverse:focus,
+.btn-inverse:active,
+.btn-inverse.active,
+.open .dropdown-toggle.btn-inverse {
+  color: #ffffff;
+  background-color: #414141;
+  border-color: #2a2a2a;
+}
+.btn-inverse:active,
+.btn-inverse.active,
+.open .dropdown-toggle.btn-inverse {
+  background-image: none;
+}
+.btn-inverse.disabled,
+.btn-inverse[disabled],
+fieldset[disabled] .btn-inverse,
+.btn-inverse.disabled:hover,
+.btn-inverse[disabled]:hover,
+fieldset[disabled] .btn-inverse:hover,
+.btn-inverse.disabled:focus,
+.btn-inverse[disabled]:focus,
+fieldset[disabled] .btn-inverse:focus,
+.btn-inverse.disabled:active,
+.btn-inverse[disabled]:active,
+fieldset[disabled] .btn-inverse:active,
+.btn-inverse.disabled.active,
+.btn-inverse[disabled].active,
+fieldset[disabled] .btn-inverse.active {
+  background-color: #555555;
+  border-color: #494949;
+}
+.btn-social .btn {
+  display: inline-block;
+  font-size: 20px;
+  border-left: 1px solid #e6e6e6;
+  color: #888888;
+  padding: 9px 0 10px;
+  margin: 0 0 0 -4px;
+  border-radius: 0;
+}
+.btn-social .btn:hover {
+  color: #fff;
+}
+.btn-social .btn.btn-facebook:hover {
+  background-color: #428bca;
+}
+.btn-social .btn.btn-twitter:hover {
+  background-color: #5bc0de;
+}
+.btn-social .btn.btn-google-plus:hover {
+  background-color: #d9534f;
+}
+.btn-social .btn i {
+  padding: 0 15px 0 17px;
+}
+hr {
+  margin: 8px 0 -5px;
+}

@@ -1,0 +1,58 @@
+
+.playlist-container {
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.playlist {
+    box-sizing: content-box;
+    margin: -8px 0 0 0px;
+    padding: 28px 18px 18px 18px;
+    width: 323px;
+    height: 370px;
+    list-style: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    border-radius: 5px;
+    box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset, black 0 2px 18px;
+    background: -webkit-linear-gradient(#32363C, #17191e);
+    background: -moz-linear-gradient(#32363C, #17191e);
+    border: 1px solid rgba(0, 0, 0, 0.85);
+}
+
+.playlist li {
+    padding: 6px 8px;
+    color: white;
+    cursor: pointer;
+    clear: both;
+}
+
+.playlist li.active {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: rgba(255, 255, 255, 0.10) 0 1px 0 inset, black 0 2px 18px;
+    border-radius: 4px;
+}
+
+.playlist li .title {
+    float: left;
+    display: block;
+    width: 259px;
+}
+
+.playlist li .duration {
+    display: block;
+    float: right;
+    margin-left: 2px;
+}
+
+.playlist li .clear {
+    clear: both;
+}
+
+.player-playlist-container {
+    position: relative;
+    left: 50%;
+    margin-left: -180px;
+    padding-top: 6px;
+}

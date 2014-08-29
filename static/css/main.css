@@ -1,0 +1,38 @@
+td .sep {
+    display: inline-block;
+    color: #aaa;
+}
+
+td .sep:first-child {
+    display: none;
+}
+
+.tooltip .tooltip-inner > table {
+    background: none;
+}
+
+.tooltip .tooltip-inner > table > tbody > tr > td {
+    background: none;
+    border: none;
+}
+
+.tooltip .tooltip-inner {
+    max-width: 400px;
+}
+
+.col-actions {
+    width: 90px;
+}
+
+.row.row-flex {
+    display: flex;
+}
+
+.row.row-flex > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.row.row-flex .widget-box {
+    flex: 1;
+}
