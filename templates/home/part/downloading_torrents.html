@@ -1,0 +1,38 @@
+<div class="row" id="downloading_torrents_row">
+    <div class="col-md-12">
+        <div class="widget-box">
+            {% if perms.home.view_whattorrent %}
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-download"></i></span>
+                    <h5>Downloading Torrents</h5>
+                </div>
+                <div class="widget-content nopadding">
+                </div>
+            {% else %}
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-info-circle"></i></span><h5>No permission</h5>
+                </div>
+                <div class="widget-content">
+                    You don't have permission to view torrents.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if perms.home.view_whattorrent %}
+    <script>
+        $.executeAndRepeat(5000, function () {
+            var downloadingRow = $('#downloading_torrents_row');
+
+            downloadingRow.find('.widget-content').load('{% url 'home.parts.downloading' %}', function () {
+                if ($('tbody tr').length) {
+                    downloadingRow.show();
+                } else {
+                    downloadingRow.hide();
+                }
+                downloadingRow.refreshTooltips();
+            });
+        });
+    </script>
+{% endif %}

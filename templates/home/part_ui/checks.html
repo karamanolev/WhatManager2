@@ -1,0 +1,33 @@
+<table class="table table-bordered table-hover">
+    {% if traceback %}
+        <tr class="danger">
+            <td>
+                {{ traceback }}
+            </td>
+        </tr>
+    {% elif errors or warnings %}
+        <thead>
+        <tr>
+            <th>Message</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for error in errors %}
+            <tr class="danger">
+                <td>{{ error }}</td>
+            </tr>
+        {% endfor %}
+        {% for warning in warnings %}
+            <tr class="warning">
+                <td>{{ warning }}</td>
+            </tr>
+        {% endfor %}
+        <tbody>
+    {% else %}
+        <tr class="success">
+            <td>
+                <h4 style="padding-left: 20px;">Pass</h4>
+            </td>
+        </tr>
+    {% endif %}
+</table>

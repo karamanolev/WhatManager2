@@ -1,0 +1,7 @@
+<div id="site_stats_row">
+</div>
+
+<script>
+    var statsUrl = '{% url 'home.parts.stats' %}';
+    var reloadTorrentStats = $('#site_stats_row').timedReload(statsUrl, 2000)
+</script>

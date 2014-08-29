@@ -1,0 +1,138 @@
+{% extends 'dashboard_base.html' %}
+
+{% load staticfiles custom_filters bootstrap %}
+
+{% block content %}
+    <div id="content-header">
+        <h1>Edit Upload</h1>
+    </div>
+    <div id="breadcrumb">
+        <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="{% url 'books.views.uploads' %}">Book Uploads</a>
+        <a href="{% url 'books.views.edit_upload' book.id %}" class="current">Edit Upload</a>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-9">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <span class="icon"><i class="fa fa-book"></i></span>
+                        <h5>Book Details</h5>
+                    </div>
+                    <div class="widget-content nopadding">
+                        <form action="{% url 'books.views.edit_upload' book.id %}" method="post"
+                              enctype="multipart/form-data" class="form-horizontal" role="form">
+                            {% csrf_token %}
+                            {{ form|bootstrap_horizontal }}
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary btn-lg">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="col-md-12" style="padding-left: 0;">
+                        <div class="widget-box">
+                            <div class="widget-title">
+                                <span class="icon"><i class="fa fa-book"></i></span>
+                                <h5>Book Actions</h5>
+                            </div>
+                            <div class="widget-content">
+                                {% if book.cover_url %}
+                                    {% if book.has_bibliotik_torrent and book.has_what_torrent %}
+                                        {% if book.is_valid %}
+                                            {% if book.bibliotik_torrent_id == 0 %}
+                                                <button class="btn btn-block btn-inverse">
+                                                    Skipped bibliotik.org
+                                                </button>
+                                            {% elif book.bibliotik_torrent_id == None %}
+                                                <button class="btn btn-block btn-primary"
+                                                        onclick="javascript: bibliotikUpload();">
+                                                    Upload to bibliotik.org
+                                                </button>
+                                                {# <a class="btn btn-block btn-warning"#}
+                                                {#    href="{% url 'books.views.skip_bibliotik' book.id %}">#}
+                                                {#     Skip bibliotik.org#}
+                                                {# </a>#}
+                                            {% endif %}
+
+                                            {% if book.what_torrent_id == 0 %}
+                                                <button class="btn btn-block btn-inverse">
+                                                    Skipped what.org
+                                                </button>
+                                            {% elif book.what_torrent_id == None %}
+                                                <button type="button" class="btn btn-block btn-primary"
+                                                        onclick="javascript: whatUpload();">
+                                                    Upload to what.cd
+                                                </button>
+                                                {#  <a class="btn btn-block btn-warning"#}
+                                                {#     href="{% url 'books.views.skip_what' book.id %}">#}
+                                                {#      Skip what.cd#}
+                                                {#  </a>#}
+                                            {% endif %}
+                                        {% else %}
+                                            <div class="alert warning">
+                                                Please enter all required fields in the description.
+                                            </div>
+                                        {% endif %}
+                                    {% else %}
+                                        <a class="btn btn-block btn-default"
+                                           href="{% url 'books.views.upload_generate_torrents' book.id %}">
+                                            Generate torrents
+                                        </a>
+                                    {% endif %}
+                                {% else %}
+                                    <a class="btn btn-block btn-primary"
+                                       href="{% url 'books.views.upload_cover_upload' book.id %}">
+                                        Upload cover to whatimg
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12" style="padding-left: 0;">
+                        <div class="widget-box">
+                            <div class="widget-title">
+                                <span class="icon"><i class="fa fa-picture-o"></i></span>
+                                <h5>Book Cover</h5>
+                            </div>
+                            <div class="widget-content">
+                                <img src="{% url 'books.views.upload_cover' book.id %}"
+                                     style="width: 100%;"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    <script>
+        function whatUpload() {
+            var url = "{% url 'books.views.upload_to_what' book.id %}";
+            url += "?return={% url 'books.views.edit_upload' book.id %}";
+            window.location = url;
+        }
+
+        function bibliotikUpload() {
+            var bibliotikSessionId = stealBibliotikSessionId(function (sessionId) {
+                var url = "{% url 'bibliotik.views.upload_book' book.id %}";
+                url += "?return={% url 'books.views.edit_upload' book.id %}";
+                url += "&bibliotik_id=" + encodeURIComponent(sessionId);
+                window.location = url;
+            });
+        }
+    </script>
+
+    {% include 'dashboard_search_redirect.html' %}
+{% endblock %}

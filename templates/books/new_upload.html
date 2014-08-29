@@ -1,0 +1,89 @@
+{% extends 'dashboard_base.html' %}
+
+{% load staticfiles custom_filters %}
+
+{% block content %}
+    <style type="text/css">
+        .form-table {
+            margin: 20px;
+        }
+
+        .form-table label {
+            text-align: left;
+        }
+
+        .form-table input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: -12px;
+        }
+
+        .form-table td {
+            padding: 2px;
+        }
+    </style>
+    <div id="content-header">
+        <h1>New Upload</h1>
+    </div>
+    <div id="breadcrumb">
+        <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="{% url 'books.views.uploads' %}">Book Uploads</a>
+        <a href="{% url 'books.views.new_upload' %}" class="current">New Upload</a>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <span class="icon"><i class="fa fa-info-circle"></i></span>
+                        <h5>E-book files</h5>
+                    </div>
+                    <div class="widget-content nopadding">
+                        <form action="{% url 'books.views.new_upload' %}" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <table class="table table-bordered">
+                                {% if errors %}
+                                    <tbody>
+                                    <tr class="danger">
+                                        <td colspan="2">
+                                            {% for error in errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                {% endif %}
+                                <tbody>
+                                <tr>
+                                    <td>E-book:</td>
+                                    <td><input type="file" name="ebook" /></td>
+                                </tr>
+                                <tr>
+                                    <td>OPF:</td>
+                                    <td><input type="file" name="opf" /></td>
+                                </tr>
+                                <tr>
+                                    <td>Cover:</td>
+                                    <td><input type="file" name="cover" /></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" align="center">
+                                        <input class="btn btn-primary" type="submit" name="Create" />
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    {% include 'dashboard_search_redirect.html' %}
+{% endblock %}

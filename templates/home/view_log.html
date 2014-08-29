@@ -1,0 +1,25 @@
+{% extends 'dashboard_base.html' %}
+
+{% load custom_filters %}
+
+{% block content %}
+    <div id="content-header">
+        <h1>Log</h1>
+    </div>
+    <div id="breadcrumb">
+        <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="#" class="current">Log</a>
+    </div>
+    <div class="container-fluid">
+        {% include 'home/part/recent_log.html' with recent_log_count=100 %}
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    {% include 'dashboard_search_redirect.html' %}
+    <script>
+        {% if request.GET.search %}initSearch({{ request.GET.search|as_json }});{% endif %}
+    </script>
+{% endblock %}

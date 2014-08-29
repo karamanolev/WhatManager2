@@ -1,0 +1,37 @@
+{% load custom_filters %}
+
+<table class="table table-bordered table-striped table-hover">
+    <thead>
+    <tr>
+        <th class="col-actions">What</th>
+        <th style="width: 160px;">Progress</th>
+        <th>Name</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for t in torrents %}
+        <tr>
+            <td>
+                <a href="{{ t.what_torrent_id|what_cd_torrent_link }}" target="_blank">what.cd</a>
+            </td>
+            <td>
+                <div class="progress progress-striped" style="margin-bottom: 0;">
+                    <div style="width: 40px; height: 20px; text-align: center;
+                    margin: 0 auto -20px auto; z-index: 4; position: relative;">
+                        {% widthratio t.torrent_done 1 100 %}%
+                    </div>
+
+                    <div class="progress-bar progress-bar-info" style="width: {% widthratio t.torrent_done 1 100 %}%;">
+                    </div>
+                </div>
+            </td>
+            <td>
+                {% with what_torrent=t.what_torrent %}
+                    {% include 'home/torrent_info_cell.html' %}
+                {% endwith %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load staticfiles %}
+    <meta charset=utf-8/>
+    <title>What Transcode</title>
+    <script type="text/javascript"
+            src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="{% static 'js/unicorn.dashboard.js' %}"></script>
+    <style type="text/css">
+        #status-table {
+            border-collapse: collapse;
+        }
+
+        #status-table td {
+            border: 1px solid #666;
+            padding: 6px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+[IP: {{ request.META.REMOTE_ADDR }}; What user: {{ what_user }}]<br />
+
+{% if allow_request %}
+    Request transcode: <input type="text" id="request-what-id" />
+    <button type="button" id="btn-request">Request</button>
+    <br />
+{% endif %}
+
+<table id="status-table">
+</table>
+
+<script>
+    function reloadStatusTable() {
+        $('#status-table').load('{% url 'what_transcode.views.status_table' %}', function () {
+            $('#status-table .button-retry').click(function () {
+                $this = $(this);
+                var what_id = $this.parents('tr').data('what-id');
+
+                $.post('{% url 'what_transcode.views.request_retry' %}', {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'what_id': what_id
+                }, function (data) {
+                    alert(data.message);
+
+                    $('#btn-request').attr('disabled', false);
+                    $('#request-what-id').attr('disabled', false).val('');
+                }, 'json');
+            });
+        });
+    }
+    setInterval(reloadStatusTable, 5000);
+    reloadStatusTable();
+
+    $('#request-what-id').on('input', function () {
+        var id = getWhatId($(this).val());
+        if (id) {
+            $(this).val(id);
+        }
+    })
+
+    $('#btn-request').click(function () {
+        $('#btn-request').attr('disabled', true);
+        $('#request-what-id').attr('disabled', true);
+
+        $.post('{% url 'what_transcode.views.request_transcode' %}', {
+            'csrfmiddlewaretoken': '{{ csrf_token }}',
+            'what_id': $('#request-what-id').val()
+        }, function (data) {
+            alert(data.message);
+
+            $('#btn-request').attr('disabled', false);
+            $('#request-what-id').attr('disabled', false).val('');
+        }, 'json');
+    })
+</script>
+</body>
+</html>

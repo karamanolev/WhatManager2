@@ -1,0 +1,51 @@
+{% extends 'dashboard_base.html' %}
+
+{% load custom_filters %}
+
+{% block content %}
+    <div id="content-header">
+        <h1>Checks</h1>
+    </div>
+    <div id="breadcrumb">
+        <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="#" class="current"><i class="fa fa-check"></i> Checks</a>
+    </div>
+    <div class="container-fluid">
+        <div class="row" id="checks_row">
+            <div class="col-md-12">
+                <div class="widget-box">
+                    {% if perms.home.run_checks %}
+                        <div class="widget-title">
+                            <span class="icon"><i class="fa fa-check"></i></span><h5>Checks</h5>
+                        </div>
+                        <div class="widget-content nopadding">
+                            <h4 style="padding-left: 20px;">Loading...</h4>
+                        </div>
+                    {% else %}
+                        <div class="widget-title">
+                            <span class="icon"><i class="fa fa-info-circle"></i></span><h5>No permission</h5>
+                        </div>
+                        <div class="widget-content">
+                            You don't have permission to run the checks.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    {% include 'dashboard_search_redirect.html' %}
+    {% if perms.home.run_checks %}
+        <script>
+            var checksRow = $('#checks_row');
+            function reloadChecks() {
+                checksRow.find('.widget-content').load('{% url 'home.parts.checks' %}');
+            }
+            reloadChecks();
+        </script>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,17 @@
+{
+	"manifest_version": 2,
+	"name": "Bibliotik Session ID Stealer",
+	"description": "This extension provides Bibliotik integration.",
+	"version": "0.0.2",
+	"permissions": [
+		"cookies",
+		"*://*.bibliotik.org/"
+	],
+	"externally_connectable": {
+		"matches": ["*://*.lib.overdrive.com/*", "https://*.karamanolev.com/*", "*://*.bibliotik.org/*"]
+	},
+	"background": {
+		"persistent": false,
+		"scripts": ["background.js"]
+	}
+}

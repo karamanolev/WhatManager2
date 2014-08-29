@@ -1,0 +1,31 @@
+{% extends 'dashboard_base.html' %}
+
+{% load staticfiles custom_filters %}
+
+{% block content %}
+    <div id="content-header">
+        <h1>Dashboard</h1>
+    </div>
+    <div id="breadcrumb">
+        <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="#" class="current">Dashboard</a>
+    </div>
+    <div class="container-fluid">
+        <div class="row row-flex" style="display: flex;">
+            {% include 'home/part/torrent_stats.html' %}
+            {% include 'home/part/add_torrent.html' %}
+        </div>
+
+        <div class="row row-flex">
+            {% include 'home/part/location_stats.html' %}
+        </div>
+
+        {% include 'home/part/recent_log.html' %}
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    {% include 'dashboard_search_redirect.html' %}
+{% endblock %}

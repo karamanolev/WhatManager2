@@ -1,0 +1,34 @@
+{% if perms.home.view_whattorrent %}
+    <div class="row" id="error_torrents_row" style="display: none;">
+        <div class="col-md-12">
+            <div class="widget-box">
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-times-circle"></i></span>
+                    <h5>Torrents With Errors</h5>
+
+                    <div class="pull-right" style="margin: 8px 12px 0 0;">
+                        <a class="btn-close" href=""><i class="fa fa-times-circle"></i></a>
+                    </div>
+                    <span title="" class="label label-info"></span>
+                </div>
+                <div class="widget-content nopadding">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $.executeAndRepeat(20000, function () {
+            var errorRow = $('#error_torrents_row');
+
+            errorRow.find('.widget-content').load('{% url 'home.parts.error_torrents' %}', function () {
+                var count = errorRow.find('.widget-content table').data('torrent-count');
+                if (count) {
+                    errorRow.refreshTooltips().show();
+                } else {
+                    errorRow.hide();
+                }
+            });
+        });
+    </script>
+{% endif %}

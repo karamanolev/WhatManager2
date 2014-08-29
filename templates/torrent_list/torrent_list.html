@@ -1,0 +1,43 @@
+{% load custom_filters %}
+
+<table class="table table-bordered table-striped table-hover" style="font-size: 120%;">
+    <thead>
+    <tr>
+        <th>Title</th>
+        <th width="80">Size</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for g in groups %}
+        <tr class="torrent-row">
+            <td style="font-weight: bold;" colspan="2">
+                <a href="#" class="torrent-row-toggle">
+                    {{ g.artists }}
+                    -
+                    {{ g.group.name|safe }}
+                </a>
+                <a href="https://what.cd/torrents.php?id={{ g.group.id }}" target="_blank">
+                    [what.cd]
+                </a>
+            </td>
+        </tr>
+        {% for i in g.torrents %}
+            <tr class="release-row" style="display: nonе;">
+                <td style="padding-left: 40px;" colspan="2">
+                    {{ i.0 }}
+                </td>
+            </tr>
+            {% for t in i.1 %}
+                <tr>
+                    <td style="padding-left: 80px;">
+                        {{ t.torrent_title }}
+                    </td>
+                    <td style="text-align: right;">
+                        {{ t.torrent.size|filesizeformat }}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
+    </tbody>
+</table>

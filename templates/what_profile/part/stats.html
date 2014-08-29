@@ -1,0 +1,38 @@
+{% load custom_filters %}
+
+<div class="row">
+    <div class="col-md-12" style="text-align: center;">
+        <ul class="quick-actions">
+            <li>
+                <a href="#">
+                    <h4>{{ delta_hour|filesizeformat }}</h4>
+                    <span>Last Hour</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <h4>{{ delta_day|filesizeformat }}</h4>
+                    <span>Last Day</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <h4>{{ delta_week|filesizeformat }}</h4>
+                    <span>Last Week</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <h4>{{ delta_month|filesizeformat }}</h4>
+                    <span>Last Month</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <h4>{{ buffer|filesizeformat }}</h4>
+                    <span>Buffer (1.05)</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

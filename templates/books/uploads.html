@@ -1,0 +1,103 @@
+{% extends 'dashboard_base.html' %}
+
+{% load staticfiles custom_filters %}
+
+{% block content %}
+    <div id="content-header">
+        <h1>Book Uploads</h1>
+    </div>
+    <div id="breadcrumb">
+        <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="{% url 'books.views.uploads' %}" class="current">Book Uploads</a>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="widget-box">
+                    {% spaceless %}
+                        <div class="widget-title">
+                            <span class="icon"><i class="fa fa-book"></i></span>
+                            <h5>Current Uploads</h5>
+
+                            <div class="buttons">
+                                <a class="btn" href="{% url 'books.views.new_upload' %}">
+                                    <i class="fa fa-upload"></i>
+                                    New Upload
+                                </a>
+                            </div>
+                        </div>
+                    {% endspaceless %}
+                    <div class="widget-content nopadding">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                            <tr>
+                                <th># (ID)</th>
+                                <th>Title / Author / Publisher / ISBN / Year / Format / Tags</th>
+                                <th>Retail</th>
+                                <th>What.CD</th>
+                                <th>Bibliotik</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for book in books %}
+                                <tr>
+                                    <td style="vertical-align: middle;" rowspan="2">
+                                        {{ forloop.counter }}&nbsp;({{ book.id }})
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'books.views.edit_upload' book.id %}">
+                                            {{ book.title }}
+                                        </a>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        {% if book.retail %}
+                                            <i class="fa fa-check-circle"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        {% if book.what_torrent_id == 0 %}
+                                            <i class="fa fa-times-circle"></i>
+                                        {% elif book.what_torrent_id %}
+                                            <a href="{{ book.what_torrent_id|what_cd_torrent_link }}"
+                                               target="_blank">
+                                                View
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        {% if book.bibliotik_torrent_id == 0 %}
+                                            <i class="fa fa-times-circle"></i>
+                                        {% elif book.bibliotik_torrent_id %}
+                                            <a href="http://bibliotik.org/torrents/{{ book.bibliotik_torrent_id }}"
+                                               target="_blank">
+                                                View
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4">
+                                        {{ book.author }} /
+                                        {{ book.publisher }} /
+                                        {{ book.isbn }} /
+                                        {{ book.year }} /
+                                        {{ book.format }} /
+                                        {{ book.tags }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    {% include 'dashboard_search_redirect.html' %}
+{% endblock %}

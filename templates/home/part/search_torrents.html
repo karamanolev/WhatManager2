@@ -1,0 +1,54 @@
+<div class="row" id="search_torrents_row" style="display: none;">
+    <div class="col-md-12">
+        <div class="widget-box">
+            <div class="widget-title">
+                <span class="icon"><i class="fa fa-search"></i></span>
+                <h5>Search Torrents</h5>
+
+                <div class="pull-right" style="margin: 8px 12px 0 0;">
+                    <a class="btn-close" href=""><i class="fa fa-times-circle"></i></a>
+                </div>
+
+                <span title class="label label-info"></span>
+            </div>
+            <div class="widget-content nopadding">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function search() {
+        var searchRow = $('#search_torrents_row');
+        var query = $('#search input').val();
+        searchRow.find('.widget-content').load(
+                '{% url 'home.parts.search_torrents' %}', {
+                    query: query,
+                    csrfmiddlewaretoken: csrfToken
+                }, function () {
+                    var count = searchRow.find('.widget-content table').data('torrent-count');
+                    searchRow.find('.widget-title .label-info').text(count)
+                    searchRow.refreshTooltips().show();
+                }
+        )
+    }
+
+    function initSearch(query) {
+        $('#search input').val(query).focus();
+        search();
+    }
+
+    $(function () {
+        var searchRow = $('#search_torrents_row');
+        searchRow.find('.btn-close').click(function (e) {
+            e.preventDefault();
+            searchRow.hide();
+        })
+
+        $('#search input').typeWatch({
+            callback: function (value) {
+                search()
+            }
+        })
+    })
+</script>

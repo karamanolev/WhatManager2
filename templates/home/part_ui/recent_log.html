@@ -1,0 +1,26 @@
+<table class="table table-bordered table-hover">
+    <thead>
+    <tr>
+        <th style="width: 40px;">Type</th>
+        <th style="width: 50px;">User</th>
+        <th style="width: 130px;">Date</th>
+        <th>Message</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for e in log_entries %}
+        <tr class="
+            {% if e.type == 'action' %}success
+            {% elif e.type == 'error' %}danger
+            {% elif e.type == 'info' %}info
+            {% endif %}
+            ">
+            <td>{{ e.type }}</td>
+            <td>{{ e.user.username }}</td>
+            <td>{{ e.datetime }}</td>
+            <td>{{ e.message }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

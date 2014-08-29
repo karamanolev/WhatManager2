@@ -1,0 +1,14 @@
+<div class="col-md-3" id="torrent_stats_row">
+    <div class="widget-box">
+        <div class="widget-title">
+            <span class="icon"><i class="fa fa-info-circle"></i></span><h5>Site Statistics</h5>
+        </div>
+        <div class="widget-content">
+        </div>
+    </div>
+</div>
+
+<script>
+    var torrentStatsUrl = '{% url 'home.parts.torrent_stats' %}';
+    var reloadTorrentStats = $('#torrent_stats_row .widget-content').timedReload(torrentStatsUrl, 10000)
+</script>

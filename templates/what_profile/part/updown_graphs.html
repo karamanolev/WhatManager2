@@ -1,0 +1,89 @@
+<div class="row" id="buffer_row">
+    <div class="col-md-12">
+        <div class="widget-box">
+            <div class="widget-title">
+                <span class="icon"><i class="fa fa-arrow-circle-down"></i></span>
+                <h5>Buffer (1.05)</h5>
+            </div>
+            <div class="widget-content">
+                <div id="buffer_chart" style="width: 100%; height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" id="up_down_row">
+    <div class="col-md-12">
+        <div class="widget-box">
+            <div class="widget-title">
+                <span class="icon"><i class="fa fa-arrows-v"></i></span>
+                <h5>Upload / Download</h5>
+            </div>
+            <div class="widget-content">
+                <div id="up_down_chart" style="width: 100%; height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $.get('{% url 'what_profile.parts.buffer_up_down_data' %}', function (data) {
+        $.plot('#buffer_chart', [
+            {
+                label: 'Buffer (1.05)',
+                data: data.buffer,
+                lines: {
+                    show: true
+                }
+            }
+        ], {
+            xaxis: {
+                mode: 'time',
+                timeformat: "%m/%d %h:%M"
+            },
+            yaxis: {
+                tickFormatter: function (v) {
+                    return bytesToSize(v);
+                }
+            },
+            legend: {
+                position: 'se'
+            }
+        });
+
+        $.plot('#up_down_chart', [
+            {
+                label: 'Upload',
+                data: data.up,
+                lines: {
+                    show: true,
+                    steps: true,
+                    fill: true
+                }
+            },
+            {
+                label: 'Download',
+                data: data.down,
+                lines: {
+                    show: true,
+                    steps: true,
+                    fill: true
+                },
+                showLabels: true
+            }
+        ], {
+            xaxis: {
+                mode: 'time',
+                timeformat: "%m/%d %h:%M"
+            },
+            yaxis: {
+                tickFormatter: function (v) {
+                    return bytesToSize(v);
+                }
+            },
+            legend: {
+                position: 'ne'
+            }
+        });
+    }, 'json');
+</script>

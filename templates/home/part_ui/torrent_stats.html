@@ -1,0 +1,13 @@
+{% load custom_filters %}
+
+<ul class="site-stats">
+    <li><i class="fa fa-arrow-right"></i> <strong>{{ master.torrent_count }}</strong>
+        <small>Total torrents</small>
+    </li>
+    <li><i class="fa fa-arrow-right"></i> <strong>{{ master.torrents_size|filesizeformat }}</strong>
+        <small>Total size</small>
+    </li>
+    <li><i class="fa fa-arrow-right"></i> <strong>{{ buffer|filesizeformat }}</strong>
+        <small>Buffer</small>
+    </li>
+</ul>

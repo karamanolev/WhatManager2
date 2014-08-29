@@ -1,0 +1,135 @@
+{% load custom_filters %}
+
+{% if perms.home.view_transinstance_stats %}
+    <div class="row row-flex">
+        <div class="col-md-3">
+            <div class="widget-box">
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-info-circle"></i></span><h5>Site Statistics</h5>
+                </div>
+                <div class="widget-content">
+                    <ul class="site-stats">
+                        <li><i class="fa fa-arrow-right"></i> <strong>{{ stats.activeTorrentCount }}</strong>
+                            <small>Total torrents</small>
+                        </li>
+                        <li><i class="fa fa-arrow-right"></i> <strong>{{ stats.totalUploadedBytes|filesizeformat }}</strong>
+                            <small>Total uploaded</small>
+                        </li>
+                        <li><i class="fa fa-arrow-right"></i> <strong>{{ stats.totalDownloadedBytes|filesizeformat }}</strong>
+                            <small>Total downloaded</small>
+                        </li>
+                        <li><i class="fa fa-arrow-right"></i> <strong>{{ stats.totalSecondsActive|timeformat }}</strong>
+                            <small>Total seconds</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="widget-box">
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-info-circle"></i></span><h5>Speeds</h5>
+                </div>
+                <div class="widget-content">
+                    <ul class="site-stats">
+                        <li><i class="fa fa-arrow-right"></i> <strong>{{ stats.uploadSpeed|filesizeformat }}</strong>
+                            <small>Upload Speed</small>
+                        </li>
+                        <li><i class="fa fa-arrow-right"></i> <strong>{{ stats.downloadSpeed|filesizeformat }}</strong>
+                            <small>Download Speed</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-3">
+            <div class="widget-box">
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-info-circle"></i></span><h5>Session Statistics</h5>
+                </div>
+                <div class="widget-content">
+                    <ul class="site-stats">
+                        <li><i class="fa fa-arrow-right"></i> <strong>{{ stats.uploadedBytes|filesizeformat }}</strong>
+                            <small>Session uploaded</small>
+                        </li>
+                        <li><i class="fa fa-arrow-right"></i> <strong>{{ stats.downloadedBytes|filesizeformat }}</strong>
+                            <small>Session downloaded</small>
+                        </li>
+                        <li><i class="fa fa-arrow-right"></i> <strong>{{ stats.secondsActive|timeformat }}</strong>
+                            <small>Session seconds</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="widget-box">
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-info-circle"></i></span><h5>Torrent Counts / Instance</h5>
+                </div>
+                <div class="widget-content">
+                    <ul class="site-stats">
+                        {% for i in instance_stats %}
+                            <li><i class="fa fa-arrow-right"></i> <strong>{{ i.activeTorrentCount }}</strong>
+                                <small>{{ i.instance_name }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="widget-box">
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-info-circle"></i></span><h5>Upload Speed / Instance</h5>
+                </div>
+                <div class="widget-content">
+                    <ul class="site-stats">
+                        {% for i in instance_stats %}
+                            <li><i class="fa fa-arrow-right"></i> <strong>{{ i.uploadSpeed|filesizeformat }}</strong>
+                                <small>{{ i.instance_name }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="widget-box">
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-info-circle"></i></span><h5>Download Speed / Instance</h5>
+                </div>
+                <div class="widget-content">
+                    <ul class="site-stats">
+                        {% for i in instance_stats %}
+                            <li><i class="fa fa-arrow-right"></i> <strong>{{ i.downloadSpeed|filesizeformat }}</strong>
+                                <small>{{ i.instance_name }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="widget-box">
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-info-circle"></i></span><h5>No permission</h5>
+                </div>
+                <div class="widget-content">
+                    You don't have permission to view stats.
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

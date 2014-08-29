@@ -1,0 +1,47 @@
+<div class="row" id="recent_log_row">
+    <div class="col-md-12">
+        <div class="widget-box">
+            <div class="widget-title">
+                <span class="icon"><i class="fa fa-signal"></i></span><h5>Recent log entries</h5>
+
+                <div id="log_types" class="btn-group btn-group-xs" data-toggle="buttons-checkbox" style="margin-top: 5px;">
+                    <button type="button" class="btn btn-small btn-danger active">
+                        Errors
+                    </button>
+                    <button type="button" class="btn btn-small btn-success active">
+                        Actions
+                    </button>
+                    <button type="button" class="btn btn-small btn-info">
+                        Infos
+                    </button>
+                </div>
+            </div>
+            <div class="widget-content nopadding">
+            </div>
+        </div>
+    </div>
+    <script>
+        var recentLogUrl = '{% url 'home.parts.recent_log' %}';
+
+        var reloadRecentLog = $('#recent_log_row .widget-content').timedReload(recentLogUrl, 5000, function () {
+        }, function () {
+            var logTypes = ['error', 'action', 'info'], curLogTypes = [];
+            $('#log_types').children().each(function (i, v) {
+                if ($(v).hasClass('active')) {
+                    curLogTypes.push(logTypes[i]);
+                }
+            });
+            return {
+                'log_types': curLogTypes.join(','),
+                'count': {{ recent_log_count|default:10 }}
+            }
+        })
+
+        $(function () {
+            $('#log_types').children().click(function () {
+                setTimeout(reloadRecentLog, 10);
+            });
+        });
+    </script>
+</div>
+

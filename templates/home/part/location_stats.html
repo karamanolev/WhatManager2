@@ -1,0 +1,46 @@
+{% for location in locations %}
+    <div class="col-md-3">
+        <div class="widget-box">
+            <div class="widget-title">
+                <span class="icon"><i class="fa fa-hdd-o"></i></span><h5>{{ location.path|cut:"/mnt/"|cut:"Torrent/" }}
+                ({{ location.torrent_count }})</h5>
+            </div>
+            <div class="widget-content">
+                <div id="disk_space_{{ location.id }}" style="height: 200px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(function () {
+            var data = [
+                { label: 'Used Space', data: {{ location.disk_space.used }} },
+                { label: 'Free Space', data: {{ location.disk_space.free }} }
+            ];
+            $.plot('#disk_space_{{ location.id }}', data, {
+                series: {
+                    pie: {
+                        show: true,
+                        radius: 1,
+                        label: {
+                            show: true,
+                            radius: 0.50,
+                            formatter: labelFormatter
+                        }
+                    }
+                },
+                legend: {
+                    show: false
+                },
+                colors: ['#444', '#999']
+            });
+        });
+    </script>
+{% endfor %}
+
+<script type="text/javascript">
+    function labelFormatter(label, series) {
+        var bytes = series.data[0][1];
+        return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + bytesToSize(bytes) + ' (' + Math.round(series.percent) + "%)</div>";
+    }
+</script>

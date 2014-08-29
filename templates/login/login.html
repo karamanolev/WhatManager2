@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+
+{% block head_styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/unicorn-login.css' %}"/>
+{% endblock %}
+
+{% block body %}
+    <div id="container">
+        <div id="logo">
+            <img src="{% static 'img/logo.png' %}" alt=""/>
+        </div>
+        <div id="user">
+            <div class="text" style="left: 100px;">
+                <h4>Hello,<span class="user_name"></span></h4>
+            </div>
+        </div>
+
+        <div id="loginbox" style="height: 186px;">
+            <form id="loginform" class="form-vertical" action="{% url 'login.views.login' %}" method="POST">
+                {% csrf_token %}
+
+                <p>Enter username and password to continue.</p>
+
+                <div class="input-group input-sm">
+                    <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                    <input class="form-control" type="text" id="username"
+                           name="username" value="{{ username }}" placeholder="Username"/>
+                </div>
+
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                    <input class="form-control" type="password" id="password"
+                           name="password" value="{{ password }}" placeholder="Password"/>
+                </div>
+
+                <div class="form-actions clearfix">
+                    <input type="submit" class="btn btn-block btn-primary btn-default" value="Login"/>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/unicorn.login.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+
+{% block head_styles %}
+    {{ block.super }}
+
+    <link rel="stylesheet" href="{% static 'css/unicorn.css' %}"/>
+
+    <script src="{% static 'js/unicorn.js' %}"></script>
+    <script src="{% static 'js/unicorn.dashboard.js' %}"></script>
+    {% include 'js/html5player.html' %}
+{% endblock %}
+
+{% block body_attrs %}
+    data-color="grey" class="old"
+{% endblock %}
+
+{% block body %}
+    <div id="wrapper">
+        <div id="header">
+            <h1><a href="{% url 'home.views.dashboard' %}">What Manager</a></h1>
+            <a id="menu-trigger" href="#"><i class="fa fa-bars"></i></a>
+        </div>
+
+        <div id="user-nav">
+            <ul class="btn-group">
+                <li class="btn">
+                    <a title="" href="">
+                        <i class="fa fa-user"></i>
+                        <span style="color: #FFF;" class="text">
+                            {{ request.user.first_name }} {{ request.user.last_name }}
+                        </span>
+                    </a>
+                </li>
+                {% spaceless %}
+                    <li class="btn">
+                        <a title="" href="{% url 'login.views.logout' %}">
+                            <i class="fa fa-sign-out"></i>
+                            <span class="text">Logout</span>
+                        </a>
+                    </li>
+                {% endspaceless %}
+            </ul>
+        </div>
+
+
+        <div id="sidebar">
+            {% spaceless %}
+                <div id="search">
+                    <input type="text" placeholder="Search here..."/>
+                    <button type="submit" class="tip-right" title="Search"><i class="fa fa-search"></i></button>
+                </div>
+            {% endspaceless %}
+            <ul>
+                {% url 'home.views.dashboard' as home_url %}
+                {% url 'books.views.uploads' as books_uploads_url %}
+                {% url 'home.views.torrents' as torrents_url %}
+                {% url 'home.views.view_log' as view_log_url %}
+                {% url 'home.views.checks' as checks_url %}
+                {% url 'what_profile.views.profile' as profile_url %}
+                {% url 'queue.views.index' as queue_url %}
+                {% url 'home.views.stats' as stats_url %}
+                {% url 'home.views.userscripts' as userscripts_url %}
+                <li {% if request.path == home_url %}class="active"{% endif %}>
+                    <a href="{{ home_url }}">
+                        <i class="fa fa-home"></i> <span>Dashboard</span>
+                    </a>
+                </li>
+                <li {% if request.path == books_uploads_url %}class="active"{% endif %}>
+                    <a href="{{ books_uploads_url }}">
+                        <i class="fa fa-book"></i> <span>Books</span>
+                    </a>
+                </li>
+                <li {% if request.path == torrents_url %}class="active"{% endif %}>
+                    <a href="{{ torrents_url }}">
+                        <i class="fa fa-list"></i> <span>Torrents</span>
+                    </a>
+                </li>
+                <li {% if request.path == view_log_url %}class="active"{% endif %}>
+                    <a href="{{ view_log_url }}">
+                        <i class="fa fa-signal"></i> <span>Log</span>
+                    </a>
+                </li>
+                <li {% if request.path == checks_url %}class="active"{% endif %}>
+                    <a href="{{ checks_url }}">
+                        <i class="fa fa-check"></i> <span>Checks</span>
+                    </a>
+                </li>
+                <li {% if request.path == profile_url %}class="active"{% endif %}>
+                    <a href="{{ profile_url }}">
+                        <i class="fa fa-user"></i> <span>Profile</span>
+                    </a>
+                </li>
+                <li {% if request.path == queue_url %}class="active"{% endif %}>
+                    <a href="{{ queue_url }}">
+                        <i class="fa fa-list-alt"></i> <span>Queue</span>
+                    </a>
+                </li>
+                <li {% if request.path == stats_url %}class="active"{% endif %}>
+                    <a href="{{ stats_url }}">
+                        <i class="fa fa-bar-chart-o"></i> <span>Stats</span>
+                    </a>
+                </li>
+                <li {% if request.path == userscripts_url %}class="active"{% endif %}>
+                    <a href="{{ userscripts_url }}">
+                        <i class="fa fa-th-large"></i> <span>Userscripts</span>
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+
+        <div id="content">
+            {% block content %}{% endblock %}
+        </div>
+    
+        <div class="row">
+            <div id="footer" class="col-xs-12">
+                2012 - 2014 &copy; Ivailo Karamanolev
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    <script>
+        var csrfToken = '{{ csrf_token }}';
+    </script>
+
+    {{ block.super }}
+
+    <script src="{% static 'js/jquery.typewatch.js' %}"></script>
+{% endblock %}

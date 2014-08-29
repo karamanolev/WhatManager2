@@ -1,0 +1,68 @@
+<div class="col-md-3">
+    <div class="widget-box">
+        <div class="widget-title">
+            <span class="icon"><i class="fa fa-download"></i></span><h5>Download</h5>
+        </div>
+        <div class="widget-content" style="text-align: right;">
+            {% if perms.home.add_whattorrent %}
+                <form class="form-inline">
+                    <p>
+                        <input id="text_what_id" type="text" class="form-control" placeholder="Paste [DL] link here..." />
+                    </p>
+
+                    <button type="button" class="btn btn-primary" id="btn_what_dl">Add</button>
+                </form>
+            {% else %}
+                <div style="text-align: left;">
+                    You don't have permission to add torrents.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var addTorrentUrl = '{% url 'what_json.views.add_torrent' %}';
+
+        $('#text_what_id').on('input', function () {
+            var id = getWhatId($(this).val());
+            if (id) {
+                $(this).val(id);
+            }
+        })
+
+        var btnWhatDl = $('#btn_what_dl');
+        var textWhatId = $('#text_what_id');
+        btnWhatDl.click(function () {
+            var whatId = parseInt(textWhatId.val());
+            if (!whatId) {
+                alert('Please enter a valid id.');
+                return;
+            }
+
+            btnWhatDl.attr('disabled', true);
+            textWhatId.attr('disabled', true);
+
+            $.post(addTorrentUrl, {
+                id: whatId,
+                tags: 'dl',
+                csrfmiddlewaretoken: csrfToken
+            },function (resp) {
+                if (resp.success) {
+                    redirectShortly('{% url 'home.views.torrents' %}');
+                } else if (resp.error_code == 'already_added') {
+                    redirectShortly('{% url 'home.views.torrents' %}?search=' + encodeURIComponent(resp.torrent_id));
+                } else {
+                    alert(resp.error);
+                    btnWhatDl.attr('disabled', false);
+                    textWhatId.attr('disabled', false);
+                }
+            }, 'json').error(function () {
+                        btnWhatDl.attr('disabled', false);
+                        textWhatId.attr('disabled', false);
+                        alert('Error adding.');
+                    })
+        })
+    })
+</script>

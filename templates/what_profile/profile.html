@@ -1,0 +1,41 @@
+{% extends 'dashboard_base.html' %}
+
+{% load custom_filters %}
+
+{% block content %}
+    <div id="content-header">
+        <h1>Profile</h1>
+    </div>
+    <div id="breadcrumb">
+        <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="#" class="current">Profile</a>
+    </div>
+    <div class="container-fluid">
+        {% if perms.what_profile.view_whatusersnapshot %}
+            {% include 'what_profile/part/stats.html' %}
+
+            {% include 'what_profile/part/updown_graphs.html' %}
+
+            {% include 'what_profile/part/profile_history.html' %}
+        {% else %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <span class="icon"><i class="fa fa-info-circle"></i></span><h5>No permission</h5>
+                        </div>
+                        <div class="widget-content">
+                            You don't have permission to view the profile.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    {% include 'dashboard_search_redirect.html' %}
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+
+{% block head_styles %}
+    {{ block.super }}
+
+    <link rel="stylesheet" href="{% static 'css/unicorn.main.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/unicorn.grey.css' %}" class="skin-color" />
+
+    <link rel="stylesheet" type="text/css" href="{% static 'player/dgplayer/player.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/player.css' %}" />
+    <style>
+        body {
+            position: relative;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="player-playlist-container">
+        <div class="player-container">
+            <div class="player" id="dgplayer" tabindex="0">
+                <div class="avatar">
+                    <img src="{% static 'player/dgplayer/resources/fallback_avatar.png' %}">
+                </div>
+
+                <span class="title">&nbsp;</span>
+                <span class="artist">&nbsp;</span>
+
+                <div class="button"></div>
+
+                <div class="volume">
+                    <img src="{% static 'player/dgplayer/resources/volume_high.png' %}">
+
+                    <div class="track">
+                        <div class="progress" style="height: 60px;"></div>
+                        <div class="handle" style="-webkit-transform: translate3d(0, -52px, 0);"></div>
+                    </div>
+                    <img src="{% static 'player/dgplayer/resources/volume_low.png' %}">
+                </div>
+
+                <div class="seek">
+                    <span>0:00</span>
+
+                    <div class="track">
+                        <div class="loaded" style="width: 0px;"></div>
+                        <div class="progress"></div>
+                    </div>
+                    <span>-0:00</span>
+                </div>
+
+                {#            <div class="file_button"></div>#}
+                {#            <span class="file_description">Choose a FLAC file on your computer</span>#}
+            </div>
+        </div>
+
+        <div class="playlist-container">
+            <ul class="playlist">
+                {% for item in playlist %}
+                    <li data-href="{{ item }}">
+                        <div class="title"></div>
+                        <div class="duration"></div>
+                        <div class="clear"></div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    <script src="{% static 'player/aurora/aurora.js' %}"></script>
+    <script src="{% static 'player/aurora/flac.js' %}"></script>
+    <script src="{% static 'player/aurora/mp3.js' %}"></script>
+    <script src="{% static 'player/auroraplayer.js' %}"></script>
+    <script src="{% static 'player/dgplayer/player.js' %}"></script>
+    {% include 'js/html5player.html' %}
+    <script src="{% static 'player/buzz.js' %}"></script>
+
+    <script>
+        var UNKNOWN_ART = '{% static "player/dgplayer/resources/fallback_avatar.png" %}';
+        var playActive = '{% static "player/dgplayer/resources/playbutton_active.png" %}';
+        var pause = '{% static "player/dgplayer/resources/pausebutton.png" %}';
+        var pauseActive = '{% static "player/dgplayer/resources/pausebutton_active.png" %}';
+        var dgPlayer = DGPlayer($('#dgplayer')[0], playActive, pause, pauseActive);
+
+        var playerUrls = {
+            file: '{% url 'player.views.file' %}',
+            metadata: '{% url 'player.views.metadata' %}',
+            coverArt: '{% url 'player.views.album_art' %}'
+        }
+        var player = multiplayer(dgPlayer, playerUrls);
+        player.endedCallback = function () {
+            console.log('endedCallback. playing next.');
+            $('.playlist li').each(function (index, element) {
+                var $element = $(element);
+                if ($element.data('href') == player.currentUrl) {
+                    $element.next().click();
+                    return false;
+                }
+            });
+        }
+
+        $('.playlist li').click(function (e) {
+            var $this = $(this),
+                    url = $this.data('href'),
+                    playerType;
+            e.preventDefault();
+            $this.scrollintoview();
+            if (url.indexOf('.mp3') !== -1) {
+                playerType = 'buzz';
+            } else if (url.indexOf('.flac')) {
+                playerType = 'aurora';
+            } else {
+                alert('Unsupported audio type.');
+                return;
+            }
+
+            player.playUrl(playerType, url);
+            $this.siblings().removeClass('active')
+            $this.addClass('active');
+        }).each(function (i, e) {
+                    var $this = $(e);
+                    var url = $this.data('href');
+
+                    $this.find('.title').text(url);
+
+                    $.getJSON(playerUrls.metadata, {
+                        path: url
+                    }, function (resp) {
+                        $this.find('.title').text(resp.artist + ' - ' + resp.title);
+                        $this.find('.duration').text(formatTime(resp.duration));
+                    }, 'json');
+                })
+
+        $('.playlist li').first().click();
+
+
+        window.onbeforeunload = function (e) {
+            if (player.getIsPlaying()) {
+                return 'You are listening to music. Exit?'
+            }
+        }
+    </script>
+{% endblock %}

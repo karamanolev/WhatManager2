@@ -1,0 +1,41 @@
+{% load staticfiles %}
+
+<table class="table table-bordered table-striped table-hover" data-torrent-count="{{ torrents|length }}">
+    <thead>
+    <tr>
+        <th class="col-actions">What</th>
+        <th>Name</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    {% if not torrents %}
+        <tr class="info">
+            <td colspan="2" style="background-color: #c4e3f3;">
+                No results found.
+            </td>
+        </tr>
+    {% else %}
+        {% for t in torrents %}
+            <tr>
+                <td>
+                    <a href="https://what.cd/torrents.php?torrentid={{ t.id }}" target="_blank">w: {{ t.id }}</a>
+                    {% if t.transtorrent_set.all.0.torrent_done == 1 %}
+                        <a href="{% url 'download.views.download_pls' t.playlist_name %}?username={{ request.user.username }}&token={{ token }}">pls</a>
+                        <a href="{% url 'download.views.download_zip' t.id %}">download</a>
+                        <a href="javascript: playWhat({{ t.id }}); void(0);">play</a>
+                    {% else %}
+                        downloading
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% with what_torrent=t %}
+                        {% include 'home/torrent_info_cell.html' %}
+                    {% endwith %}
+                </td>
+            </tr>
+        {% endfor %}
+    {% endif %}
+    </tbody>
+</table>

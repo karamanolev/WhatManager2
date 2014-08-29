@@ -1,0 +1,17 @@
+<div class="row" id="profile_history_row">
+    <div class="col-md-12">
+        <div class="widget-box">
+            <div class="widget-title">
+                <span class="icon"><i class="fa fa-download"></i></span>
+                <h5>Log Entries</h5>
+            </div>
+            <div class="widget-content nopadding">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var profileHistoryUrl = '{% url 'what_profile.parts.profile_history' %}';
+    $('#profile_history_row .widget-content').timedReload(profileHistoryUrl, 60 * 1000)
+</script>

@@ -1,0 +1,18 @@
+{% load custom_filters %}
+
+{% if front %}
+    <p style="font-weight: bold;">
+        {{ front.artist }}<br />
+        {{ front.title }}
+    </p>
+
+    <p>
+        ID: <a href="{{ front.what_id|what_cd_torrent_link }}" target="_blank">{{ front.what_id }}</a><br />
+        {{ front.release_type|release_type_name }}<br />
+        {{ front.format }}<br />
+        {{ front.encoding }}<br />
+        {{ front.torrent_size|filesizeformat }}
+    </p>
+{% else %}
+    Queue is empty.
+{% endif %}

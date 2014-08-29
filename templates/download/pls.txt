@@ -1,0 +1,10 @@
+{% autoescape off %}
+[playlist]
+Version=2
+NumberOfEntries={{ files|length }}
+{% for f in files %}
+File{{ forloop.counter }}={{ f.path }}
+Title{{ forloop.counter }}={{ f.artist }} - {{ f.title }}
+Length{{ forloop.counter }}={{ f.duration|floatformat:"0" }}
+{% endfor %}
+{% endautoescape %}

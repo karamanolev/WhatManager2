@@ -1,0 +1,44 @@
+{% extends 'dashboard_base.html' %}
+
+{% load staticfiles custom_filters %}
+
+{% block content %}
+    <div id="content-header">
+        <h1>Userscripts</h1>
+    </div>
+    <div id="breadcrumb">
+        <a href="{% url 'home.views.dashboard' %}" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="#" class="current">Userscripts</a>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <span class="icon"><i class="fa fa-th-large"></i></span>
+                        <h5>Userscripts</h5>
+                    </div>
+                    <div class="widget-content">
+                        <p>
+                            <a href="{% url 'userscript.views.whatcd' %}">What.CD Integration</a>
+                        </p>
+
+                        <p>
+                            <a href="{% url 'userscript.views.overdrive' %}">OverDrive Searching</a>
+                        </p>
+
+                        <p>
+                            <a href="{% url 'userscript.views.bibliotik' %}">Bibliotik Integration</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    {% include 'dashboard_search_redirect.html' %}
+{% endblock %}

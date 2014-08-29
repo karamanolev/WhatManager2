@@ -1,0 +1,30 @@
+<div class="row" id="recently_downloaded_row">
+    <div class="col-md-12">
+        <div class="widget-box">
+            {% if perms.home.view_whattorrent %}
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-clock-o"></i></span>
+                    <h5>Recently Downloaded</h5>
+                </div>
+                <div class="widget-content nopadding">
+                </div>
+            {% else %}
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-info-circle"></i></span><h5>No permission</h5>
+                </div>
+                <div class="widget-content">
+                    You don't have permission to view torrents.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if perms.home.view_whattorrent %}
+    <script>
+        var recentlyDownloadedUrl = '{% url 'home.parts.recently_downloaded' %}';
+        $('#recently_downloaded_row .widget-content').timedReload(recentlyDownloadedUrl, 5000, function () {
+            $('#recently_downloaded_row').refreshTooltips();
+        });
+    </script>
+{% endif %}

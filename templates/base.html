@@ -1,0 +1,35 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>What Manager 2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <script src="{% static 'js/jquery-2.1.1.min.js' %}"></script>
+    {% block head_styles %}
+        <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}"/>
+        <link rel="stylesheet" href="{% static 'css/bootstrap-glyphicons.css' %}"/>
+        <link rel="stylesheet" href="{% static 'css/bootstrap-wysihtml5.css' %}"/>
+        <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}"/>
+        <link rel="stylesheet" href="{% static 'css/main.css' %}"/>
+    {% endblock %}
+</head>
+<body {% block body_attrs %}{% endblock %}>
+
+{% block body %}{% endblock %}
+
+{% block body_scripts %}
+    <script src="{% static 'js/bootstrap.js' %}"></script>
+    <script src="{% static 'js/excanvas.js' %}"></script>
+    <script src="{% static 'js/jquery.flot.js' %}"></script>
+    <script src="{% static 'js/jquery.flot.pie.js' %}"></script>
+    <script src="{% static 'js/jquery.flot.resize.js' %}"></script>
+    <script src="{% static 'js/jquery.flot.time.js' %}"></script>
+    <script src="{% static 'js/jquery.flot.labels.js' %}"></script>
+    <script src="{% static 'js/jquery.peity.js' %}"></script>
+    <script src="{% static 'js/jquery.scrollintoview.js' %}"></script>
+{% endblock %}
+
+</body>
+</html>

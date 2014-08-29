@@ -1,0 +1,25 @@
+{% load custom_filters %}
+
+<table class="table table-bordered table-striped table-hover">
+    <thead>
+    <tr>
+        <th style="width: 160px;">Time</th>
+        <th>Upload</th>
+        <th>Download</th>
+        <th>Buffer</th>
+        <th>Ratio</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for s in snapshots %}
+        <tr>
+            <td>{{ s.datetime|date:'Y-m-d H:i' }}</td>
+            <td>{{ s.uploaded|filesizeformat }} ({{ s.total_uploaded|filesizeformat }})</td>
+            <td>{{ s.downloaded|filesizeformat }} ({{ s.total_downloaded|filesizeformat }})</td>
+            <td>{{ s.buffer|filesizeformat }} ({{ s.total_buffer|filesizeformat }})</td>
+            <td>{{ s.ratio|floatformat:4 }} ({{ s.total_ratio|floatformat:4 }})</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

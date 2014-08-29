@@ -1,0 +1,13 @@
+{% load custom_filters %}
+
+<ul class="site-stats">
+    <li><i class="fa fa-arrow-right"></i> <strong>{{ item_count }}</strong>
+        <small>Queue Items</small>
+    </li>
+    <li><i class="fa fa-arrow-right"></i> <strong>{{ total_size|filesizeformat }}</strong>
+        <small>Total Size</small>
+    </li>
+    <li><i class="fa fa-arrow-right"></i> <strong>{{ auto_pop_ratio_delta|filesizeformat }}</strong>
+        <small>Ratio &#916;</small>
+    </li>
+</ul>

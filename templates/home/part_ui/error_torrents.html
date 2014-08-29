@@ -1,0 +1,38 @@
+{% load staticfiles %}
+
+<table class="table table-bordered table-hover" data-torrent-count="{{ torrents|length }}">
+    <thead>
+    <tr>
+        <th style="width: 100px;">What</th>
+        <th>Name</th>
+        <th>Error</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for t in torrents %}
+        <tr class="danger">
+            <td>
+                <a href="https://what.cd/torrents.php?torrentid={{ t.what_torrent_id }}" target="_blank">what.cd</a>
+                {% if t.torrent_done == 1 %}
+                    <a href="{% url 'download.views.download_zip' t.what_torrent_id %}">download</a>
+                    <a href="javascript: playWhat({{ t.what_torrent_id }}); void(0);">play</a>
+                {% else %}
+                    downloading
+                {% endif %}
+            </td>
+
+            <td>
+                {% with what_torrent=t.what_torrent %}
+                    {% include 'home/torrent_info_cell.html' %}
+                {% endwith %}
+            </td>
+
+            <td>
+                {{ t.torrent_error_string }}<br />
+                {{ t.instance }}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
