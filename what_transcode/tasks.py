@@ -22,7 +22,10 @@ from what_transcode.utils import torrent_is_preemphasized, get_info_hash, html_u
 
 source_roots = [l.path for l in DownloadLocation.objects.filter(zone=ReplicaSet.ZONE_WHAT)]
 print 'Source roots are', source_roots
-dest_upload_dir = DownloadLocation.get_what_preferred().path
+try:
+    dest_upload_dir = DownloadLocation.get_what_preferred().path
+except DownloadLocation.DoesNotExist:
+    dest_upload_dir = None
 print 'Upload destination is', dest_upload_dir
 db.connection.close()
 
