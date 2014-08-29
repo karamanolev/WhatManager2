@@ -246,7 +246,7 @@ class WhatTorrent(models.Model, InfoHolder):
     class Meta:
         permissions = (
             ('view_whattorrent', 'Can view torrents.'),
-            ('download_whattorrent', 'Can download torrents.'),
+            ('download_whattorrent', 'Can download and play torrents.'),
         )
 
     info_hash = models.TextField()
