@@ -6,7 +6,6 @@
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://127.0.0.1/what_manager2</jdbc-url>
       <user-name>root</user-name>
-      <user-password>dfe2dfcfdfc7dfcbdfc4df99dfccdf9f</user-password>
       <libraries />
     </data-source>
   </component>
