@@ -1,4 +1,5 @@
 import os
+
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 
@@ -37,6 +38,7 @@ def get_release_type_name(id):
             return type[1]
     return None
 
+
 def get_release_type_id(name):
     name = str(name)
     for type in WHAT_RELEASE_TYPES:
@@ -66,9 +68,18 @@ class InfoHolder(object):
     @safe_return
     def info_artist(self):
         artists = self.info_loads['group']['musicInfo']['artists']
-        if len(artists) > 1:
+        if len(artists) == 0:
+            composers = self.info_loads['group']['musicInfo']['composers']
+            if len(composers) == 0:
+                return ''
+            elif len(composers) <= 3:
+                return ', '.join(a['name'] for a in composers)
+            else:
+                return 'Various Composers'
+        elif len(artists) <= 3:
+            return ', '.join(a['name'] for a in artists)
+        else:
             return 'Various Artists'
-        return artists[0]['name']
 
     @cached_property
     def info_remastered(self):
