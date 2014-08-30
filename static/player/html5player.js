@@ -83,6 +83,7 @@ function multiplayer(dgPlayer, urls) {
         if (currentBuzz) {
             currentBuzz.ui.disconnect();
             currentBuzz.player.stop();
+            currentBuzz.player.sound.src = '';
             currentBuzz = null;
         }
     }
