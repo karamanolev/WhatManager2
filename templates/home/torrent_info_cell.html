@@ -20,17 +20,17 @@
         {% if what_torrent.info_has_artwork %}
             <span class="label label-default show-tooltip" data-toggle="tooltip" style="cursor: pointer;"
                   data-original-title="{{ what_torrent.info_image_files|tooltip_files_table }}">
-            +artwork
-            </span> /
+            +ARTWORK
+            </span>&nbsp;
         {% endif %}
         {{ what_torrent.info_media }} /
         {{ what_torrent.info_format }} /
         {{ what_torrent.info_encoding }} /
-        {{ what_torrent.transtorrent_set.all.0.torrent_size|filesizeformat }}
+        {{ what_torrent.info_size|filesizeformat }}
     {% elif what_torrent.info_loads.group.categoryName == "E-Books" %}
-        {{ what_torrent.transtorrent_set.all.0.torrent_size|filesizeformat }}
+        {{ what_torrent.info_size|filesizeformat }}
     {% else %}
-        {{ what_torrent.transtorrent_set.all.0.torrent_size|filesizeformat }}
+        {{ what_torrent.info_size|filesizeformat }}
     {% endif %}
 </div>
 

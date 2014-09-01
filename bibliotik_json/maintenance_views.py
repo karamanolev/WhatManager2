@@ -16,7 +16,8 @@ def reparse_bibliotik_pages(request):
     with transaction.atomic():
         for torrent in BibliotikTorrent.objects.all():
             torrent.parse_html_page()
-            ++torrent_count
+            torrent.save()
+            torrent_count += 1
     return {
         'success': True,
         'reparsed': torrent_count

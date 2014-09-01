@@ -13,7 +13,11 @@
     {% for t in torrents %}
         <tr>
             <td>
-                <a href="{{ t.what_torrent_id|what_cd_torrent_link }}" target="_blank">what.cd</a>
+                {% if t|type_name == 'TransTorrent' %}
+                    <a href="{{ t.what_torrent_id|what_cd_torrent_link }}" target="_blank">what.cd</a>
+                {% elif t|type_name == 'BibliotikTransTorrent' %}
+                    <a href="{{ t.bibliotik_torrent_id|bibliotik_torrent_link }}" target="_blank">bibliotik</a>
+                {% endif %}
             </td>
             <td>
                 <div class="progress progress-striped" style="margin-bottom: 0;">
@@ -27,9 +31,15 @@
                 </div>
             </td>
             <td>
-                {% with what_torrent=t.what_torrent %}
-                    {% include 'home/torrent_info_cell.html' %}
-                {% endwith %}
+                {% if t|type_name == 'TransTorrent' %}
+                    {% with what_torrent=t.what_torrent %}
+                        {% include 'home/torrent_info_cell.html' %}
+                    {% endwith %}
+                {% elif t|type_name == 'BibliotikTransTorrent' %}
+                    {% with bibliotik_torrent=t.bibliotik_torrent %}
+                        {% include 'bibliotik/torrent_info_cell.html' %}
+                    {% endwith %}
+                {% endif %}
             </td>
         </tr>
     {% endfor %}

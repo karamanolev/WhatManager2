@@ -1,4 +1,4 @@
-{% load staticfiles %}
+{% load staticfiles custom_filters %}
 
 <table class="table table-bordered table-hover" data-torrent-count="{{ torrents|length }}">
     <thead>
@@ -13,23 +13,38 @@
     {% for t in torrents %}
         <tr class="danger">
             <td>
-                <a href="https://what.cd/torrents.php?torrentid={{ t.what_torrent_id }}" target="_blank">what.cd</a>
-                {% if t.torrent_done == 1 %}
-                    <a href="{% url 'download.views.download_zip' t.what_torrent_id %}">download</a>
-                    <a href="javascript: playWhat({{ t.what_torrent_id }}); void(0);">play</a>
-                {% else %}
-                    downloading
+                {% if t|type_name == 'TransTorrent' %}
+                    <a href="{{ t.what_torrent_id|what_cd_torrent_link }}" target="_blank">what.cd</a>
+                    {% if t.torrent_done == 1 %}
+                        <a href="{% url 'download.views.download_zip' t.what_torrent_id %}">download</a>
+                        <a href="javascript: playWhat({{ t.what_torrent_id }}); void(0);">play</a>
+                    {% else %}
+                        downloading
+                    {% endif %}
+                {% elif t|type_name == 'BibliotikTransTorrent' %}
+                    <a href="{{ t.bibliotik_torrent_id|bibliotik_torrent_link }}" target="_blank">bibliotik</a>
+                    {% if t.torrent_done == 1 %}
+                        <a href="{% url 'download.views.download_bibliotik_zip' t.bibliotik_torrent_id %}">download</a>
+                    {% else %}
+                        downloading
+                    {% endif %}
                 {% endif %}
             </td>
 
             <td>
-                {% with what_torrent=t.what_torrent %}
-                    {% include 'home/torrent_info_cell.html' %}
-                {% endwith %}
+                {% if t|type_name == 'TransTorrent' %}
+                    {% with what_torrent=t.what_torrent %}
+                        {% include 'home/torrent_info_cell.html' %}
+                    {% endwith %}
+                {% elif t|type_name == 'BibliotikTransTorrent' %}
+                    {% with bibliotik_torrent=t.bibliotik_torrent %}
+                        {% include 'bibliotik/torrent_info_cell.html' %}
+                    {% endwith %}
+                {% endif %}
             </td>
 
             <td>
-                {{ t.torrent_error_string }}<br />
+                {{ t.torrent_error_string }}<br/>
                 {{ t.instance }}
             </td>
         </tr>

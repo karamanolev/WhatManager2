@@ -150,3 +150,7 @@ class InfoHolder(object):
     @cached_property
     def info_has_artwork(self):
         return len(self.info_image_files) >= 2
+
+    @cached_property
+    def info_size(self):
+        return self.info_loads['torrent']['size']

@@ -393,11 +393,11 @@ class TransTorrentBase(models.Model):
 
     def sync_t_torrent(self, t_torrent=None):
         if t_torrent is None:
-            t_torrent = self.instance.client.get_torrent(self.torrent_id, arguments=TransTorrent.sync_t_arguments)
+            t_torrent = self.instance.client.get_torrent(self.torrent_id, arguments=TransTorrentBase.sync_t_arguments)
             norm_t_torrent(t_torrent)
 
-        if not match_properties(self, t_torrent, TransTorrent.sync_t_props):
-            copy_properties(self, t_torrent, TransTorrent.sync_t_props)
+        if not match_properties(self, t_torrent, TransTorrentBase.sync_t_props):
+            copy_properties(self, t_torrent, TransTorrentBase.sync_t_props)
             self.save()
 
 

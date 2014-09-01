@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render
 
 from WhatManager2.utils import get_user_token
-from home.models import WhatTorrent, WhatFulltext, ReplicaSet, LogEntry
+from bibliotik.models import BibliotikTransTorrent
+from home.models import WhatTorrent, WhatFulltext, ReplicaSet, LogEntry, TransTorrent
 import WhatManager2.checks
 from what_profile.models import WhatUserSnapshot
 
@@ -26,10 +27,17 @@ def checks(request):
 @permission_required('home.view_whattorrent')
 def downloading(request):
     downloading = []
-    for instance in ReplicaSet.get_what_master().transinstance_set.all():
-        for m_torrent in instance.transtorrent_set.filter(torrent_done__lt=1):
-            m_torrent.sync_t_torrent()
-            downloading.append(m_torrent)
+    for m_torrent in TransTorrent.objects.filter(
+            instance__in=ReplicaSet.get_what_master().transinstance_set.all(),
+            torrent_done__lt=1).prefetch_related('what_torrent'):
+        m_torrent.sync_t_torrent()
+        downloading.append(m_torrent)
+    for b_torrent in BibliotikTransTorrent.objects.filter(
+            instance__in=ReplicaSet.get_bibliotik_master().transinstance_set.all(),
+            torrent_done__lt=1
+    ).prefetch_related('bibliotik_torrent'):
+        b_torrent.sync_t_torrent()
+        downloading.append(b_torrent)
     downloading.sort(key=lambda t: t.torrent_date_added)
     data = {
         'torrents': downloading
@@ -45,12 +53,16 @@ def recently_downloaded(request):
     for instance in ReplicaSet.get_what_master().transinstance_set.all():
         torrents = instance.transtorrent_set.filter(torrent_done=1)
         torrents = torrents.order_by('-torrent_date_added')[:count]
+        for t in torrents:
+            t.playlist_name = 'what/{0}'.format(t.what_torrent_id)
         recent.extend(torrents)
-    recent.sort(key=lambda t: t.torrent_date_added, reverse=True)
+    for instance in ReplicaSet.get_bibliotik_master().transinstance_set.all():
+        bibliotik_torrents = instance.bibliotiktranstorrent_set.filter(torrent_done=1)
+        bibliotik_torrents = bibliotik_torrents.order_by('-torrent_date_added')[:count]
+        recent.extend(bibliotik_torrents)
+    recent.sort(key=lambda lt: lt.torrent_date_added, reverse=True)
     recent = recent[:count]
 
-    for t in recent:
-        t.playlist_name = 'what/{0}'.format(t.what_torrent_id)
     data = {
         'token': get_user_token(request.user),
         'torrents': recent,
@@ -111,8 +123,12 @@ def search_torrents(request):
 @permission_required('home.view_whattorrent')
 def error_torrents(request):
     error_torrents = []
-    for instance in ReplicaSet.get_what_master().transinstance_set.all():
-        error_torrents.extend(instance.transtorrent_set.exclude(torrent_error=0))
+    error_torrents.extend(TransTorrent.objects.filter(
+        instance__in=ReplicaSet.get_what_master().transinstance_set.all()
+    ).exclude(torrent_error=0).prefetch_related('what_torrent'))
+    error_torrents.extend(BibliotikTransTorrent.objects.filter(
+        instance__in=ReplicaSet.get_bibliotik_master().transinstance_set.all()
+    ).exclude(torrent_error=0).prefetch_related('bibliotik_torrent'))
     data = {
         'torrents': error_torrents
     }

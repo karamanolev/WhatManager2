@@ -1,0 +1,37 @@
+{% load custom_filters %}
+
+<div>
+    <b>
+        {% if bibliotik_torrent.category == "Ebooks" %}
+            {{ bibliotik_torrent.author }} - {{ bibliotik_torrent.title }}
+            [{{ bibliotik_torrent.year }}]
+            [{{ bibliotik_torrent.format }}]
+        {% else %}
+            [Unknown Type] {{ bibliotik_torrent.title }}
+        {% endif %}
+    </b>
+</div>
+
+<div style="float:right;">
+    {% if bibliotik_torrent.category == "Ebooks" %}
+        {% if bibliotik_torrent.retail %}
+            <span class="label label-default">
+            RETAIL
+            </span>&nbsp;
+        {% endif %}
+        {% if bibliotik_torrent.pages %}
+            {{ bibliotik_torrent.pages }} pages /
+        {% endif %}
+        {{ bibliotik_torrent.language }}
+    {% else %}
+        {{ bibliotik_torrent.language }}
+    {% endif %}
+</div>
+
+<div>
+    {% if bibliotik_torrent.category == "Ebooks" %}
+        {{ bibliotik_torrent.publisher_list|join:", " }} /
+        {{ bibliotik_torrent.isbn }} /
+        {{ bibliotik_torrent.tags }}
+    {% endif %}
+</div>

@@ -4,11 +4,18 @@ import os.path
 import bencode
 from django.db import models
 from django.utils import timezone
+from django.utils.functional import cached_property
 from pyquery.pyquery import PyQuery
 
 from bibliotik.settings import BIBLIOTIK_GET_TORRENT_URL
 from home.models import TransTorrentBase
 from what_transcode.utils import get_info_hash_from_data
+
+
+EBOOK_FORMATS = ['EPUB', 'PDF', 'MOBI', 'AZW3', 'DJVU', 'CBR', 'CHM', 'TXT']
+LANGUAGES = ['English', 'Irish', 'German', 'French', 'Spanish', 'Italian', 'Latin', 'Japanese', 'Danish', 'Swedish',
+             'Norwegian', 'Dutch', 'Russian', 'Polish', 'Portuguese', 'Greek', 'Turkish', 'Hungarian', 'Korean',
+             'Chinese', 'Thai', 'Indonesian', 'Arabic']
 
 
 def load_bibliotik_data(bibliotik_client, torrent_id):
@@ -30,11 +37,28 @@ def load_bibliotik_data(bibliotik_client, torrent_id):
 class BibliotikTorrent(models.Model):
     info_hash = models.TextField()
     retrieved = models.DateTimeField()
+    category = models.CharField(max_length=32)
+    format = models.CharField(max_length=16)
+    retail = models.BooleanField()
+    pages = models.IntegerField()
+    language = models.CharField(max_length=32)
+    isbn = models.CharField(max_length=16)
+    cover_url = models.TextField()
+    tags = models.TextField()
+    publisher = models.TextField()
+    year = models.IntegerField()
     author = models.TextField()
     title = models.TextField()
     html_page = models.TextField()
     torrent_filename = models.TextField(null=True)
     torrent_file = models.BinaryField(null=True)
+
+    @cached_property
+    def publisher_list(self):
+        return self.publisher.split(';')
+
+    def __unicode__(self):
+        return u'BibliotikTorrent id={0} hash={1}'.format(self.id, self.info_hash)
 
     def import_bibliotik_data(self, bibliotik_client):
         self.html_page = load_bibliotik_data(bibliotik_client, self.id)
@@ -48,7 +72,72 @@ class BibliotikTorrent(models.Model):
         self.author = ', '.join(authors)
         self.title = pq('h1#title').text()
         if not self.title:
-            raise Exception('Title should not be empty.')
+            raise Exception(u'Title should not be empty.')
+        self.category = pq('h1#title > img:first-child').attr('title')
+        details = pq('p#details_content_info').text().split(', ')
+        self.format = details[0]
+        details = details[1:]
+        if self.category == u'Ebooks':
+            assert self.format in EBOOK_FORMATS, u'Unknown eBook format {0}'.format(self.format)
+        elif self.category == u'Applications':
+            pass
+        elif self.category == u'Articles':
+            pass
+        elif self.category == u'Audiobooks':
+            pass
+        elif self.category == u'Comics':
+            pass
+        elif self.category == u'Journals':
+            pass
+        elif self.category == u'Magazines':
+            pass
+        else:
+            raise Exception(u'Unknown category {0}'.format(self.category))
+        if details[0] == u'Retail':
+            self.retail = True
+            details = details[1:]
+        else:
+            self.retail = False
+        if details[0].endswith(u'pages'):
+            self.pages = int(details[0][:-len(u'pages') - 1])
+            details = details[1:]
+        else:
+            self.pages = 0
+        if details[0].split(' ')[0] in LANGUAGES:
+            parts = details[0].split(' ')
+            details = details[1:]
+            self.language = parts[0]
+            parts = parts[1:]
+            if len(parts):
+                assert parts[0][0] == '(' and parts[0][-1] == ')', u'Unknown string after language'
+                self.isbn = parts[0][1:-1]
+                parts = parts[1:]
+            else:
+                self.isbn = ''
+        else:
+            self.language = ''
+        assert len(details) == 0, u'All details must be parsed: {0}'.format(', '.join(details))
+        self.cover_url = pq('div#sidebar > a[rel="lightbox"] > img').attr('src') or ''
+        self.tags = ', '.join(i.text() for i in pq('span.taglist > a').items())
+        publisher_year = pq('p#published').text()
+        if publisher_year:
+            assert publisher_year.startswith('Published '), 'Publisher does not start with Published'
+            publisher_year = publisher_year[len('Published '):]
+            if publisher_year.startswith('by '):
+                publisher_year = publisher_year[len('by '):]
+                self.publisher = ';'.join(i.text() for i in pq('p#published > a').items())
+                assert self.publisher, 'Publisher can not be empty'
+                publisher_mod = ' , '.join(i.text() for i in pq('p#published > a').items())
+                assert publisher_year.startswith(publisher_mod), 'publisher_year does not start with self.publisher'
+                publisher_year = publisher_year[len(publisher_mod) + 1:]
+            else:
+                self.publisher = ''
+            if publisher_year:
+                assert publisher_year.startswith('in '), 'Invalid publisher_year'
+                publisher_year = publisher_year[len('in '):]
+                self.year = int(publisher_year)
+            else:
+                self.year = 0
 
     @staticmethod
     def get_or_create(bibliotik_client, torrent_id):

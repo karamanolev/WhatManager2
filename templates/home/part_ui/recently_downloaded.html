@@ -1,29 +1,42 @@
-{% load staticfiles %}
+{% load staticfiles custom_filters %}
 
 <table class="table table-bordered table-striped table-hover">
     <thead>
     <tr>
         <th class="col-actions">What</th>
         <th>Name</th>
-        <th style="width: 70px;">Added</th>
+        <th style="width: 100px;">Added</th>
     </tr>
     </thead>
 
     <tbody>
     {% for t in torrents %}
         <tr>
-            <td>
-                <a href="https://what.cd/torrents.php?torrentid={{ t.what_torrent_id }}" target="_blank">what.cd</a>
-                <a href="{% url 'download.views.download_pls' t.playlist_name %}?username={{ request.user.username }}&token={{ token }}">pls</a>
-                <a href="{% url 'download.views.download_zip' t.what_torrent_id %}">download</a>
-                <a href="javascript: playWhat({{ t.what_torrent_id }}); void(0);">play</a>
-            </td>
+            {% if t|type_name == 'TransTorrent' %}
+                <td>
+                    <a href="{{ t.what_torrent_id|what_cd_torrent_link }}" target="_blank">what.cd</a>
+                    <a href="{% url 'download.views.download_pls' t.playlist_name %}?username={{ request.user.username }}&token={{ token }}">pls</a>
+                    <a href="{% url 'download.views.download_zip' t.what_torrent_id %}">download</a>
+                    <a href="javascript: playWhat({{ t.what_torrent_id }}); void(0);">play</a>
+                </td>
 
-            <td>
-                {% with what_torrent=t.what_torrent %}
-                    {% include 'home/torrent_info_cell.html' %}
-                {% endwith %}
-            </td>
+                <td>
+                    {% with what_torrent=t.what_torrent %}
+                        {% include 'home/torrent_info_cell.html' %}
+                    {% endwith %}
+                </td>
+            {% elif t|type_name == 'BibliotikTransTorrent' %}
+                <td>
+                    <a href="{{ t.bibliotik_torrent_id|bibliotik_torrent_link }}" target="_blank">bibliotik</a>
+                    <a href="{% url 'download.views.download_bibliotik_zip' t.bibliotik_torrent_id %}">download</a>
+                </td>
+
+                <td>
+                    {% with bibliotik_torrent=t.bibliotik_torrent %}
+                        {% include 'bibliotik/torrent_info_cell.html' %}
+                    {% endwith %}
+                </td>
+            {% endif %}
 
             <td style="text-align: right;">
                 {{ t.torrent_date_added }}

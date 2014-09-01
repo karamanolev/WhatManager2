@@ -87,6 +87,12 @@ def what_cd_torrent_link(value):
     return u'https://what.cd/torrents.php?torrentid={0}'.format(value)
 
 
+
+@register.filter
+def bibliotik_torrent_link(value):
+    return u'http://bibliotik.org/torrents/{0}'.format(value)
+
+
 @register.filter
 def timeformat(value):
     seconds = int(value % 60)
@@ -102,3 +108,7 @@ def timeformat(value):
 @register.filter
 def torrent_files(value):
     return ', '.join(f['name'] for f in value.info_files)
+
+@register.filter
+def type_name(value):
+    return type(value).__name__
