@@ -1,5 +1,6 @@
 import os
 import os.path
+import errno
 
 import bencode
 
@@ -11,6 +12,14 @@ from WhatManager2.utils import wm_unicode
 from home.models import WhatTorrent, DownloadLocation, ReplicaSet
 
 from what_transcode.utils import get_info_hash
+
+
+def safe_makedirs(p):
+    try:
+        os.makedirs(p)
+    except OSError as ex:
+        if ex.errno != errno.EEXIST:
+            raise ex
 
 
 class Command(BaseCommand):
@@ -81,10 +90,12 @@ class Command(BaseCommand):
             for f in self.get_unicode_torrent_files():
                 f_path = os.path.join(self.data_path, *f['path'])
                 f_dest_path = os.path.join(self.dest_path, *f['path'])
+                safe_makedirs(os.path.dirname(f_dest_path))
                 os.rename(f_path, f_dest_path)
         else:
             f_path = os.path.join(self.data_path, wm_unicode(self.torrent_info['info']['name']))
             f_dest_path = os.path.join(self.dest_path, wm_unicode(self.torrent_info['info']['name']))
+            safe_makedirs(os.path.dirname(f_dest_path))
             os.rename(f_path, f_dest_path)
 
     def handle(self, *args, **options):
