@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Bibliotik.org / WM Integrator
 // @namespace https://karamanolev.com
-// @version 0.1.1
+// @version 0.2.0
 // @description Integration between WM and Bibliotik.org
 // @match http://bibliotik.org/*
 // @match https://bibliotik.org/*
@@ -186,6 +186,10 @@ if (window.location.href.replace('https', 'http').indexOf('http://bibliotik.org/
     $('div#body div.table_div table > tbody > tr[id]').each(processRow);
 } else {
     $('tr.torrent').each(processRow);
+    $('p#details_links').each(processRow);
+    setTimeout(function() {
+        $('p#details_links').css('width', 110);
+    }, 10);
 }
 
 if (torrentRows.length) {
