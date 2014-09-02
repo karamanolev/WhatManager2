@@ -20,4 +20,3 @@ def upload_book(request, book_upload_id):
 @login_required
 def refresh_ui(request):
     return render(request, 'bibliotik/refresh_ui.html')
-

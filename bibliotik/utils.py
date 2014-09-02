@@ -9,10 +9,8 @@ import requests
 import requests.utils
 
 from WhatManager2.settings import MEDIA_ROOT
-
 from bibliotik import manage_bibliotik
-
-from bibliotik.models import BibliotikTorrent
+from bibliotik.models import BibliotikTorrent, BibliotikFulltext
 from bibliotik.settings import BIBLIOTIK_UPLOAD_URL, BIBLIOTIK_DOWNLOAD_TORRENT_URL
 from home.models import DownloadLocation
 
@@ -184,3 +182,25 @@ def upload_book_to_bibliotik(bibliotik_client, book_upload):
     )
 
     return book_upload
+
+
+def search_torrents(query):
+    b_fulltext = BibliotikFulltext.objects.only('id').all()
+    b_fulltext = b_fulltext.extra(where=['MATCH(`info`, `more_info`) AGAINST (%s IN BOOLEAN MODE)'], params=[query])
+    b_fulltext = b_fulltext.extra(select={'score': 'MATCH (`info`) AGAINST (%s)'}, select_params=[query])
+    b_fulltext = b_fulltext.extra(order_by=['-score'])
+
+    b_torrents_dict = BibliotikTorrent.objects.in_bulk([b.id for b in b_fulltext])
+    b_torrents = list()
+    for i in b_fulltext:
+        b_torrent = b_torrents_dict[i.id]
+        coef = 1.0
+        if b_torrent.retail:
+            coef *= 1.2
+        if b_torrent.format == 'EPUB':
+            coef *= 1.1
+        elif b_torrent.format == 'PDF':
+            coef *= 0.9
+        b_torrent.score = i.score * coef
+        b_torrents.append(b_torrent)
+    return b_torrents

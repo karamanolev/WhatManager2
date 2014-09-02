@@ -185,3 +185,22 @@ class BibliotikTransTorrent(TransTorrentBase):
     def __unicode__(self):
         return u'BibliotikTransTorrent(torrent_id={0}, bibliotik_id={1}, name={2})'.format(
             self.torrent_id, self.bibliotik_torrent_id, self.torrent_name)
+
+
+class BibliotikFulltext(models.Model):
+    info = models.TextField()
+    more_info = models.TextField()
+
+    def update(self, bibliotik_torrent):
+        info = u'{0} - {1}'.format(bibliotik_torrent.author, bibliotik_torrent.title)
+        more_info = ' '.join([
+            ', '.join(bibliotik_torrent.publisher_list),
+            bibliotik_torrent.isbn,
+            str(bibliotik_torrent.year),
+            bibliotik_torrent.format,
+            bibliotik_torrent.tags
+        ])
+        if self.info != info or self.more_info != more_info:
+            self.info = info
+            self.more_info = more_info
+            self.save()

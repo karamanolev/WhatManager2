@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render
 
 from WhatManager2.utils import get_user_token
+import bibliotik.utils
 from bibliotik.models import BibliotikTransTorrent
 from home.models import WhatTorrent, WhatFulltext, ReplicaSet, LogEntry, TransTorrent
 import WhatManager2.checks
@@ -101,22 +102,31 @@ def search_torrents(request):
     query = request.POST.get('query') or request.GET.get('query')
     query = ' '.join('+' + i for i in query.split())
 
-    what_ids = WhatFulltext.objects.filter(info__search=query)
-    what_ids = what_ids.extra(select={'score': 'MATCH(`info`) AGAINST (%s)'}, select_params=[query])
-    what_ids = what_ids.extra(order_by=['-score'])
-    what_ids = [w.id for w in what_ids]
+    w_fulltext = WhatFulltext.objects.filter(info__search=query).only('id')
+    w_fulltext = w_fulltext.extra(select={'score': 'MATCH(`info`) AGAINST (%s)'}, select_params=[query])
+    w_fulltext = w_fulltext.extra(order_by=['-score'])
 
-    what_torrent_dict = WhatTorrent.objects.in_bulk(what_ids)
-    what_torrents = [what_torrent_dict[i] for i in what_ids]
+    w_torrents_dict = WhatTorrent.objects.in_bulk([w.id for w in w_fulltext])
+    w_torrents = list()
+    for i in w_fulltext:
+        w_torrent = w_torrents_dict[i.id]
+        w_torrent.score = i.score
+        w_torrents.append(w_torrent)
 
-    for t in what_torrents:
+    b_torrents = bibliotik.utils.search_torrents(query)
+
+    for t in w_torrents:
         t.playlist_name = 'what/{0}'.format(t.id)
+
+    torrents = w_torrents + b_torrents
+    torrents.sort(key=lambda torrent: torrent.score, reverse=True)
 
     data = {
         'token': get_user_token(request.user),
-        'torrents': what_torrents,
+        'torrents': torrents,
     }
-    return render(request, 'home/part_ui/search_torrents.html', data)
+    res = render(request, 'home/part_ui/search_torrents.html', data)
+    return res
 
 
 @login_required
