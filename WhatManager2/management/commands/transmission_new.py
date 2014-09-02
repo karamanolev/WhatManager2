@@ -4,7 +4,6 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from WhatManager2 import settings
-
 from WhatManager2.management.commands.transmission_provision import TransInstanceManager, ensure_root
 from home import models
 
@@ -55,7 +54,7 @@ class Command(BaseCommand):
             port=old_instance.port + 1,
             peer_port=old_instance.peer_port + 1,
             username=old_instance.username,
-            password=old_instance.password,
+            password=settings.TRANSMISSION_PASSWORD,
         )
         print new_instance.full_description()
         print u'Is this OK?'
