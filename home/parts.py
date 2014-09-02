@@ -162,26 +162,32 @@ def torrent_stats(request):
 # Permission checks are inside template
 @login_required
 def stats(request):
-    instance_stats = list()
-    stats = defaultdict(lambda: 0)
-    for instance in ReplicaSet.get_what_master().transinstance_set.all():
-        istats = instance.client.session_stats()
-        istats.instance_name = instance.name
-        instance_stats.append(istats)
+    stats = list()
+    for replica_set in ReplicaSet.objects.filter(name='master'):
+        instance_stats = list()
+        set_stats = defaultdict(lambda: 0)
+        for instance in replica_set.transinstance_set.all():
+            istats = instance.client.session_stats()
+            istats.instance_name = instance.name
+            instance_stats.append(istats)
 
-        stats['activeTorrentCount'] += istats.activeTorrentCount
-        stats['totalUploadedBytes'] += istats.cumulative_stats['uploadedBytes']
-        stats['totalDownloadedBytes'] += istats.cumulative_stats['downloadedBytes']
-        stats['downloadedBytes'] += istats.current_stats['downloadedBytes']
-        stats['uploadedBytes'] += istats.current_stats['uploadedBytes']
-        stats['uploadSpeed'] += istats.uploadSpeed
-        stats['downloadSpeed'] += istats.downloadSpeed
-        stats['totalSecondsActive'] = max(stats['totalSecondsActive'],
-                                          istats.cumulative_stats['secondsActive'])
-        stats['secondsActive'] = max(stats['secondsActive'],
-                                     istats.current_stats['secondsActive'])
+            set_stats['activeTorrentCount'] += istats.activeTorrentCount
+            set_stats['totalUploadedBytes'] += istats.cumulative_stats['uploadedBytes']
+            set_stats['totalDownloadedBytes'] += istats.cumulative_stats['downloadedBytes']
+            set_stats['downloadedBytes'] += istats.current_stats['downloadedBytes']
+            set_stats['uploadedBytes'] += istats.current_stats['uploadedBytes']
+            set_stats['uploadSpeed'] += istats.uploadSpeed
+            set_stats['downloadSpeed'] += istats.downloadSpeed
+            set_stats['totalSecondsActive'] = max(set_stats['totalSecondsActive'],
+                                                  istats.cumulative_stats['secondsActive'])
+            set_stats['secondsActive'] = max(set_stats['secondsActive'],
+                                             istats.current_stats['secondsActive'])
+        stats.append({
+            'zone': replica_set.zone,
+            'set': set_stats,
+            'instances': instance_stats,
+        })
     data = {
-        'stats': stats,
-        'instance_stats': instance_stats,
+        'stats': stats
     }
     return render(request, 'home/part_ui/stats.html', data)
