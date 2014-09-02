@@ -41,7 +41,7 @@ class Command(BaseCommand):
             old_instance = models.TransInstance(
                 replica_set=replica_set,
                 name=u'{0}00'.format(replica_set.zone),
-                host=settings.TRANSMISSION_BIND_HOST,
+                host='127.0.0.1',
                 port=9090,
                 peer_port=51412,
                 username='transmission',

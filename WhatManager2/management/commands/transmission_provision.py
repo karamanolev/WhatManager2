@@ -8,7 +8,7 @@ import json
 
 from django.core.management.base import BaseCommand, CommandError
 
-from WhatManager2.settings import TRANSMISSION_FILES_ROOT
+from WhatManager2.settings import TRANSMISSION_FILES_ROOT, TRANSMISSION_BIND_HOST
 from WhatManager2.utils import read_text, write_text
 from home import models
 
@@ -108,7 +108,7 @@ transmission_settings_template = '''{
     "alt-speed-time-enabled": false,
     "alt-speed-time-end": 1020,
     "alt-speed-up": 10000,
-    "bind-address-ipv4": "<<<bind_host>>>",
+    "bind-address-ipv4": "<<<bind_ipv4_host>>>",
     "bind-address-ipv6": "::",
     "blocklist-enabled": false,
     "blocklist-url": "http://www.example.com/blocklist",
@@ -169,10 +169,10 @@ transmission_settings_template = '''{
 '''
 
 
-def get_transmission_settings(bind_host,rpc_port, peer_port, rpc_password):
+def get_transmission_settings(bind_host, rpc_port, peer_port, rpc_password):
     return (
         transmission_settings_template
-        .replace('<<<bind_host>>>',bind_host)
+        .replace('<<<bind_ipv4_host>>>', bind_host)
         .replace('<<<rpc_port>>>', str(int(rpc_port)))
         .replace('<<<peer_port>>>', str(int(peer_port)))
         .replace('<<<rpc_password>>>', rpc_password)
@@ -227,7 +227,7 @@ class TransInstanceManager(object):
         self.init_script_perms = 0755
         self.username = 'debian-transmission-{0}'.format(self.name)
         self.settings_path = os.path.join(self.transmission_files_path, 'settings.json')
-        self.settings_json = get_transmission_settings(instance.host, instance.port, instance.peer_port, instance.password)
+        self.settings_json = get_transmission_settings(TRANSMISSION_BIND_HOST, instance.port, instance.peer_port, instance.password)
 
     def write_init_script(self):
         write_text(self.init_path, self.init_script)
@@ -261,7 +261,7 @@ class TransInstanceManager(object):
                 os.makedirs(self.transmission_files_path)
                 os.chmod(self.transmission_files_path, 0777)
             self.write_settings()
-        if not check_transmission_settings(self.settings_path, self.instance.host, self.instance.port, self.instance.peer_port):
+        if not check_transmission_settings(self.settings_path, TRANSMISSION_BIND_HOST, self.instance.port, self.instance.peer_port):
             print 'Fixing transmission settings file for {0}'.format(self.name)
             confirm()
             self.write_settings()
