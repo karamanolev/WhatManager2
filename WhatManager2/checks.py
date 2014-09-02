@@ -8,7 +8,7 @@ def run_checks():
 
     # Check WhatFulltext integrity
     def check_whatfulltext():
-        w_torrents = dict((w.id, w) for w in WhatTorrent.objects.all())
+        w_torrents = dict((w.id, w) for w in WhatTorrent.objects.defer('torrent_file').all())
         w_fulltext = dict((w.id, w) for w in WhatFulltext.objects.all())
         for id, w_t in w_torrents.items():
             if not id in w_fulltext:
