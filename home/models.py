@@ -18,7 +18,8 @@ import transmissionrpc
 
 from WhatManager2 import settings
 from WhatManager2.settings import FREELEECH_EMAIL_TO, WHAT_CD_DOMAIN, FREELEECH_HOSTNAME, FREELEECH_EMAIL_FROM
-from WhatManager2.utils import match_properties, copy_properties, norm_t_torrent, html_unescape, wm_str, get_artists
+from WhatManager2.utils import match_properties, copy_properties, norm_t_torrent, html_unescape, wm_str, get_artists, \
+    wm_unicode
 from home.info_holder import InfoHolder
 
 
@@ -410,7 +411,7 @@ class TransTorrent(TransTorrentBase):
 
     def sync_files(self):
         if os.path.exists(self.path):
-            files = [f.decode('utf-8') for f in os.listdir(self.path)]
+            files = [wm_unicode(f) for f in os.listdir(self.path)]
         else:
             os.mkdir(self.path, 0777)
             os.chmod(self.path, 0777)
