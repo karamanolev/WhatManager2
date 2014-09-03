@@ -64,7 +64,7 @@ class ReplicaSet(models.Model):
 class DownloadLocation(models.Model):
     zone = models.CharField(max_length=16)
     path = models.TextField()
-    preferred = models.BooleanField()
+    preferred = models.BooleanField(default=False)
 
     def __unicode__(self):
         return u'DownloadLocation({0}, {1}{2})'.format(

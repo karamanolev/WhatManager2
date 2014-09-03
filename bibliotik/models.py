@@ -39,7 +39,7 @@ class BibliotikTorrent(models.Model):
     retrieved = models.DateTimeField()
     category = models.CharField(max_length=32)
     format = models.CharField(max_length=16)
-    retail = models.BooleanField()
+    retail = models.BooleanField(default=False)
     pages = models.IntegerField()
     language = models.CharField(max_length=32)
     isbn = models.CharField(max_length=16)
