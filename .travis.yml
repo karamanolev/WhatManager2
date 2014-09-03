@@ -4,8 +4,8 @@ python:
 services:
   - mysql
 install:
-  - "pip install -r requirements.txt --use-mirrors"
-  - "pip install -r test_requirements.txt --user-mirrors"
+  - "pip install -r requirements.txt"
+  - "pip install -r test_requirements.txt"
 before_script:
   - "flake8 ."
   - "mysql -e 'CREATE DATABASE `what_manager2` COLLATE utf8_unicode_ci;'"
