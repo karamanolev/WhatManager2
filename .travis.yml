@@ -5,5 +5,5 @@ services:
   - mysql
 install: "pip install -r requirements.txt"
 before_script:
-  - mysql -e 'CREATE DATABASE `what_manager` COLLATE utf8_unicode_ci;'
+  - mysql -e 'CREATE DATABASE `what_manager2` COLLATE utf8_unicode_ci;'
 script: ./manage.py test
