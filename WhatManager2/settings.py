@@ -18,7 +18,7 @@ WHAT_ANNOUNCE = 'http://tracker.what.cd:34000/SET THIS TO YOUR ANNOUNCE/announce
 
 TRANSMISSION_PASSWORD = '9dqQQ2WW'  # Set this to something reasonable that only you know.
 TRANSMISSION_FILES_ROOT = '/mnt/tank/Torrent/transmission-daemon'  # Where Transmission system files will go
-TRANSMISSION_BIND_HOST = '0.0.0.0'  # Transmission's ipv4 bind adress. Leave as is or changed to specific ip. 
+TRANSMISSION_BIND_HOST = '0.0.0.0'  # Transmission's ipv4 bind address. Leave as is or changed to specific ip.
 
 # You only need these if you are uploading books
 WHATIMG_USERNAME = 'whatimg username'
@@ -94,7 +94,7 @@ ALLOWED_HOSTS = []
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = 'Europe/Sofia'
+TIME_ZONE = 'UTC'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
