@@ -10,28 +10,40 @@ from django import db
 from django.utils.functional import cached_property
 import requests
 
-from WhatManager2.settings import WHAT_ANNOUNCE, WHAT_UPLOAD_URL, TRANSCODER_ADD_TORRENT_URL, TRANSCODER_HTTP_USERNAME, \
-    TRANSCODER_HTTP_PASSWORD, TRANSCODER_TEMP_DIR, TRANSCODER_ERROR_OUTPUT
+from WhatManager2.settings import WHAT_ANNOUNCE, WHAT_UPLOAD_URL, TRANSCODER_ADD_TORRENT_URL, \
+    TRANSCODER_HTTP_USERNAME, TRANSCODER_HTTP_PASSWORD, TRANSCODER_TEMP_DIR, TRANSCODER_ERROR_OUTPUT
 from WhatManager2.utils import get_artists
 from home.models import get_what_client, DownloadLocation, ReplicaSet
 from what_transcode.flac_lame import transcode_file
-from what_transcode.utils import torrent_is_preemphasized, get_info_hash, html_unescape, fix_pathname, \
-    extract_upload_errors, norm_dest_path, \
-    get_channels_number, recursive_chmod, check_directory_tags_filenames, get_mp3_ids, safe_retrieve_new_torrent
+from what_transcode.utils import torrent_is_preemphasized, get_info_hash, html_unescape, \
+    fix_pathname, extract_upload_errors, norm_dest_path, get_channels_number, recursive_chmod, \
+    check_directory_tags_filenames, get_mp3_ids, safe_retrieve_new_torrent
 
 
-source_roots = [l.path for l in DownloadLocation.objects.filter(zone=ReplicaSet.ZONE_WHAT)]
-print 'Source roots are', source_roots
-try:
+source_roots, dest_upload_dir = None, None
+
+
+def get_source_roots():
+    global source_roots
+    if source_roots is not None:
+        return source_roots
+    source_roots = [l.path for l in DownloadLocation.objects.filter(zone=ReplicaSet.ZONE_WHAT)]
+    db.connection.close()
+    return source_roots
+
+
+def get_dest_upload_dir():
+    global dest_upload_dir
+    if dest_upload_dir is not None:
+        return dest_upload_dir
     dest_upload_dir = DownloadLocation.get_what_preferred().path
-except DownloadLocation.DoesNotExist:
-    dest_upload_dir = None
-print 'Upload destination is', dest_upload_dir
-db.connection.close()
+    db.connection.close()
+    return dest_upload_dir
 
 
 class TranscodeSingleJob(object):
-    def __init__(self, what, what_torrent, report_progress, source_dir, bitrate, torrent_temp_dir=None):
+    def __init__(self, what, what_torrent, report_progress, source_dir, bitrate,
+                 torrent_temp_dir=None):
         self.what = what
         self.force_warnings = False
         self.what_torrent = what_torrent
@@ -65,7 +77,7 @@ class TranscodeSingleJob(object):
         post_data = {
             'id': new_id,
             'tags': 'my',
-            'dir': dest_upload_dir,
+            'dir': get_dest_upload_dir(),
         }
         response = requests.post(TRANSCODER_ADD_TORRENT_URL, data=post_data,
                                  auth=(TRANSCODER_HTTP_USERNAME, TRANSCODER_HTTP_PASSWORD))
@@ -110,7 +122,7 @@ class TranscodeSingleJob(object):
 
         self.retrieve_new_torrent(self.new_torrent_info_hash)
 
-        dest_path = os.path.join(dest_upload_dir, str(self.new_torrent['torrent']['id']))
+        dest_path = os.path.join(get_dest_upload_dir(), str(self.new_torrent['torrent']['id']))
         try:
             os.makedirs(dest_path)
         except OSError:
@@ -184,7 +196,8 @@ class TranscodeSingleJob(object):
                     errors = extract_upload_errors(response.text)
                 except Exception:
                     errors = ''
-                exception = Exception('Error uploading data to what.cd. Errors: {0}'.format('; '.join(errors)))
+                exception = Exception(
+                    'Error uploading data to what.cd. Errors: {0}'.format('; '.join(errors)))
                 exception.response_text = response.text
                 with open(TRANSCODER_ERROR_OUTPUT, 'w') as error_file:
                     error_file.write(response.text.encode('utf-8'))
@@ -223,7 +236,8 @@ class TranscodeSingleJob(object):
         dest_rel_path = os.path.relpath(source_path, self.source_dir)[:-4] + 'mp3'
         dest_rel_path = norm_dest_path(os.path.basename(self.torrent_temp_dir), dest_rel_path)
         dest_path = os.path.join(self.torrent_temp_dir, dest_rel_path)
-        dest_path = os.path.join(os.path.dirname(dest_path), fix_pathname(os.path.basename(dest_path)))
+        dest_path = os.path.join(os.path.dirname(dest_path),
+                                 fix_pathname(os.path.basename(dest_path)))
         print 'Transcode'
         print ' ', source_path
         print ' ', dest_path
@@ -242,9 +256,11 @@ class TranscodeSingleJob(object):
         for dirpath, dirnames, filenames in os.walk(self.source_dir):
             for filename in filenames:
                 source_path = os.path.join(dirpath, filename)
-                if filename.lower() in ['folder.jpg', 'folder.jpeg', 'cover.jpg', 'cover.jpeg', 'front.jpg',
+                if filename.lower() in ['folder.jpg', 'folder.jpeg', 'cover.jpg', 'cover.jpeg',
+                                        'front.jpg',
                                         'front.jpeg',
-                                        'front cover.jpg', 'front cover.jpeg', 'art.jpg', 'art.jpeg']:
+                                        'front cover.jpg', 'front cover.jpeg', 'art.jpg',
+                                        'art.jpeg']:
                     self.transcode_image(source_path)
                 elif filename.lower().endswith('.flac'):
                     flac_paths.append(source_path)
@@ -259,16 +275,20 @@ class TranscodeSingleJob(object):
                     'This is a single audio file torrent that is not a single in What.cd. Will not transcode.')
 
         files_created = 0
-        self.report_progress('{0} - {1}/{2}'.format(self.bitrate.upper(), files_created, len(flac_paths)))
+        self.report_progress(
+            '{0} - {1}/{2}'.format(self.bitrate.upper(), files_created, len(flac_paths)))
         for flac_path in flac_paths:
             self.transcode_flac(flac_path)
             files_created += 1
-            self.report_progress('{0} - {1}/{2}'.format(self.bitrate.upper(), files_created, len(flac_paths)))
+            self.report_progress(
+                '{0} - {1}/{2}'.format(self.bitrate.upper(), files_created, len(flac_paths)))
 
-        output_file_count = sum(len(filenames) for (dirpath, dirnames, filenames) in os.walk(self.torrent_temp_dir))
+        output_file_count = sum(
+            len(filenames) for (dirpath, dirnames, filenames) in os.walk(self.torrent_temp_dir))
         if output_file_count < files_created:
             raise Exception(
-                'Files in output dir too few. Expected {0}, saw {1}'.format(files_created, output_file_count))
+                'Files in output dir too few. Expected {0}, saw {1}'.format(files_created,
+                                                                            output_file_count))
 
 
 class TranscodeJob(object):
@@ -290,7 +310,7 @@ class TranscodeJob(object):
 
     @cached_property
     def source_dir(self):
-        for root in source_roots:
+        for root in get_source_roots():
             if self.what_id in os.listdir(root):
                 torrent_root = os.path.join(root, self.what_id)
                 for item in [os.path.join(torrent_root, f) for f in os.listdir(torrent_root)]:
@@ -305,7 +325,8 @@ class TranscodeJob(object):
         except OSError:
             pass
 
-        self.what = get_what_client(lambda: None)  # Pass an object that can hold the what_client property
+        self.what = get_what_client(
+            lambda: None)  # Pass an object that can hold the what_client property
 
         os.makedirs(TRANSCODER_TEMP_DIR)
         try:
@@ -330,7 +351,8 @@ class TranscodeJob(object):
         # if not self.force_warnings and self.what_torrent['torrent']['reported']:
         # raise Exception('Cannot transcode a reported torrent!')
         if not self.force_warnings and self.what_torrent['torrent']['scene']:
-            raise Exception('Cannot transcode a scene torrent due to possible release group name in the file names.')
+            raise Exception(
+                'Cannot transcode a scene torrent due to possible release group name in the file names.')
 
         mp3_ids = get_mp3_ids(self.what_group, self.what_torrent)
         if self.force_v0 and 'V0' in mp3_ids:
@@ -339,7 +361,8 @@ class TranscodeJob(object):
             del mp3_ids['320']
         for bitrate in ['V0', '320']:
             if not bitrate in mp3_ids:
-                single_job = TranscodeSingleJob(self.what, self.what_torrent, self.report_progress, self.source_dir,
+                single_job = TranscodeSingleJob(self.what, self.what_torrent, self.report_progress,
+                                                self.source_dir,
                                                 bitrate)
                 single_job.force_warnings = self.force_warnings
                 single_job.run()
