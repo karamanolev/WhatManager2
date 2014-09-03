@@ -3,7 +3,10 @@ python:
   - "2.7"
 services:
   - mysql
-install: "pip install -r requirements.txt"
+install:
+  - "pip install -r requirements.txt --use-mirrors"
+  - "pip install -r test_requirements.txt --user-mirrors"
 before_script:
-  - mysql -e 'CREATE DATABASE `what_manager2` COLLATE utf8_unicode_ci;'
+  - "flake8 ."
+  - "mysql -e 'CREATE DATABASE `what_manager2` COLLATE utf8_unicode_ci;'"
 script: ./manage.py test
