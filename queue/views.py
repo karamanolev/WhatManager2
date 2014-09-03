@@ -7,4 +7,3 @@ def index(request):
     data = {
     }
     return render(request, 'queue/queue.html', data)
-

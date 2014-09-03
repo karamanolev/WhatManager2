@@ -16,7 +16,8 @@ def buffer_up_down_data(request):
     since = timezone.now() - timedelta(days=5)
     snapshots = [
         (time.mktime(s[0].timetuple()) * 1000, s[1], s[2]) for s in
-        WhatUserSnapshot.objects.filter(datetime__gte=since).values_list('datetime', 'uploaded', 'downloaded')
+        WhatUserSnapshot.objects.filter(datetime__gte=since).values_list(
+            'datetime', 'uploaded', 'downloaded')
     ]
     buffer_points = []
     for snapshot in snapshots:

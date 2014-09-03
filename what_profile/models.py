@@ -37,7 +37,10 @@ class WhatUserSnapshot(models.Model):
 
     @classmethod
     def get_last(cls):
-        return WhatUserSnapshot.objects.order_by('-datetime')[:1][0]
+        snapshots = WhatUserSnapshot.objects.order_by('-datetime')[:1]
+        if len(snapshots):
+            return snapshots[0]
+        return None
 
     @classmethod
     def get_closest_snapshot(self, when):

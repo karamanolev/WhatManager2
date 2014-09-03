@@ -1,6 +1,8 @@
 import json
+
 from django.shortcuts import render
-from allmusic.am_parser import parse_artist, parse_artist_related, parse_search, parse_album
+
+from allmusic.am_parser import parse_album
 import am_download
 
 
@@ -8,8 +10,10 @@ def index(request):
     # d = am_download.download('http://www.allmusic.com/album/a-mw0002460486')
     # d = am_download.download('http://www.allmusic.com/song/winged-mt0046447536')
     # d = am_download.download('http://www.allmusic.com/song/django-mt0046447537')
-    # d = am_download.download('http://www.allmusic.com/album/django-unchained-mw0002460486/releases')
-    # d = am_download.download('http://www.allmusic.com/album/release/django-unchained-mr0003856413')
+    # d = am_download.download(
+    # 'http://www.allmusic.com/album/django-unchained-mw0002460486/releases')
+    # d = am_download.download(
+    # 'http://www.allmusic.com/album/release/django-unchained-mr0003856413')
     # d = am_download.download('http://www.allmusic.com/mood/bombastic-xa0000000948')
     # d = am_download.download('http://www.allmusic.com/genre/pop-rock-ma0000002613')
     # d = am_download.download('http://www.allmusic.com/style/soundtracks-ma0000002867')

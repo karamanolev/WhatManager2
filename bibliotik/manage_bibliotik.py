@@ -10,7 +10,8 @@ from bibliotik.models import BibliotikTorrent, BibliotikTransTorrent
 from home.models import ReplicaSet, DownloadLocation, TorrentAlreadyAddedException
 
 
-def add_bibliotik_torrent(torrent_id, instance=None, location=None, bibliotik_client=None, add_to_client=True):
+def add_bibliotik_torrent(torrent_id, instance=None, location=None, bibliotik_client=None,
+                          add_to_client=True):
     bibliotik_torrent = BibliotikTorrent.get_or_create(bibliotik_client, torrent_id)
 
     if not instance:

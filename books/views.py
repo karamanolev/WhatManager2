@@ -1,7 +1,6 @@
 import os
 
 from django.contrib.auth.decorators import login_required
-
 from django.core.exceptions import ValidationError
 from django.http.response import HttpResponse
 from django.shortcuts import render, redirect
@@ -51,11 +50,13 @@ def new_upload(request):
 
 @login_required
 def edit_upload(request, upload_id):
-    book_upload = BookUpload.objects.defer(*BookUpload.binary_fields) \
-        .extra(select={
-        'has_bibliotik_torrent': '`bibliotik_torrent_file` IS NOT NULL AND OCTET_LENGTH(`bibliotik_torrent_file`) != 0',
-        'has_what_torrent': '`what_torrent_file` IS NOT NULL AND OCTET_LENGTH(`what_torrent_file`) != 0',
-    }).get(id=upload_id)
+    book_upload = BookUpload.objects.defer(*BookUpload.binary_fields).extra(
+        select={
+            'has_bibliotik_torrent': '`bibliotik_torrent_file` IS NOT NULL '
+                                     'AND OCTET_LENGTH(`bibliotik_torrent_file`) != 0',
+            'has_what_torrent': '`what_torrent_file` IS NOT NULL '
+                                'AND OCTET_LENGTH(`what_torrent_file`) != 0',
+        }).get(id=upload_id)
 
     if book_upload.title is None:
         book_upload.populate_from_opf()
@@ -102,7 +103,8 @@ def upload_generate_torrents(request, upload_id):
     book_upload = BookUpload.objects.get(id=upload_id)
     target_temp_filename = book_upload.book_data.storage.path(book_upload.book_data)
     torrent_temp_filename = os.path.join(settings.UPLOAD_TEMP_DIR,
-                                         os.path.splitext(book_upload.target_filename)[0] + '.torrent')
+                                         os.path.splitext(book_upload.target_filename)[
+                                             0] + '.torrent')
 
     if book_upload.bibliotik_torrent_file is None:
         utils.call_mktorrent(target_temp_filename,

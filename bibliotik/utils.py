@@ -79,7 +79,8 @@ class BibliotikClient(object):
         return self.auth_key
 
     def send_upload(self, payload, payload_files):
-        return self.session.post(BIBLIOTIK_UPLOAD_URL, data=payload, files=payload_files, allow_redirects=False)
+        return self.session.post(BIBLIOTIK_UPLOAD_URL, data=payload, files=payload_files,
+                                 allow_redirects=False)
 
     def download_torrent(self, torrent_id):
         torrent_page = BIBLIOTIK_DOWNLOAD_TORRENT_URL.format(torrent_id)
@@ -88,7 +89,8 @@ class BibliotikClient(object):
                 r = self.session.get(torrent_page, allow_redirects=False)
                 r.raise_for_status()
                 if r.status_code == 200 and 'application/x-bittorrent' in r.headers['content-type']:
-                    filename = re.search('filename="(.*)"', r.headers['content-disposition']).group(1)
+                    filename = re.search('filename="(.*)"',
+                                         r.headers['content-disposition']).group(1)
                     return filename, r.content
                 else:
                     raise Exception('Wrong status_code or content-type')
@@ -156,7 +158,8 @@ def upload_book_to_bibliotik(bibliotik_client, book_upload):
         with open(os.path.join(MEDIA_ROOT, 'bibliotik_upload.html'), 'wb') as f:
             f.write(response.content)
         raise Exception('Bibliotik does not want this. Written to media/')
-    redirect_match = re.match('^http://bibliotik.org/torrents/(?P<id>\d+)$', response.headers['location'])
+    redirect_match = re.match('^http://bibliotik.org/torrents/(?P<id>\d+)$',
+                              response.headers['location'])
     if not redirect_match:
         raise Exception('Could not get new torrent ID.')
     torrent_id = redirect_match.groupdict()['id']
@@ -164,7 +167,7 @@ def upload_book_to_bibliotik(bibliotik_client, book_upload):
     book_upload.bibliotik_torrent = BibliotikTorrent.get_or_create(bibliotik_client, torrent_id)
     book_upload.save()
 
-    ### Add the torrent to the client
+    # Add the torrent to the client
     location = DownloadLocation.get_bibliotik_preferred()
     download_dir = os.path.join(location.path, unicode(book_upload.bibliotik_torrent.id))
     book_path = os.path.join(download_dir, book_upload.target_filename)
@@ -186,8 +189,10 @@ def upload_book_to_bibliotik(bibliotik_client, book_upload):
 
 def search_torrents(query):
     b_fulltext = BibliotikFulltext.objects.only('id').all()
-    b_fulltext = b_fulltext.extra(where=['MATCH(`info`, `more_info`) AGAINST (%s IN BOOLEAN MODE)'], params=[query])
-    b_fulltext = b_fulltext.extra(select={'score': 'MATCH (`info`) AGAINST (%s)'}, select_params=[query])
+    b_fulltext = b_fulltext.extra(where=['MATCH(`info`, `more_info`) AGAINST (%s IN BOOLEAN MODE)'],
+                                  params=[query])
+    b_fulltext = b_fulltext.extra(select={'score': 'MATCH (`info`) AGAINST (%s)'},
+                                  select_params=[query])
     b_fulltext = b_fulltext.extra(order_by=['-score'])
 
     b_torrents_dict = BibliotikTorrent.objects.in_bulk([b.id for b in b_fulltext])

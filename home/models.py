@@ -17,9 +17,10 @@ import requests
 import transmissionrpc
 
 from WhatManager2 import settings
-from WhatManager2.settings import FREELEECH_EMAIL_TO, WHAT_CD_DOMAIN, FREELEECH_HOSTNAME, FREELEECH_EMAIL_FROM
-from WhatManager2.utils import match_properties, copy_properties, norm_t_torrent, html_unescape, wm_str, get_artists, \
-    wm_unicode
+from WhatManager2.settings import FREELEECH_EMAIL_TO, WHAT_CD_DOMAIN, FREELEECH_HOSTNAME, \
+    FREELEECH_EMAIL_FROM
+from WhatManager2.utils import match_properties, copy_properties, norm_t_torrent, html_unescape, \
+    wm_str, get_artists, wm_unicode
 from home.info_holder import InfoHolder
 
 
@@ -83,7 +84,6 @@ class DownloadLocation(models.Model):
     def free_space_percent(self):
         return float(self.disk_space['free']) / self.disk_space['total']
 
-
     @classmethod
     def get_what_preferred(cls):
         return DownloadLocation.objects.get(
@@ -91,14 +91,12 @@ class DownloadLocation(models.Model):
             preferred=True,
         )
 
-
     @classmethod
     def get_bibliotik_preferred(cls):
         return DownloadLocation.objects.get(
             zone=ReplicaSet.ZONE_BIBLIOTIK,
             preferred=True,
         )
-
 
     @cached_property
     def torrent_count(self):
@@ -108,7 +106,6 @@ class DownloadLocation(models.Model):
             self.transtorrent_set.filter(instance__in=instances).count() +
             self.bibliotiktranstorrent_set.filter(instance__in=instances).count()
         )
-
 
     @classmethod
     def get_by_full_path(cls, full_path):
@@ -134,18 +131,20 @@ class TransInstance(models.Model):
     password = models.TextField()
 
     def __unicode__(self):
-        return u'TransInstance {0}({1}@{2}:{3})'.format(self.name, self.username, self.host, self.port)
+        return u'TransInstance {0}({1}@{2}:{3})'.format(self.name, self.username,
+                                                        self.host, self.port)
 
     def full_description(self):
-        return u'TransInstance {0}(replica_set={1}, host={2}, rpc_port={3}, peer_port={4}, username={5}, password={6})'.format(
-            self.name, self.replica_set, self.host, self.port, self.peer_port, self.username, self.password
-        )
+        return u'TransInstance {0}(replica_set={1}, host={2}, rpc_port={3}, ' \
+               u'peer_port={4}, username={5}, password={6})' \
+            .format(self.name, self.replica_set, self.host, self.port, self.peer_port,
+                    self.username, self.password)
 
     @property
     def client(self):
         if not hasattr(self, '_client'):
-            self._client = transmissionrpc.Client(address=self.host, port=self.port, user=self.username,
-                                                  password=self.password)
+            self._client = transmissionrpc.Client(address=self.host, port=self.port,
+                                                  user=self.username, password=self.password)
         return self._client
 
     @property
@@ -160,12 +159,13 @@ class TransInstance(models.Model):
         if self.replica_set.zone == ReplicaSet.ZONE_WHAT:
             return self.transtorrent_set.aggregate(Sum('torrent_size'))['torrent_size__sum']
         elif self.replica_set.zone == ReplicaSet.ZONE_BIBLIOTIK:
-            return self.bibliotiktranstorrent_set.aggregate(Sum('torrent_size'))['torrent_size__sum']
+            return self.bibliotiktranstorrent_set.aggregate(
+                Sum('torrent_size'))['torrent_size__sum']
 
     def get_t_torrents(self, arguments):
         torrents = []
         locations = DownloadLocation.objects.filter(zone=self.replica_set.zone)
-        if not u'downloadDir' in arguments:
+        if u'downloadDir' not in arguments:
             arguments.append(u'downloadDir')
         for t in self.client.get_torrents(arguments=arguments):
             if any([l for l in locations if t.downloadDir.startswith(l.path)]):
@@ -182,7 +182,8 @@ class TransInstance(models.Model):
     def get_m_torrents_by_hash(self):
         torrents = {}
         for t in self.transtorrent_set.all():
-            if t.info_hash in torrents and t.what_torrent_id == torrents[t.info_hash].what_torrent_id:
+            existing = torrents.get(t.info_hash)
+            if existing and t.what_torrent_id == existing.what_torrent_id:
                 t.delete()
                 continue
             torrents[t.info_hash] = t
@@ -191,7 +192,8 @@ class TransInstance(models.Model):
     def get_b_torrents_by_hash(self):
         torrents = {}
         for t in self.bibliotiktranstorrent_set.all():
-            if t.info_hash in torrents and t.bibliotik_torrent_id == torrents[t.info_hash].bibliotik_torrent_id:
+            existing = torrents.get(t.info_hash)
+            if existing and t.bibliotik_torrent_id == existing.bibliotik_torrent_id:
                 t.delete()
                 continue
             torrents[t.info_hash] = t
@@ -394,7 +396,8 @@ class TransTorrentBase(models.Model):
 
     def sync_t_torrent(self, t_torrent=None):
         if t_torrent is None:
-            t_torrent = self.instance.client.get_torrent(self.torrent_id, arguments=TransTorrentBase.sync_t_arguments)
+            t_torrent = self.instance.client.get_torrent(
+                self.torrent_id, arguments=TransTorrentBase.sync_t_arguments)
             norm_t_torrent(t_torrent)
 
         if not match_properties(self, t_torrent, TransTorrentBase.sync_t_props):
@@ -420,7 +423,8 @@ class TransTorrent(TransTorrentBase):
         files_added = []
         if not any(u'.torrent' in f for f in files):
             files_added.append(u'torrent')
-            torrent_path = os.path.join(wm_str(self.path), wm_str(self.what_torrent.torrent_file_name))
+            torrent_path = os.path.join(wm_str(self.path),
+                                        wm_str(self.what_torrent.torrent_file_name))
             with open(torrent_path, 'wb') as file:
                 file.write(self.what_torrent.torrent_file_binary)
             os.chmod(torrent_path, 0777)
@@ -431,11 +435,12 @@ class TransTorrent(TransTorrentBase):
                 file.write(self.what_torrent.info)
             os.chmod(os.path.join(release_info_path.decode('utf-8')), 0777)
         if files_added:
-            LogEntry.add(None, u'info', u'Added files {0} to {1}'.format(', '.join(files_added), self))
+            LogEntry.add(None, u'info', u'Added files {0} to {1}'
+                         .format(', '.join(files_added), self))
 
     def __unicode__(self):
-        return u'TransTorrent(torrent_id={0}, what_id={1}, name={2})'.format(self.torrent_id, self.what_torrent_id,
-                                                                             self.torrent_name)
+        return u'TransTorrent(torrent_id={0}, what_id={1}, name={2})'.format(
+            self.torrent_id, self.what_torrent_id, self.torrent_name)
 
 
 class LogEntry(models.Model):
@@ -504,10 +509,11 @@ class CustomWhatAPI:
         except Exception:
             '''Logs in user and gets authkey from server'''
             loginpage = 'https://{0}/login.php'.format(WHAT_CD_DOMAIN)
-            data = {'username': self.username,
-                    'password': self.password,
-                    'keeplogged': 1,
-                    'login': 'Login'
+            data = {
+                'username': self.username,
+                'password': self.password,
+                'keeplogged': 1,
+                'login': 'Login',
             }
             r = self.session.post(loginpage, data=data, allow_redirects=False)
             if r.status_code != 302:

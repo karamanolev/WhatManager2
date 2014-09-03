@@ -62,7 +62,7 @@ def download_zip(request, what_id):
 
     response = download_zip_handler(download_filename, torrent_files)
     LogEntry.add(request.user, u'action', u'Downloaded {0} - {1}'.format(
-                 t_torrent, filesizeformat(response['Content-Length'])
+        t_torrent, filesizeformat(response['Content-Length'])
     ))
     return response
 
@@ -73,7 +73,8 @@ def download_bibliotik_zip(request, bibliotik_id):
     b_torrent = None
     for instance in ReplicaSet.get_bibliotik_master().transinstance_set.all():
         try:
-            b_torrent = BibliotikTransTorrent.objects.get(instance=instance, bibliotik_torrent_id=bibliotik_id)
+            b_torrent = BibliotikTransTorrent.objects.get(instance=instance,
+                                                          bibliotik_torrent_id=bibliotik_id)
         except BibliotikTransTorrent.DoesNotExist:
             pass
     if not b_torrent:
@@ -92,8 +93,8 @@ def download_bibliotik_zip(request, bibliotik_id):
     download_filename = u'[{0}] {1}.zip'.format(bibliotik_id, b_torrent.torrent_name)
 
     response = download_zip_handler(download_filename, torrent_files)
-    LogEntry.add(request.user, u'action', u'Downloaded {0} - {1}'.format(
-                 b_torrent, filesizeformat(response['Content-Length'])))
+    LogEntry.add(request.user, u'action', u'Downloaded {0} - {1}'
+                 .format(b_torrent, filesizeformat(response['Content-Length'])))
     return response
 
 
@@ -118,7 +119,8 @@ def download_pls(request, playlist_path):
     }
 
     response = render(request, 'download/pls.txt', data)
-    response['Content-Disposition'] = (
-        'attachment; filename="[' + playlist_path.replace('/', '-') + '] ' + playlist_name + '.pls"')
+    response['Content-Disposition'] = ('attachment; filename="[' +
+                                       playlist_path.replace('/', '-') + '] ' +
+                                       playlist_name + '.pls"')
     response['Content-Type'] = 'audio/x-scpls'
     return response

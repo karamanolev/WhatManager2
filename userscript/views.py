@@ -1,6 +1,5 @@
 from django.shortcuts import render
 
-# Create your views here.
 from WhatManager2.settings import USERSCRIPT_WM_ROOT
 
 

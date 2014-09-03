@@ -54,7 +54,7 @@ def gen_group_list():
 
     groups = defaultdict(dict)
     for t in WhatTorrent.objects.all():
-        if not t.id in t_torrents:
+        if t.id not in t_torrents:
             continue
 
         t_info = t.info_loads
@@ -68,7 +68,7 @@ def gen_group_list():
         t_d['group'] = t_info['group']
         t_d['artists'] = get_artists(t_d['group'])
 
-        if not 'torrents' in t_d:
+        if 'torrents' not in t_d:
             t_d['torrents'] = defaultdict(list)
 
         edition_name = get_edition_name(t_info)

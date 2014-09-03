@@ -39,7 +39,8 @@ def add_torrent(request, instance, download_location, what_id, add_to_client=Tru
                         download_dir=download_dir,
                         paused=False
                     )
-                    t_torrent = instance.client.get_torrent(t_torrent.id, arguments=TransTorrent.sync_t_arguments)
+                    t_torrent = instance.client.get_torrent(t_torrent.id,
+                                                            arguments=TransTorrent.sync_t_arguments)
                     norm_t_torrent(t_torrent)
                     m_torrent.sync_t_torrent(t_torrent)
                     m_torrent.sync_files()
@@ -54,6 +55,7 @@ def remove_torrent(m_torrent):
 
 def move_torrent(m_torrent, new_instance):
     with transaction.atomic():
-        new_m_torrent = add_torrent(None, new_instance, m_torrent.location, m_torrent.what_torrent.id, True)
+        new_m_torrent = add_torrent(None, new_instance, m_torrent.location,
+                                    m_torrent.what_torrent.id, True)
         remove_torrent(m_torrent)
     return new_m_torrent

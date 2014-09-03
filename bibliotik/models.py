@@ -13,9 +13,9 @@ from what_transcode.utils import get_info_hash_from_data
 
 
 EBOOK_FORMATS = ['EPUB', 'PDF', 'MOBI', 'AZW3', 'DJVU', 'CBR', 'CHM', 'TXT']
-LANGUAGES = ['English', 'Irish', 'German', 'French', 'Spanish', 'Italian', 'Latin', 'Japanese', 'Danish', 'Swedish',
-             'Norwegian', 'Dutch', 'Russian', 'Polish', 'Portuguese', 'Greek', 'Turkish', 'Hungarian', 'Korean',
-             'Chinese', 'Thai', 'Indonesian', 'Arabic']
+LANGUAGES = ['English', 'Irish', 'German', 'French', 'Spanish', 'Italian', 'Latin', 'Japanese',
+             'Danish', 'Swedish', 'Norwegian', 'Dutch', 'Russian', 'Polish', 'Portuguese', 'Greek',
+             'Turkish', 'Hungarian', 'Korean', 'Chinese', 'Thai', 'Indonesian', 'Arabic']
 
 
 def load_bibliotik_data(bibliotik_client, torrent_id):
@@ -25,7 +25,8 @@ def load_bibliotik_data(bibliotik_client, torrent_id):
             response = bibliotik_client.session.get(
                 BIBLIOTIK_GET_TORRENT_URL.format(torrent_id), allow_redirects=False)
             if response.status_code != 200:
-                raise Exception('Getting bibliotik data returned HTTP {0}'.format(response.status_code))
+                raise Exception('Getting bibliotik data returned HTTP {0}'
+                                .format(response.status_code))
             return response.text
         except Exception as ex:
             print u'Error while retrieving bibliotik data. Will retry: {0}'.format(ex)
@@ -121,14 +122,16 @@ class BibliotikTorrent(models.Model):
         self.tags = ', '.join(i.text() for i in pq('span.taglist > a').items())
         publisher_year = pq('p#published').text()
         if publisher_year:
-            assert publisher_year.startswith('Published '), 'Publisher does not start with Published'
+            assert publisher_year.startswith('Published '), \
+                "Publisher doesn't start with Published"
             publisher_year = publisher_year[len('Published '):]
             if publisher_year.startswith('by '):
                 publisher_year = publisher_year[len('by '):]
                 self.publisher = ';'.join(i.text() for i in pq('p#published > a').items())
                 assert self.publisher, 'Publisher can not be empty'
                 publisher_mod = ' , '.join(i.text() for i in pq('p#published > a').items())
-                assert publisher_year.startswith(publisher_mod), 'publisher_year does not start with self.publisher'
+                assert publisher_year.startswith(publisher_mod), \
+                    'publisher_year does not start with self.publisher'
                 publisher_year = publisher_year[len(publisher_mod) + 1:]
             else:
                 self.publisher = ''

@@ -6,7 +6,8 @@ from django.utils import timezone
 
 from WhatManager2 import manage_torrent, settings
 from WhatManager2.settings import SYNC_SYNCS_FILES
-from home.models import WhatTorrent, DownloadLocation, TransTorrent, LogEntry, ReplicaSet, WhatFulltext, get_what_client
+from home.models import WhatTorrent, DownloadLocation, TransTorrent, LogEntry, ReplicaSet, \
+    WhatFulltext, get_what_client
 from what_profile.models import WhatUserSnapshot
 
 
@@ -15,14 +16,14 @@ def sync_fulltext():
     w_torrents = dict((w.id, w) for w in WhatTorrent.objects.all())
     w_fulltext = dict((w.id, w) for w in WhatFulltext.objects.all())
     for id, w_t in w_torrents.items():
-        if not id in w_fulltext:
+        if id not in w_fulltext:
             WhatFulltext(id=w_t.id, info=w_t.info).save()
             fixed = True
         elif not w_fulltext[id].match(w_t):
             w_fulltext[id].update(w_t)
             fixed = True
     for id, w_f in w_fulltext.items():
-        if not id in w_torrents:
+        if id not in w_torrents:
             w_f.delete()
             fixed = True
     return fixed
@@ -33,7 +34,7 @@ def sync_instance_db(request, instance):
     t_torrents = instance.get_t_torrents_by_hash(TransTorrent.sync_t_arguments)
 
     for hash, m_torrent in m_torrents.items():
-        if not hash in t_torrents:
+        if hash not in t_torrents:
             m_torrent_path = m_torrent.path.encode('utf-8')
 
             messages = []
@@ -52,18 +53,19 @@ def sync_instance_db(request, instance):
                     else:
                         messages.append(u'Path does not exist.')
 
-            LogEntry.add(None, u'action',
-                         u'Torrent {0} deleted from instance {1}. {2}'.format(m_torrent, instance, ' '.join(messages)))
+            LogEntry.add(None, u'action', u'Torrent {0} deleted from instance {1}. {2}'
+                         .format(m_torrent, instance, ' '.join(messages)))
 
     with transaction.atomic():
         for hash, t_torrent in t_torrents.items():
-            if not hash in m_torrents:
+            if hash not in m_torrents:
                 w_torrent = WhatTorrent.get_or_create(request, info_hash=hash)
                 d_location = DownloadLocation.get_by_full_path(t_torrent.downloadDir)
-                m_torrent = manage_torrent.add_torrent(request, instance, d_location, w_torrent.id, False)
+                m_torrent = manage_torrent.add_torrent(request, instance, d_location, w_torrent.id,
+                                                       False)
                 m_torrents[m_torrent.info_hash] = m_torrent
-                LogEntry.add(None, u'action',
-                             u'Torrent {0} appeared in instance {1}. Added to DB.'.format(m_torrent, instance))
+                LogEntry.add(None, u'action', u'Torrent {0} appeared in instance {1}. Added to DB.'
+                             .format(m_torrent, instance))
 
             m_torrent = m_torrents[hash]
             m_torrent.sync_t_torrent(t_torrent)
@@ -88,15 +90,17 @@ def sync_replica_set(master, slave):
         slave_m_torrents.update(slave_instance.get_m_torrents_by_hash())
 
     for hash, m_torrent in master_m_torrents.items():
-        if not hash in slave_m_torrents:
+        if hash not in slave_m_torrents:
             instance = slave.get_preferred_instance()
-            manage_torrent.add_torrent(None, instance, m_torrent.location, m_torrent.what_torrent_id, True)
-            LogEntry.add(None, u'info', u'Torrent {0} added to {1} during replication.'.format(m_torrent, instance))
+            manage_torrent.add_torrent(None, instance, m_torrent.location,
+                                       m_torrent.what_torrent_id, True)
+            LogEntry.add(None, u'info', u'Torrent {0} added to {1} during replication.'
+                         .format(m_torrent, instance))
     for hash, m_torrent in slave_m_torrents.items():
-        if not hash in master_m_torrents:
+        if hash not in master_m_torrents:
             manage_torrent.remove_torrent(m_torrent)
-            LogEntry.add(None, u'info',
-                         u'Torrent {0} removed from {1} during replication'.format(m_torrent, m_torrent.instance))
+            LogEntry.add(None, u'info', u'Torrent {0} removed from {1} during replication'
+                         .format(m_torrent, m_torrent.instance))
 
 
 def sync_all_replicas_to_master():
@@ -108,7 +112,7 @@ def sync_all_replicas_to_master():
 def sync_profile(request):
     user_id = settings.WHAT_USER_ID
     interval = settings.WHAT_PROFILE_SNAPSHOT_INTERVAL
-    snapshots = WhatUserSnapshot.objects.order_by('-datetime')[:1]
-    if len(snapshots) == 0 or (timezone.now() - snapshots[0].datetime).total_seconds() >= interval - 30:
+    last_snap = WhatUserSnapshot.get_last()
+    if not last_snap or (timezone.now() - last_snap.datetime).total_seconds() >= interval - 30:
         what = get_what_client(request)
         WhatUserSnapshot.get(what, user_id).save()

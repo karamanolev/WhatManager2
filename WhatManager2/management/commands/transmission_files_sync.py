@@ -9,8 +9,8 @@ import json
 from django.core.management.base import BaseCommand
 import requests
 
-from WhatManager2.settings import FILES_SYNC_HTTP_USERNAME, FILES_SYNC_HTTP_PASSWORD, FILES_SYNC_SSH, FILES_SYNC_WM_ROOT
-
+from WhatManager2.settings import FILES_SYNC_HTTP_USERNAME, FILES_SYNC_HTTP_PASSWORD, \
+    FILES_SYNC_SSH, FILES_SYNC_WM_ROOT
 from WhatManager2.utils import read_text
 from home.models import DownloadLocation, ReplicaSet, TransTorrentBase
 
@@ -27,15 +27,16 @@ def call_rsync(path):
 
 
 def get_torrent(torrent_id):
-    return requests.get('{0}/books/bibliotik/json/get_torrent_file/{0}'.format(FILES_SYNC_WM_ROOT, torrent_id),
-                        params={'auth': 'http'}, auth=wm_auth).content
+    return requests.get('{0}/books/bibliotik/json/get_torrent_file/{0}'.format(
+        FILES_SYNC_WM_ROOT, torrent_id), params={'auth': 'http'}, auth=wm_auth).content
 
 
 def torrents_status(torrent_ids):
-    return json.loads(requests.get('{0}/books/bibliotik/json/torrents_info'.format(FILES_SYNC_WM_ROOT), params={
-        'ids': ','.join(torrent_ids),
-        'auth': 'http'
-    }, auth=wm_auth).text)
+    return json.loads(
+        requests.get('{0}/books/bibliotik/json/torrents_info'.format(FILES_SYNC_WM_ROOT), params={
+            'ids': ','.join(torrent_ids),
+            'auth': 'http'
+        }, auth=wm_auth).text)
 
 
 def monitor_torrent(client, t_id):
@@ -77,8 +78,8 @@ def check_running():
         if 'python' in cmdline[0] and 'transmission_files_sync' in cmdline:
             found_cmdlines.append(' '.join(cmdline))
     if len(found_cmdlines) != 1:
-        raise Exception(
-            'Script is probably already running or error checking. Found {0}.'.format('; '.join(found_cmdlines)))
+        raise Exception('Script is probably already running or error checking. Found {0}.'.format(
+            '; '.join(found_cmdlines)))
 
 
 class Command(BaseCommand):
@@ -86,7 +87,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            self.download_locations = list(DownloadLocation.objects.filter(zone=ReplicaSet.ZONE_BIBLIOTIK))
+            self.download_locations = list(DownloadLocation.objects.filter(
+                zone=ReplicaSet.ZONE_BIBLIOTIK))
             self.files_sync()
         except Exception as ex:
             with open('/files_sync_error.txt', 'w') as f:
@@ -121,7 +123,7 @@ class Command(BaseCommand):
         for location in DownloadLocation.objects.filter(zone=ReplicaSet.ZONE_BIBLIOTIK):
             for i in os.listdir(location.path):
                 torrent_id = int(i)
-                if not torrent_id in current_torrents:
+                if torrent_id not in current_torrents:
                     new_torrents[torrent_id] = {
                         'id': torrent_id,
                         'location': location,
@@ -153,4 +155,3 @@ class Command(BaseCommand):
             monitor_torrent(preferred_instance.client, t_torrent.id)
 
         print 'Completed.'
-

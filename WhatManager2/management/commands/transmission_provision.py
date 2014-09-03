@@ -44,7 +44,7 @@ start_daemon () {
     else
         start-stop-daemon --start \
         --chuid $USER --user $USER \
-		$START_STOP_OPTIONS \
+        $START_STOP_OPTIONS \
         --exec $DAEMON -- $OPTIONS
     fi
 }
@@ -87,8 +87,8 @@ def discover_transmission():
     try:
         return subprocess.check_output(['which', 'transmission-daemon']).strip()
     except subprocess.CalledProcessError:
-        raise Exception(
-            'transmission-daemon was not found. Make sure "which transmission-daemon" returns the right thing.')
+        raise Exception(u'transmission-daemon was not found. '
+                        u'Make sure "which transmission-daemon" returns the right thing.')
 
 
 def get_transmission_init_script(name, files_path):

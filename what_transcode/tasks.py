@@ -175,9 +175,10 @@ class TranscodeSingleJob(object):
         }[self.bitrate]
         payload['media'] = torrent['torrent']['media']
         payload[
-            'release_desc'] = 'Made with LAME 3.99.3 with -h using karamanolev\'s auto transcoder from What.CD Torrent ID {0}.'.format(
-            torrent['torrent']['id']) + \
-                              ' Resampling or bit depth change (if needed) was done using SoX.'
+            'release_desc'] = 'Made with LAME 3.99.3 with -h using karamanolev\'s auto transcoder' \
+                              ' from What.CD Torrent ID {0}.'.format(
+            torrent['torrent']['id']) + ' Resampling or bit depth change (if needed) ' \
+                                        'was done using SoX.'
 
         if torrent['torrent']['remastered']:
             payload['remaster'] = 'on'
@@ -269,10 +270,11 @@ class TranscodeSingleJob(object):
 
         if len(flac_paths) <= 1 and self.what_torrent['group']['releaseType'] != 9:  # 9 is Single
             if self.force_warnings:
-                print 'Warning: This is a single audio file torrent that is not a single in What.cd. Will not transcode.'
+                print 'Warning: This is a single audio file torrent that is not a single in' \
+                      ' What.cd. Will not transcode.'
             else:
-                raise Exception(
-                    'This is a single audio file torrent that is not a single in What.cd. Will not transcode.')
+                raise Exception('This is a single audio file torrent that is not a single in '
+                                'What.cd. Will not transcode.')
 
         files_created = 0
         self.report_progress(
@@ -325,8 +327,8 @@ class TranscodeJob(object):
         except OSError:
             pass
 
-        self.what = get_what_client(
-            lambda: None)  # Pass an object that can hold the what_client property
+        # Pass an object that can hold the what_client property
+        self.what = get_what_client(lambda: None)
 
         os.makedirs(TRANSCODER_TEMP_DIR)
         try:
@@ -351,8 +353,8 @@ class TranscodeJob(object):
         # if not self.force_warnings and self.what_torrent['torrent']['reported']:
         # raise Exception('Cannot transcode a reported torrent!')
         if not self.force_warnings and self.what_torrent['torrent']['scene']:
-            raise Exception(
-                'Cannot transcode a scene torrent due to possible release group name in the file names.')
+            raise Exception('Cannot transcode a scene torrent due to possible release group name '
+                            'in the file names.')
 
         mp3_ids = get_mp3_ids(self.what_group, self.what_torrent)
         if self.force_v0 and 'V0' in mp3_ids:
@@ -360,7 +362,7 @@ class TranscodeJob(object):
         if self.force_320 and '320' in mp3_ids:
             del mp3_ids['320']
         for bitrate in ['V0', '320']:
-            if not bitrate in mp3_ids:
+            if bitrate not in mp3_ids:
                 single_job = TranscodeSingleJob(self.what, self.what_torrent, self.report_progress,
                                                 self.source_dir,
                                                 bitrate)

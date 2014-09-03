@@ -44,7 +44,7 @@ def sync(request):
 @user_passes_test(lambda u: u.is_superuser is True)
 @json_return_method
 def add_torrent(request, torrent_id):
-    if not 'bibliotik_id' in request.GET:
+    if 'bibliotik_id' not in request.GET:
         return {
             'success': False,
             'error': u'Missing bibliotik_id in GET.',
@@ -53,9 +53,11 @@ def add_torrent(request, torrent_id):
     try:
         bibliotik_id = request.GET['bibliotik_id']
         bibliotik_client = BibliotikClient(bibliotik_id)
-        b_torrent = manage_bibliotik.add_bibliotik_torrent(torrent_id, bibliotik_client=bibliotik_client)
+        b_torrent = manage_bibliotik.add_bibliotik_torrent(torrent_id,
+                                                           bibliotik_client=bibliotik_client)
         bibliotik_torrent = b_torrent.bibliotik_torrent
-        LogEntry.add(request.user, u'action', u'Added {0} to {1}'.format(b_torrent, b_torrent.instance))
+        LogEntry.add(request.user, u'action', u'Added {0} to {1}'
+                     .format(b_torrent, b_torrent.instance))
         return {
             'success': True,
             'title': bibliotik_torrent.title,
@@ -73,13 +75,16 @@ def add_torrent(request, torrent_id):
             'success': False,
             'error_code': u'already_added',
             'error': u'Already added.',
-            'title': bibliotik_torrent.title if bibliotik_torrent else '<<< Unable to find torrent >>>',
-            'author': bibliotik_torrent.author if bibliotik_torrent else '<<< Unable to find torrent >>>',
+            'title': (bibliotik_torrent.title if bibliotik_torrent
+                      else '<<< Unable to find torrent >>>'),
+            'author': (bibliotik_torrent.author if bibliotik_torrent
+                       else '<<< Unable to find torrent >>>'),
         }
     except Exception as ex:
         tb = traceback.format_exc()
         LogEntry.add(request.user, u'error',
-                     u'Tried adding bibliotik torrent_id={0}. Error: {1}'.format(torrent_id, unicode(ex)), tb)
+                     u'Tried adding bibliotik torrent_id={0}. Error: {1}'
+                     .format(torrent_id, unicode(ex)), tb)
         return {
             'success': False,
             'error': unicode(ex),

@@ -1,5 +1,6 @@
 from django import forms
-from django.core.validators import MinLengthValidator, MinValueValidator, MaxValueValidator, RegexValidator
+from django.core.validators import MinLengthValidator, MinValueValidator, MaxValueValidator, \
+    RegexValidator
 from django.db import models
 from django.forms.models import ModelForm
 import pyquery
@@ -15,10 +16,12 @@ class BookUpload(models.Model):
     added = models.DateTimeField(auto_now_add=True)
     author = models.CharField(null=True, max_length=1024, validators=[MinLengthValidator(3)])
     title = models.CharField(null=True, max_length=512, validators=[MinLengthValidator(3)])
-    isbn = models.CharField("ISBN", null=True, max_length=17, validators=[RegexValidator(isbn_regex)])
+    isbn = models.CharField("ISBN", null=True, max_length=17,
+                            validators=[RegexValidator(isbn_regex)])
     publisher = models.CharField(null=True, max_length=256, validators=[MinLengthValidator(3)])
     pages = models.CharField(null=True, max_length=6, blank=True)
-    year = models.IntegerField(null=True, validators=[MinValueValidator(1000), MaxValueValidator(2015)])
+    year = models.IntegerField(null=True, validators=[MinValueValidator(1000),
+                                                      MaxValueValidator(2015)])
     format = models.CharField(null=True, max_length=5, validators=[MinLengthValidator(3)])
     retail = models.BooleanField(default=False)
     tags = models.CharField(null=True, max_length=256, validators=[MinLengthValidator(7)])
@@ -65,12 +68,12 @@ class BookUpload(models.Model):
 class BookUploadForm(ModelForm):
     class Meta:
         model = BookUpload
-        fields = ['author', 'title', 'isbn', 'publisher', 'cover_url', 'pages', 'year', 'format', 'retail', 'tags',
-                  'target_filename', 'description']
+        fields = ['author', 'title', 'isbn', 'publisher', 'cover_url', 'pages', 'year', 'format',
+                  'retail', 'tags', 'target_filename', 'description']
 
     def __init__(self, *args, **kwargs):
         super(BookUploadForm, self).__init__(*args, **kwargs)
         for field_name in self.fields:
             field = self.fields.get(field_name)
             if type(field) not in [forms.BooleanField]:
-                pass#field.widget.attrs['style'] = 'width: 400px;'
+                pass  # field.widget.attrs['style'] = 'width: 400px;'

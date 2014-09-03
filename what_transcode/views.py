@@ -12,7 +12,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from WhatManager2.manage_torrent import add_torrent
 from WhatManager2.utils import json_return_method
-from home.models import WhatTorrent, TransTorrent, ReplicaSet, DownloadLocation, LogEntry, get_what_client
+from home.models import WhatTorrent, TransTorrent, ReplicaSet, DownloadLocation, LogEntry, \
+    get_what_client
 from what_transcode.tasks import transcode
 from what_transcode.models import TranscodeRequest
 from what_transcode.utils import get_trans_torrent, torrent_is_preemphasized, get_mp3_ids
@@ -99,14 +100,18 @@ def status_table(request):
                 succeeded.append(t_r)
             elif async_result.state == states.FAILURE:
                 t_r.show_retry_button = allow_retry
-                t_r.status = 'failed - {0}({1})'.format(type(async_result.result).__name__, async_result.result.message)
+                t_r.status = 'failed - {0}({1})'.format(type(async_result.result).__name__,
+                                                        async_result.result.message)
                 failed.append(t_r)
+        what_client = get_what_client(request)
+        t_r.status = t_r.status.replace(what_client.authkey, '<authkey>').replace(
+            what_client.passkey, '<passkey>')
 
-        t_r.status = t_r.status.replace('de79e8d7734a79b98f83e347ecdd294e', '<authkey>').replace('6ukcb50xa524waqr6q3l9t743zakvgef', '<passkey>')
-
-    for t_request in TranscodeRequest.objects.filter(date_completed=None).order_by('-date_requested'):
+    for t_request in TranscodeRequest.objects.filter(
+            date_completed=None).order_by('-date_requested'):
         process_request(t_request)
-    for t_request in TranscodeRequest.objects.exclude(date_completed=None).order_by('-date_completed')[:200]:
+    for t_request in TranscodeRequest.objects.exclude(
+            date_completed=None).order_by('-date_completed')[:200]:
         process_request(t_request)
 
     data = {
@@ -193,14 +198,16 @@ def request_transcode(request):
             }
         if what_torrent.info_loads['torrent']['scene']:
             return {
-                'message': 'Cannot transcode a scene torrent due to possible release group name in the file names.'
+                'message': 'Cannot transcode a scene torrent due to possible'
+                           ' release group name in the file names.'
             }
         if torrent_is_preemphasized(what_torrent.info_loads):
             return {
                 'message': 'This sounds as if it is pre-emphasized. Will not add request.'
             }
 
-        group = what_client.request('torrentgroup', id=what_torrent.info_loads['group']['id'])['response']
+        group = what_client.request('torrentgroup',
+                                    id=what_torrent.info_loads['group']['id'])['response']
 
         mp3_ids = get_mp3_ids(group, what_torrent.info_loads)
 
@@ -233,7 +240,8 @@ def request_transcode(request):
                 log_user = request.user
             else:
                 log_user = None
-            LogEntry.add(log_user, u'action', u'Transcode What.CD user {0} added {1} to {2}'.format(request_what_user, m_torrent, m_torrent.instance))
+            LogEntry.add(log_user, u'action', u'Transcode What.CD user {0} added {1} to {2}'
+                         .format(request_what_user, m_torrent, m_torrent.instance))
 
         return {
             'message': 'Request added.',
@@ -244,7 +252,8 @@ def request_transcode(request):
             current_user = request.user
         else:
             current_user = None
-        LogEntry.add(current_user, u'error', u'What user {0} tried adding what_id {1}. Error: {2}'.format(request_what_user, what_id, ex), tb)
+        LogEntry.add(current_user, u'error', u'What user {0} tried adding what_id {1}. Error: {2}'
+                     .format(request_what_user, what_id, ex), tb)
         return {
             'message': 'Error adding request: ' + str(ex)
         }

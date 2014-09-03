@@ -17,8 +17,8 @@ def as_json(value):
 
 
 @register.filter(is_safe=True)
-def filesizeformat(bytes):
-    if bytes == 0:
+def filesizeformat(value):
+    if value == 0:
         return '0 bytes'
 
     """
@@ -26,7 +26,7 @@ def filesizeformat(bytes):
     102 bytes, etc).
     """
     try:
-        bytes = float(bytes)
+        value = float(value)
     except (TypeError, ValueError, UnicodeDecodeError):
         return '0 bytes'
 
@@ -44,34 +44,33 @@ def filesizeformat(bytes):
     TB = 1 << 40
     PB = 1 << 50
 
-    sign = '-' if bytes < 0 else ''
-    bytes = abs(bytes)
+    sign = '-' if value < 0 else ''
+    value = abs(value)
 
-    if bytes == 0:
+    if value == 0:
         return ugettext("0 bytes")
-    if bytes < KB:
-        if bytes != 1:
-            return '{sign}{size:d} bytes'.format(sign=sign, size=int(bytes))
+    if value < KB:
+        if value != 1:
+            return '{sign}{size:d} bytes'.format(sign=sign, size=int(value))
         else:
             return '1 byte'
-    if bytes < MB:
-        return ugettext("%s%s KB") % (sign, filesize_number_format(bytes / KB))
-    if bytes < GB:
-        return ugettext("%s%s MB") % (sign, filesize_number_format(bytes / MB))
-    if bytes < TB:
-        return ugettext("%s%s GB") % (sign, filesize_number_format(bytes / GB))
-    if bytes < PB:
-        return ugettext("%s%s TB") % (sign, filesize_number_format(bytes / TB))
-    return ugettext("%s%s PB") % (sign, filesize_number_format(bytes / PB))
+    if value < MB:
+        return ugettext("%s%s KB") % (sign, filesize_number_format(value / KB))
+    if value < GB:
+        return ugettext("%s%s MB") % (sign, filesize_number_format(value / MB))
+    if value < TB:
+        return ugettext("%s%s GB") % (sign, filesize_number_format(value / GB))
+    if value < PB:
+        return ugettext("%s%s TB") % (sign, filesize_number_format(value / TB))
+    return ugettext("%s%s PB") % (sign, filesize_number_format(value / PB))
 
 
 @register.filter
 def tooltip_files_table(value):
     result = ['<table cellpadding="2">']
-    for file in value:
+    for filename in value:
         result.append('<tr><td>{0}</td><td style="text-align: right;">{1}</td></tr>'.format(
-            file['name'],
-            filesizeformat(file['size'])
+            filename['name'], filesizeformat(filename['size'])
         ))
     result.append('</table>')
     return ''.join(result)
@@ -85,7 +84,6 @@ def filter_release_type_name(value):
 @register.filter
 def what_cd_torrent_link(value):
     return u'https://what.cd/torrents.php?torrentid={0}'.format(value)
-
 
 
 @register.filter
@@ -108,6 +106,7 @@ def timeformat(value):
 @register.filter
 def torrent_files(value):
     return ', '.join(f['name'] for f in value.info_files)
+
 
 @register.filter
 def type_name(value):

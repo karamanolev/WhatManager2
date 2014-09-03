@@ -8,25 +8,34 @@ djcelery.setup_loader()
 WHAT_USER_ID = 123456
 WHAT_USERNAME = 'your what.cd username'
 WHAT_PASSWORD = 'your what.cd password'
-WHAT_PROFILE_SNAPSHOT_INTERVAL = 10 * 60  # How frequently your profile will be stored, in seconds
-MIN_FREE_DISK_SPACE = 0.10  # What part of your disk is guaranteed left empty by WM
-MIN_WHAT_RATIO = 1.3  # Under what ratio queued torrents won't be downloaded.
-SYNC_SYNCS_FILES = False  # Whether the frequent sync will make sure ReleaseInfo is there. Leave False.
-WHAT_CD_DOMAIN = 'what.cd'  # You might set this to ssl.what.cd is what.cd has a long downtime, but ssl is up.
+# How frequently your profile will be stored, in seconds
+WHAT_PROFILE_SNAPSHOT_INTERVAL = 10 * 60
+# What part of your disk is guaranteed left empty by WM
+MIN_FREE_DISK_SPACE = 0.10
+# Under what ratio queued torrents won't be downloaded.
+MIN_WHAT_RATIO = 1.3
+# Whether the frequent sync will make sure ReleaseInfo is there. Leave False.
+SYNC_SYNCS_FILES = False
+# You might set this to ssl.what.cd is what.cd has a long downtime, but ssl is up.
+WHAT_CD_DOMAIN = 'what.cd'
 WHAT_UPLOAD_URL = 'https://{0}/upload.php'.format(WHAT_CD_DOMAIN)
-WHAT_ANNOUNCE = 'http://tracker.what.cd:34000/SET THIS TO YOUR ANNOUNCE/announce'  # Only for uploading
+# Only for uploading
+WHAT_ANNOUNCE = 'http://tracker.what.cd:34000/SET THIS TO YOUR ANNOUNCE/announce'
 
-TRANSMISSION_PASSWORD = '9dqQQ2WW'  # Set this to something reasonable that only you know.
-TRANSMISSION_FILES_ROOT = '/mnt/tank/Torrent/transmission-daemon'  # Where Transmission system files will go
-TRANSMISSION_BIND_HOST = '0.0.0.0'  # Transmission's ipv4 bind address. Leave as is or changed to specific ip.
+# Set this to something reasonable that only you know.
+TRANSMISSION_PASSWORD = '9dqQQ2WW'
+# Where Transmission system files will go
+TRANSMISSION_FILES_ROOT = '/mnt/tank/Torrent/transmission-daemon'
+# Transmission's ipv4 bind address. Leave as is or changed to specific ip.
+TRANSMISSION_BIND_HOST = '0.0.0.0'
 
 # You only need these if you are uploading books
 WHATIMG_USERNAME = 'whatimg username'
 WHATIMG_PASSWORD = 'whatimg password'
 
-# Settings for the emails that WM will send you if there is a freeleech. By default, you don't get emails.
-# If you want emails, set FREELEECH_HOSTNAME to your machine's hostname. These settings are for gmail, but any
-# Provider will work
+# Settings for the emails that WM will send you if there is a freeleech. By default, you don't get
+# emails. If you want emails, set FREELEECH_HOSTNAME to your machine's hostname. These settings are
+# for gmail, but any provider will work
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'username at gmail'
 EMAIL_HOST_PASSWORD = 'password at gmail'
@@ -35,8 +44,10 @@ EMAIL_USE_TLS = True
 
 FREELEECH_EMAIL_FROM = u'your own email@provider.com'
 FREELEECH_EMAIL_TO = u'wherever you want to receive mail@provider.com'
-FREELEECH_EMAIL_THRESHOLD = 2  # Less than this and you won't get an email.
-FREELEECH_HOSTNAME = u'NO_EMAILS'  # The script will only send emails if the current hostname is equals this.
+# Less than this and you won't get an email.
+FREELEECH_EMAIL_THRESHOLD = 2
+# The script will only send emails if the current hostname is equals this.
+FREELEECH_HOSTNAME = u'NO_EMAILS'
 
 # You only need to set that if you'll be using the userscripts. Do not put a trailing slash
 USERSCRIPT_WM_ROOT = 'http://hostname.com'
@@ -255,4 +266,3 @@ DATETIME_FORMAT = 'Y-m-d H:i:s'
 # 'LOCATION': 'wm-cache'
 # }
 # }
-

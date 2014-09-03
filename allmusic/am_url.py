@@ -1,4 +1,4 @@
-#  http://www.allmusic.com/album/complete-clapton-mw0000749969/credits
+# http://www.allmusic.com/album/complete-clapton-mw0000749969/credits
 import re
 
 url_re = re.compile('({0})?'.format(re.escape('http://www.allmusic.com')) + '''/
@@ -16,4 +16,4 @@ url_re = re.compile('({0})?'.format(re.escape('http://www.allmusic.com')) + '''/
 def parse_url(url):
     r = url_re.search(url)
     r_dict = r.groupdict()
-    return (r_dict['type'], r_dict['id'], r_dict['ext'] or '')
+    return r_dict['type'], r_dict['id'], r_dict['ext'] or ''

@@ -3,14 +3,11 @@ import os.path
 import errno
 
 import bencode
-
 from django.core.management.base import BaseCommand
 
 from WhatManager2 import manage_torrent
 from WhatManager2.utils import wm_unicode
-
 from home.models import WhatTorrent, DownloadLocation, ReplicaSet
-
 from what_transcode.utils import get_info_hash
 
 
@@ -79,7 +76,8 @@ class Command(BaseCommand):
         os.makedirs(self.dest_path)
         os.chmod(self.dest_path, 0777)
         if 'files' in self.torrent_info['info']:
-            self.dest_path = os.path.join(self.dest_path, wm_unicode(self.torrent_info['info']['name']))
+            self.dest_path = os.path.join(self.dest_path, wm_unicode(
+                self.torrent_info['info']['name']))
             os.makedirs(self.dest_path)
         print u'All torrent data files exist.'
         return True
@@ -94,13 +92,15 @@ class Command(BaseCommand):
                 os.rename(f_path, f_dest_path)
         else:
             f_path = os.path.join(self.data_path, wm_unicode(self.torrent_info['info']['name']))
-            f_dest_path = os.path.join(self.dest_path, wm_unicode(self.torrent_info['info']['name']))
+            f_dest_path = os.path.join(self.dest_path, wm_unicode(
+                self.torrent_info['info']['name']))
             safe_makedirs(os.path.dirname(f_dest_path))
             os.rename(f_path, f_dest_path)
 
     def handle(self, *args, **options):
         if not self.check_args(args):
-            print u'Pass the torrent data directory as a first argument, a path to the .torrent file as a second.'
+            print u'Pass the torrent data directory as a first argument, ' \
+                  u'a path to the .torrent file as a second.'
             return
         self.data_path, self.torrent_path = [wm_unicode(i) for i in args]
         with open(self.torrent_path, 'rb') as f:

@@ -1,8 +1,10 @@
 import os
 from subprocess import PIPE, Popen
+
 import mutagen
 from mutagen.easyid3 import EasyID3
 from mutagen.flac import FLAC
+
 from what_transcode.utils import get_sample_rate, get_bit_depth
 
 
@@ -69,7 +71,8 @@ def transcode_file(source_file, dest_file, source_media, bitrate):
         chain_options = [flac_options, lame_options]
     else:
         target_samplerate = target_samplerate or source_samplerate
-        sox_options = ['sox', '-t', 'wav', '-', '-b', '16', '-t', 'wav', '-', 'rate', '-v', '-L', str(target_samplerate), 'dither']
+        sox_options = ['sox', '-t', 'wav', '-', '-b', '16', '-t', 'wav', '-', 'rate', '-v', '-L',
+                       str(target_samplerate), 'dither']
         chain_options = [flac_options, sox_options, lame_options]
 
     print 'Chain is', chain_options

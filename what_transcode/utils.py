@@ -37,12 +37,9 @@ def get_mp3_ids(what_group, what_torrent):
     for t in what_group['torrents']:
         if t['format'] != 'MP3':
             continue
-        if (t['remastered'] == what_torrent['torrent']['remastered'] and
-                    t['media'] == what_torrent['torrent']['media'] and
-                    t['remasterCatalogueNumber'] == what_torrent['torrent']['remasterCatalogueNumber'] and
-                    t['remasterRecordLabel'] == what_torrent['torrent']['remasterRecordLabel'] and
-                    t['remasterTitle'] == what_torrent['torrent']['remasterTitle'] and
-                    t['remasterYear'] == what_torrent['torrent']['remasterYear']):
+        check_keys = ['remastered', 'media', 'remasterCatalogueNumber', 'remasterRecordLabel',
+                      'remasterTitle', 'remasterYear']
+        if all(t[k] == what_torrent['torrent'][k] for k in check_keys):
             if t['encoding'] == '320':
                 res['320'] = t['id']
             elif t['encoding'] == 'V0 (VBR)':
@@ -84,7 +81,8 @@ def norm_dest_path(torrent_name, dest_path):
 
     new_len = len(filename) - len_debt
     if new_len < 40:
-        raise Exception('Shortening the filename will make it less than 40 chars ({0}).'.format(new_len))
+        raise Exception('Shortening the filename will make it less than 40 chars ({0}).'
+                        .format(new_len))
     filename = filename[:new_len - 4 - 3] + '...' + filename[-4:]
     return os.path.join(dirname, filename)
 

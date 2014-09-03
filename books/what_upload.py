@@ -5,7 +5,8 @@ import shutil
 from WhatManager2 import manage_torrent
 from WhatManager2.settings import WHAT_UPLOAD_URL
 from home.models import get_what_client, DownloadLocation, ReplicaSet, WhatTorrent
-from what_transcode.utils import extract_upload_errors, safe_retrieve_new_torrent, get_info_hash_from_data
+from what_transcode.utils import extract_upload_errors, safe_retrieve_new_torrent, \
+    get_info_hash_from_data
 
 
 def get_what_tags(book_upload):
@@ -83,7 +84,8 @@ def upload_to_what(request, book_upload):
                 errors = extract_upload_errors(response.text)
             except Exception:
                 errors = ''
-            exception = Exception('Error uploading data to what.cd. Errors: {0}'.format('; '.join(errors)))
+            exception = Exception('Error uploading data to what.cd. Errors: {0}'
+                                  .format('; '.join(errors)))
             exception.response_text = response.text
             raise exception
     except Exception as ex:
@@ -94,7 +96,8 @@ def upload_to_what(request, book_upload):
     try:
         new_torrent = safe_retrieve_new_torrent(
             what, get_info_hash_from_data(book_upload.what_torrent_file))
-        book_upload.what_torrent = WhatTorrent.get_or_create(request, what_id=new_torrent['torrent']['id'])
+        book_upload.what_torrent = WhatTorrent.get_or_create(
+            request, what_id=new_torrent['torrent']['id'])
         book_upload.save()
     except Exception as ex:
         if upload_exception:
