@@ -4,7 +4,8 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse
 from django.shortcuts import render, redirect
-from WhatManager2.utils import wm_hmac, get_user_token
+
+from WhatManager2.utils import get_user_token
 
 
 def login(request):
@@ -23,7 +24,7 @@ def login(request):
         username: username,
         password: password
     }
-    return render(request, 'login/login.html')
+    return render(request, 'login/login.html', data)
 
 
 def logout(request):

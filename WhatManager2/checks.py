@@ -1,5 +1,6 @@
 import os
-from home.models import ReplicaSet, TransTorrent, WhatTorrent, WhatFulltext
+
+from home.models import ReplicaSet, WhatTorrent, WhatFulltext
 
 
 def run_checks():
@@ -18,6 +19,7 @@ def run_checks():
         for id, w_f in w_fulltext.items():
             if id not in w_torrents:
                 errors.append(u'{0} does not have a matching whattorrent entry.'.format(w_f))
+
     check_whatfulltext()
 
     for replica_set in ReplicaSet.objects.all():

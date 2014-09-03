@@ -34,7 +34,7 @@ def refresh_oldest_torrent(request):
     most_recent_id = most_recent.id
     try:
         most_recent.import_bibliotik_data(bibliotik_client)
-    except Exception as ex:
+    except Exception:
         try:
             BibliotikTransTorrent.objects.get(
                 instance__in=ReplicaSet.get_bibliotik_master().transinstance_set.all(),
