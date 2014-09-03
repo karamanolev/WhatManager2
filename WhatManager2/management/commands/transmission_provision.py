@@ -198,7 +198,8 @@ def create_system_user(username):
         raise Exception('useradd returned non-zero. args={0}'.format(args))
 
 
-def check_transmission_settings(path, bind_host, rpc_port, peer_port, username='transmission', umask=0):
+def check_transmission_settings(path, bind_host, rpc_port, peer_port, username='transmission',
+                                umask=0):
     try:
         settings = json.loads(read_text(path))
     except:
@@ -227,7 +228,8 @@ class TransInstanceManager(object):
         self.init_script_perms = 0755
         self.username = 'debian-transmission-{0}'.format(self.name)
         self.settings_path = os.path.join(self.transmission_files_path, 'settings.json')
-        self.settings_json = get_transmission_settings(TRANSMISSION_BIND_HOST, instance.port, instance.peer_port, instance.password)
+        self.settings_json = get_transmission_settings(
+            TRANSMISSION_BIND_HOST, instance.port, instance.peer_port, instance.password)
 
     def write_init_script(self):
         write_text(self.init_path, self.init_script)
@@ -261,7 +263,9 @@ class TransInstanceManager(object):
                 os.makedirs(self.transmission_files_path)
                 os.chmod(self.transmission_files_path, 0777)
             self.write_settings()
-        if not check_transmission_settings(self.settings_path, TRANSMISSION_BIND_HOST, self.instance.port, self.instance.peer_port):
+        if not check_transmission_settings(
+                self.settings_path, TRANSMISSION_BIND_HOST, self.instance.port,
+                self.instance.peer_port):
             print 'Fixing transmission settings file for {0}'.format(self.name)
             confirm()
             self.write_settings()
@@ -283,11 +287,30 @@ def ensure_root():
         raise CommandError('You have to call this program as root.')
 
 
+def ensure_replica_set_exists(zone):
+    try:
+        models.ReplicaSet.objects.get(zone=zone)
+    except models.ReplicaSet.DoesNotExist:
+        print u'There is no replica set with the name {0}. I will create one.'.format(zone)
+        confirm()
+        replica_set = models.ReplicaSet(
+            zone=zone,
+            name='master',
+        )
+        replica_set.save()
+
+
+def ensure_replica_sets_exist():
+    ensure_replica_set_exists(models.ReplicaSet.ZONE_WHAT)
+    ensure_replica_set_exists(models.ReplicaSet.ZONE_BIBLIOTIK)
+
+
 class Command(BaseCommand):
     help = 'Provisions transmission instances'
 
     def handle(self, *args, **options):
         ensure_root()
+        ensure_replica_sets_exist()
         for instance in models.TransInstance.objects.order_by('name'):
             manager = TransInstanceManager(instance)
             manager.sync()

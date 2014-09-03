@@ -4,14 +4,9 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from WhatManager2 import settings
-from WhatManager2.management.commands.transmission_provision import TransInstanceManager, ensure_root
+from WhatManager2.management.commands.transmission_provision import TransInstanceManager, \
+    ensure_root, confirm, ensure_replica_sets_exist
 from home import models
-
-
-def confirm():
-    answer = raw_input('Enter y to continue: ')
-    if answer != 'y':
-        exit(1)
 
 
 class Command(BaseCommand):
@@ -24,16 +19,8 @@ class Command(BaseCommand):
             print u'Pass only the zone name.'
             return
         zone = args[0]
-        try:
-            replica_set = models.ReplicaSet.objects.get(zone=zone)
-        except models.ReplicaSet.DoesNotExist:
-            print u'There is no replica set with the name {0}. I will create one.'.format(args[0])
-            confirm()
-            replica_set = models.ReplicaSet(
-                zone=zone,
-                name='master',
-            )
-            replica_set.save()
+        ensure_replica_sets_exist()
+        replica_set = models.ReplicaSet.objects.get(zone=zone)
         old_instances = replica_set.transinstance_set.order_by('-port').all()
         if len(old_instances):
             old_instance = old_instances[0]
