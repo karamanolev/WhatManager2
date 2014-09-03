@@ -20,7 +20,7 @@ def download_zip_handler(download_filename, paths):
             zip.write(file, rel_path, zipfile.ZIP_STORED)
     buffer.flush()
 
-    response = HttpResponse(mimetype='application/zip')
+    response = HttpResponse(content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename="' + download_filename + '"'
     response['Content-Length'] = buffer.len
 
