@@ -8,6 +8,7 @@ install:
   - "./setup_transmission-2.84.sh"
   - "./setup.sh"
   - "mysql -e 'CREATE DATABASE `what_manager2` COLLATE utf8_unicode_ci;'"
+  - "sudo ./manage.py syncdb"
   - "sudo ./manage.py transmission_new --no-confirm what.cd"
 script:
   - "flake8 ."
