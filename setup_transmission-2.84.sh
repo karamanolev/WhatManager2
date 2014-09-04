@@ -13,3 +13,4 @@ tar xvJf transmission-2.84.tar.xz
 cd transmission-2.84
 CFLAGS="-Os -march=native" ./configure && make -j2
 sudo checkinstall
+cd ..

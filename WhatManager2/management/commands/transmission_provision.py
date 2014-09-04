@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from optparse import make_option
 import os
 import os.path
 import pwd
@@ -179,7 +179,13 @@ def get_transmission_settings(bind_host, rpc_port, peer_port, rpc_password):
     )
 
 
+use_confirm = True
+
+
 def confirm():
+    global use_confirm
+    if not use_confirm:
+        return
     answer = raw_input('Enter y to continue: ')
     if answer != 'y':
         exit(1)
@@ -305,10 +311,24 @@ def ensure_replica_sets_exist():
     ensure_replica_set_exists(models.ReplicaSet.ZONE_BIBLIOTIK)
 
 
+# TODO: Implement it in a non-ugly way!
+def apply_options(options):
+    global use_confirm
+    use_confirm = options['confirm']
+
+
 class Command(BaseCommand):
+    option_list = BaseCommand.option_list + (
+        make_option('--no-confirm',
+                    action='store_false',
+                    dest='confirm',
+                    default=True,
+                    help='Do not ask for confirmation'),
+    )
     help = 'Provisions transmission instances'
 
     def handle(self, *args, **options):
+        apply_options(options)
         ensure_root()
         ensure_replica_sets_exist()
         for instance in models.TransInstance.objects.order_by('name'):

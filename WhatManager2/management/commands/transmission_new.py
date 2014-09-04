@@ -4,16 +4,19 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from WhatManager2 import settings
+from WhatManager2.management.commands import transmission_provision
 from WhatManager2.management.commands.transmission_provision import TransInstanceManager, \
-    ensure_root, confirm, ensure_replica_sets_exist
+    ensure_root, confirm, ensure_replica_sets_exist, apply_options
 from home import models
 
 
 class Command(BaseCommand):
+    option_list = transmission_provision.Command.option_list
     args = u'<zone_name>'
     help = u'Provisions transmission instances'
 
     def handle(self, *args, **options):
+        apply_options(options)
         ensure_root()
         if len(args) != 1:
             print u'Pass only the zone name.'
