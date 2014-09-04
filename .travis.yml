@@ -7,9 +7,8 @@ install:
   - "pip install -r test_requirements.txt"
   - "./setup_transmission-2.84.sh"
   - "./setup.sh"
-  - "sudo ./manage.py transmission_new --no-confirm what.cd"
-before_script:
   - "mysql -e 'CREATE DATABASE `what_manager2` COLLATE utf8_unicode_ci;'"
+  - "sudo ./manage.py transmission_new --no-confirm what.cd"
 script:
   - "flake8 ."
   - "./manage.py test"
