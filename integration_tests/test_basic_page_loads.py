@@ -21,7 +21,7 @@ class Fail(testcases.TestCase):
 
     def test_login(self):
         response = self.client.post('/user/login?next=/',
-                                    {'username': 'ivailo', 'password': 'Heman3f5'})
+                                    {'username': 'john_doe', 'password': 'password'})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, 'http://testserver/')
         response = self.client.get('/')
@@ -29,12 +29,12 @@ class Fail(testcases.TestCase):
 
     def test_login_redirect_correct(self):
         response = self.client.post('/user/login?next=/dummy_url',
-                                    {'username': 'ivailo', 'password': 'Heman3f5'})
+                                    {'username': 'john_doe', 'password': 'password'})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, 'http://testserver/dummy_url')
 
     def test_profile(self):
         self.client.post('/user/login',
-                         {'username': 'ivailo', 'password': 'Heman3f5'})
+                         {'username': 'john_doe', 'password': 'password'})
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
