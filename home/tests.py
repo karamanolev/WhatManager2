@@ -6,7 +6,6 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-from WhatManager2.management.commands import transmission_provision
 
 from home.models import WhatTorrent, ReplicaSet
 
