@@ -7,10 +7,10 @@ install:
   - "pip install -r test_requirements.txt"
   - "pip install -r requirements.txt"
   - "./setup_transmission-2.84.sh"
-  - "./setup.sh"
+  - "./ci_setup.sh"
   - "mysql -e 'CREATE DATABASE `what_manager2` COLLATE utf8_unicode_ci;'"
   - "./manage.py syncdb --noinput"
-  - "sudo ./manage.py transmission_new --no-confirm what.cd"
+  - "sudo -- sh -c 'source /home/travis/virtualenv/python2.7/bin/activate && ./manage.py transmission_new --no-confirm what.cd'"
 script:
   - "flake8 ."
   - "./manage.py test"
