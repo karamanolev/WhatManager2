@@ -10,7 +10,7 @@ install:
   - "./ci_setup.sh"
   - "mysql -e 'CREATE DATABASE `what_manager2` COLLATE utf8_unicode_ci;'"
   - "./manage.py syncdb --noinput"
-  - "sudo -- sh -c 'source /home/travis/virtualenv/python2.7/bin/activate && ./manage.py transmission_new --no-confirm what.cd'"
+  - "sudo -- bash -c 'source /home/travis/virtualenv/python2.7/bin/activate && ./manage.py transmission_new --no-confirm what.cd'"
 script:
   - "flake8 ."
   - "./manage.py test"
