@@ -16,7 +16,10 @@ def login(request):
         if user is not None:
             if user.is_active:
                 auth.login(request, user)
-                return redirect('home.views.dashboard')
+                if 'next' in request.GET:
+                    return redirect(request.GET['next'])
+                else:
+                    return redirect('home.views.dashboard')
     else:
         username = ''
         password = ''
