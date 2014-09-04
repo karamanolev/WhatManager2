@@ -14,3 +14,4 @@ install:
 script:
   - "flake8 ."
   - "./manage.py test"
+  - "./test_integration.py"
