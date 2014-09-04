@@ -7,7 +7,7 @@ install:
   - "pip install -r test_requirements.txt"
   - "pip install -r requirements.txt"
   - "./setup_transmission-2.84.sh"
-  - "./ci_setup.sh"
+  - "./setup.sh"
   - "mysql -e 'CREATE DATABASE `what_manager2` COLLATE utf8_unicode_ci;'"
   - "./manage.py syncdb --noinput"
   - "sudo ./manage.py transmission_new --no-confirm what.cd"
