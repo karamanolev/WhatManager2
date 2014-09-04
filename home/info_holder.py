@@ -2,6 +2,7 @@ import os
 
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
+from WhatManager2.utils import html_unescape
 
 
 WHAT_RELEASE_TYPES = (
@@ -50,7 +51,7 @@ def get_release_type_id(name):
 def parse_file(file):
     parts = file.replace('}}}', '').split('{{{')
     return {
-        'name': parts[0],
+        'name': html_unescape(parts[0]),
         'size': int(parts[1])
     }
 
