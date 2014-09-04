@@ -3,9 +3,9 @@ from django.test import testcases
 from django.test.client import Client
 
 
-class Fail(testcases.TestCase):
+class TestBasicPageLoads(testcases.TestCase):
     def setUp(self):
-        super(Fail, self).setUp()
+        super(TestBasicPageLoads, self).setUp()
 
         u = User(username='john_doe')
         u.set_password('password')
