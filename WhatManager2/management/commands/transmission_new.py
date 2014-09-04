@@ -20,7 +20,7 @@ class Command(BaseCommand):
         ensure_root()
         if len(args) != 1:
             print u'Pass only the zone name.'
-            return
+            return 1
         zone = args[0]
         ensure_replica_sets_exist()
         replica_set = models.ReplicaSet.objects.get(zone=zone)

@@ -4,11 +4,10 @@ python:
 services:
   - "mysql"
 install:
-  - "pip install -r requirements.txt"
   - "pip install -r test_requirements.txt"
   - "./setup_transmission-2.84.sh"
   - "./setup.sh"
-  - "./manage.py transmission_new --no-confirm what.cd"
+  - "sudo ./manage.py transmission_new --no-confirm what.cd"
 before_script:
   - "mysql -e 'CREATE DATABASE `what_manager2` COLLATE utf8_unicode_ci;'"
 script:
