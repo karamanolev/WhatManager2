@@ -1,0 +1,34 @@
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th style="width: 220px;">Variable</th>
+            <th>Value</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for e in settings_entries %}
+            {% if e.error == 'error' %}
+                <tr class="danger">
+                    <td>{{ e.name }}</td>
+                    <td>{{ e.status }}</td>
+                    <td>{{ e.errorMsg }}</td>
+                </tr>
+
+            {% else %}
+                <tr >
+                    <td>{{ e.name }}</td>
+                    <td class="
+                        {% if e.error == 'success' %}success
+                        {% elif e.error == 'error' %}danger
+                        {% elif e.error == 'info' %}info
+                        {% endif %}
+                        ">{{ e.status|linebreaksbr }}</td>
+                    <td>{{ e.errorMsg }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+                        
+    </tbody>
+</table>

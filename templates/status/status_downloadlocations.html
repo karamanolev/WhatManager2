@@ -1,0 +1,33 @@
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th style="width: 220px;">Replica</th>
+            <th>Download location</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for e in download_locations %}
+            {% if e.error == 'error' %}
+                <tr class="danger">
+                    <td>{{ e.name }}</td>
+                    <td>{{ e.status }}</td>
+                    <td >{{ e.errorMsg }}</td>
+                    
+                </tr>
+
+            {% else %}
+                <tr class="{% if e.error == 'success' %}success
+                        {% elif e.error == 'error' %}danger
+                        {% elif e.error == 'info' %}info
+                        {% endif %}">
+                    <td>{{ e.name }}</td>
+                    <td>{{ e.status|linebreaksbr }}</td>
+                    <td>{{ e.errorMsg }} </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+                        
+    </tbody>
+</table>

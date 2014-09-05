@@ -1,0 +1,76 @@
+<table class="table table-bordered table-hover">
+    {% if not trans_instances %}
+        <tr class="danger">
+            <td>
+                 <h4 style="padding-left: 20px;">No transmission instances</h4>
+            </td>
+        </tr>
+    {% else %}
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Host</th>
+            <th>Port</th>
+            <th>Peer port</th>
+            <th>Username</th>
+            <th>Status</th>
+            
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for e in trans_instances %}
+        
+        <tr class="
+            {% if e.error == 'success' %}success
+            {% elif e.error == 'error' %}danger
+            {% elif e.error == 'info' %}info
+            {% endif %} ">
+            <td>{{ e.name }}</td>
+            <td>{{ e.host }}</td>
+            <td>{{ e.port }}</td>
+            <td>{{ e.peer_port }}</td>
+            <td>{{ e.username }}</td>
+            {% if e.error == 'error' %}
+                <td>{{ e.errorMsg }}</td>
+            {% else %}
+                <td>{{ e.errorMsg }} </td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+            </tbody>
+    {% endif %}
+</table>
+{% if error_instances %}
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Instance</th>
+            <th>Name</th>
+            <th>DownloadPath</th>
+            <th>Error</th>
+            
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for e in trans_instances %}
+        
+        <tr class="
+            {% if e.error == 'success' %}success
+            {% elif e.error == 'error' %}danger
+            {% elif e.error == 'info' %}info
+            {% endif %} ">
+            <td>{{ e.name }}</td>
+            <td>{{ e.host }}</td>
+            <td>{{ e.downloadPath }}</td>
+            {% if e.error == 'error' %}
+                <td>{{ e.errorMsg }}</td>
+            {% else %}
+                <td> No error? </td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+            </tbody>
+</table>
+{% endif %}
