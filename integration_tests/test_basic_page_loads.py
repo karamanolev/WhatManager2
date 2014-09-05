@@ -44,11 +44,6 @@ class TestBasicPageLoads(testcases.TestCase):
         response = self.client.post('/books/uploads')
         self.assertEqual(response.status_code, 200)
 
-    def test_torrents(self):
-        self.login()
-        response = self.client.post('/torrents')
-        self.assertEqual(response.status_code, 200)
-
     def test_view_log(self):
         self.login()
         response = self.client.post('/view_log')
