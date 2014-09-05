@@ -40,6 +40,7 @@ class WhatUserSnapshot(models.Model):
         snapshots = WhatUserSnapshot.objects.order_by('-datetime')[:1]
         if len(snapshots):
             return snapshots[0]
+        raise WhatUserSnapshot.DoesNotExist,IndexError
         return None
 
     @classmethod
