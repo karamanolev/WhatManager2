@@ -41,7 +41,6 @@ class WhatUserSnapshot(models.Model):
         if len(snapshots):
             return snapshots[0]
         raise WhatUserSnapshot.DoesNotExist, IndexError
-        return None
 
     @classmethod
     def get_closest_snapshot(self, when):
@@ -50,7 +49,7 @@ class WhatUserSnapshot(models.Model):
         }, order_by=['delta'], select_params=[when])[:1]
         if len(snapshots):
             return snapshots[0]
-        return None
+        raise WhatUserSnapshot.DoesNotExist, IndexError
 
     @classmethod
     def buffer_delta(cls, delta):

@@ -112,7 +112,10 @@ def sync_all_replicas_to_master():
 def sync_profile(request):
     user_id = settings.WHAT_USER_ID
     interval = settings.WHAT_PROFILE_SNAPSHOT_INTERVAL
-    last_snap = WhatUserSnapshot.get_last()
-    if not last_snap or (timezone.now() - last_snap.datetime).total_seconds() >= interval - 30:
+    try:
+        last_snap = WhatUserSnapshot.get_last()
+        if (timezone.now() - last_snap.datetime).total_seconds() <= interval - 30:
+            pass
+    except (WhatUserSnapshot.DoesNotExist, IndexError):
         what = get_what_client(request)
         WhatUserSnapshot.get(what, user_id).save()
