@@ -150,7 +150,7 @@ def error_torrents(request):
 def torrent_stats(request):
     what_buffer = 0
     try:
-        if(WhatUserSnapshot.get_last()=None): 
+        if(WhatUserSnapshot.get_last() is None): 
             what_buffer=0;
         else
             what_buffer = WhatUserSnapshot.get_last().buffer_105
