@@ -8,7 +8,7 @@ from what_profile.models import WhatUserSnapshot
 
 @login_required
 def profile(request):
-    if WhatUserSnapshot.objects.count():
+    try:
         data = {
             'delta_hour': WhatUserSnapshot.buffer_delta(datetime.timedelta(hours=1)),
             'delta_day': WhatUserSnapshot.buffer_delta(datetime.timedelta(days=1)),
@@ -16,7 +16,7 @@ def profile(request):
             'delta_month': WhatUserSnapshot.buffer_delta(datetime.timedelta(days=30)),
             'buffer': WhatUserSnapshot.get_last().buffer_105,
         }
-    else:
+    except WhatUserSnapshot.DoesNotExist:
         data = {
             'delta_hour': '-',
             'delta_day': '-',
@@ -24,4 +24,5 @@ def profile(request):
             'delta_month': '-',
             'buffer': '-',
         }
+
     return render(request, 'what_profile/profile.html', data)

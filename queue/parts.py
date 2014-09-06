@@ -43,8 +43,14 @@ def auto_pop(request):
             'success': False,
             'error': 'Queue is empty.'
         }
-
-    ratio_delta = get_auto_pop_ratio_delta(WhatUserSnapshot.get_last())
+    try:
+        ratio_delta = get_auto_pop_ratio_delta(WhatUserSnapshot.get_last())
+    except WhatUserSnapshot.DoesNotExist:
+        LogEntry.add(request.user, u'info', 'Auto pop: User profile not updated, skipping pop.')
+        return {
+            'success': False,
+            'error': u'User profile not updated, skipping pop.'
+        }
     if ratio_delta >= front.torrent_size:
         return do_pop(request)
     else:

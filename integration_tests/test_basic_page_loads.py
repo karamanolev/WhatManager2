@@ -109,8 +109,3 @@ class TestBasicPageLoads(testcases.TestCase):
         self.login()
         response = self.client.get('/queue/part/queue_stats')
         self.assertEqual(response.status_code, 200)
-
-
-
-
-
