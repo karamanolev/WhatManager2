@@ -209,8 +209,6 @@ INSTALLED_APPS = (
     'download',
     'queue',
     'what_profile',
-    'allmusic',
-    'torrent_list',
     'what_transcode',
     'books',
     'bibliotik',
