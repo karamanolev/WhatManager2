@@ -212,6 +212,7 @@ INSTALLED_APPS = (
     'what_transcode',
     'books',
     'bibliotik',
+    'bibliotik_json',
     'bootstrapform',
 )
 
