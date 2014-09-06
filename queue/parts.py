@@ -46,7 +46,7 @@ def auto_pop(request):
     try:
         ratio_delta = get_auto_pop_ratio_delta(WhatUserSnapshot.get_last())
     except WhatUserSnapshot.DoesNotExist:
-        LogEntry.add(request.user, u'info', 'User profile not updated, skipping pop.')
+        LogEntry.add(request.user, u'info', 'Auto pop: User profile not updated, skipping pop.')
         return {
             'success': False,
             'error': u'User profile not updated, skipping pop.'
