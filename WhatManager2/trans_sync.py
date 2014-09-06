@@ -120,3 +120,4 @@ def sync_profile(request):
         pass
     what = get_what_client(request)
     WhatUserSnapshot.get(what, user_id).save()
+    
