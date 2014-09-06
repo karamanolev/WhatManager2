@@ -1,5 +1,5 @@
 bencode>=1.0
-Django>=1.5.4
+Django>=1.7
 MySQL-python>=1.2.4
 django-celery>=3.0.23
 mutagen>=1.22
@@ -10,4 +10,4 @@ requests>=2.0.0
 kombu>=3.0.15
 billiard>=3.3.0.17
 django-bootstrap-form>=3.1
-
+sqlparse>=0.1.11
