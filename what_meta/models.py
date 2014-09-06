@@ -1,15 +1,19 @@
+import json
+
 from django.db import models, transaction
+
 
 # Lengths taken from gazelle.sql from GitHub
 from django.db.backends.mysql.base import parse_datetime_with_timezone_support
+from django.utils import timezone
 
 
 class WhatArtist(models.Model):
     retrieved = models.DateTimeField()
     name = models.CharField(max_length=200)
     image = models.CharField(max_length=255, null=True)
-    wiki = models.TextField(null=True)
-    vanity_house = models.BooleanField(null=True)
+    wiki_body = models.TextField(null=True)
+    vanity_house = models.BooleanField(default=False)
 
     @classmethod
     def get_or_create_shell(cls, artist_id, name, retrieved):
@@ -25,15 +29,9 @@ class WhatArtist(models.Model):
             return new_artist
 
 
-class WhatTorrentArtist(models.Model):
-    artist = models.ForeignKey(WhatArtist)
-    torrent_group = models.ForeignKey(WhatTorrentGroup)
-    importance = models.IntegerField()
-
-
 class WhatTorrentGroup(models.Model):
     retrieved = models.DateTimeField()
-    artists = models.ManyToManyField(WhatArtist, through=WhatTorrentArtist)
+    artists = models.ManyToManyField(WhatArtist, through='WhatTorrentArtist')
     wiki_body = models.TextField()
     wiki_image = models.CharField(max_length=255)
     name = models.CharField(max_length=300)
@@ -44,10 +42,23 @@ class WhatTorrentGroup(models.Model):
     category_id = models.IntegerField()
     category_name = models.CharField(max_length=32)
     time = models.DateTimeField()
-    vanity_house = models.BooleanField()
+    vanity_house = models.BooleanField(default=False)
+    # Will contain the JSON for the "torrent" response field if this was fetched through
+    # action=torrentgroup. If it was created from an action=torrent, then it will be NULL
+    torrents_json = models.TextField(null=True)
+
+    def add_artists(self, importance, artists):
+        for artist in artists:
+            what_artist = WhatArtist.get_or_create_shell(
+                artist['id'], artist['name'], self.retrieved)
+            WhatTorrentArtist(
+                artist=what_artist,
+                torrent_group=self,
+                importance=importance
+            ).save()
 
     @classmethod
-    def update_if_newer(cls, group_id, retrieved, data_dict):
+    def update_if_newer(cls, group_id, retrieved, data_dict, torrents_dict=None):
         try:
             group = WhatTorrentGroup.objects.get(id=group_id)
             if retrieved < group.retrieved:
@@ -68,22 +79,29 @@ class WhatTorrentGroup(models.Model):
         group.category_name = data_dict['categoryName']
         group.time = parse_datetime_with_timezone_support(data_dict['time'])
         group.vanity_house = data_dict['vanityHouse']
+        if torrents_dict is not None:
+            group.torrents_json = json.dumps(torrents_dict)
+        else:
+            group.torrents_json = None
         with transaction.atomic():
             group.save()
             group.artists.clear()
-            def add_artists(importance, artists):
-                for artist in artists:
-                    what_artist = WhatArtist.get_or_create_shell(
-                        artist['id'], artist['name'], retrieved)
-                    WhatTorrentArtist(
-                        artist=what_artist,
-                        torrent_group=group,
-                        importance=importance
-                    ).save()
-            add_artists(1, data_dict['musicInfo']['artists'])
-            add_artists(2, data_dict['musicInfo']['with'])
-            add_artists(3, data_dict['musicInfo']['remixedBy'])
-            add_artists(4, data_dict['musicInfo']['composers'])
-            add_artists(5, data_dict['musicInfo']['conductor'])
-            add_artists(6, data_dict['musicInfo']['dj'])
-            add_artists(7, data_dict['musicInfo']['producer'])
+            group.add_artists(1, data_dict['musicInfo']['artists'])
+            group.add_artists(2, data_dict['musicInfo']['with'])
+            group.add_artists(3, data_dict['musicInfo']['remixedBy'])
+            group.add_artists(4, data_dict['musicInfo']['composers'])
+            group.add_artists(5, data_dict['musicInfo']['conductor'])
+            group.add_artists(6, data_dict['musicInfo']['dj'])
+            group.add_artists(7, data_dict['musicInfo']['producer'])
+
+    @classmethod
+    def update_from_what(cls, what_client, group_id):
+        retrieved = timezone.now()
+        group = what_client.request('torrentgroup', id=group_id)['response']
+        cls.update_if_newer(group_id, retrieved, group['group'], group['torrents'])
+
+
+class WhatTorrentArtist(models.Model):
+    artist = models.ForeignKey(WhatArtist)
+    torrent_group = models.ForeignKey(WhatTorrentGroup)
+    importance = models.IntegerField()

@@ -9,7 +9,7 @@ from time import sleep
 
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.db import models
+from django.db import models, transaction
 from django.db.models.aggregates import Sum
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -22,6 +22,7 @@ from WhatManager2.settings import FREELEECH_EMAIL_TO, WHAT_CD_DOMAIN, FREELEECH_
 from WhatManager2.utils import match_properties, copy_properties, norm_t_torrent, html_unescape, \
     wm_str, get_artists, wm_unicode
 from home.info_holder import InfoHolder
+from what_meta.models import WhatTorrentGroup
 
 
 class TorrentAlreadyAddedException(Exception):
@@ -245,12 +246,28 @@ class WhatFulltext(models.Model):
         return u'WhatFulltext id={0}'.format(self.id)
 
 
+class WhatTorrentManager(models.Manager):
+    def efficient_all(self, page_size=8192):
+        try:
+            max = self.all().order_by("-pk")[0].pk
+        except IndexError:
+            return
+        pages = max / page_size + 1
+        for page_num in xrange(pages):
+            lower = page_num * page_size
+            page = self.filter(pk__gte=lower, pk__lt=lower + page_size)
+            for obj in page:
+                yield obj
+
+
 class WhatTorrent(models.Model, InfoHolder):
     class Meta:
         permissions = (
             ('view_whattorrent', 'Can view torrents.'),
             ('download_whattorrent', 'Can download and play torrents.'),
         )
+
+    objects = WhatTorrentManager()
 
     info_hash = models.TextField()
     torrent_file = models.TextField()
@@ -259,20 +276,22 @@ class WhatTorrent(models.Model, InfoHolder):
     info = models.TextField()
     tags = models.TextField()
     added_by = models.ForeignKey(User, null=True)
-    what_group_id = models.IntegerField()
+    what_group_id = models.ForeignKey('what_meta.WhatTorrentGroup')
 
     def save(self, *args, **kwargs):
         if self.what_group_id != self.info_loads['group']['id']:
             self.what_group_id = self.info_loads['group']['id']
 
-        super(WhatTorrent, self).save(*args, **kwargs)
-        try:
-            what_fulltext = WhatFulltext.objects.get(id=self.id)
-            if not what_fulltext.match(self):
+        with transaction.atomic():
+            super(WhatTorrent, self).save(*args, **kwargs)
+            WhatTorrentGroup.update_if_newer(self.what_group_id)
+            try:
+                what_fulltext = WhatFulltext.objects.get(id=self.id)
+                if not what_fulltext.match(self):
+                    what_fulltext.update(self)
+            except WhatFulltext.DoesNotExist:
+                what_fulltext = WhatFulltext(id=self.id)
                 what_fulltext.update(self)
-        except WhatFulltext.DoesNotExist:
-            what_fulltext = WhatFulltext(id=self.id)
-            what_fulltext.update(self)
 
     def delete(self, *args, **kwargs):
         try:
@@ -484,6 +503,16 @@ class RequestException(Exception):
         self.response = response
 
 
+class BadIdException(RequestException):
+    def __init__(self, response=None):
+        super(BadIdException, self).__init__('Bad ID Parameter.', response)
+
+
+class RateLimitExceededException(RequestException):
+    def __init__(self, response=None):
+        super(RateLimitExceededException, self).__init__('Rate limit exceeded.', response)
+
+
 def send_freeleech_email(message):
     send_mail(u'Freeleech', message, FREELEECH_EMAIL_FROM, [FREELEECH_EMAIL_TO])
 
@@ -542,7 +571,13 @@ class CustomWhatAPI:
         try:
             json_response = r.json()
             if json_response["status"] != "success":
-                raise RequestException(response=json_response)
+                if json_response['error'] == 'bad id parameter':
+                    raise BadIdException(json_response)
+                elif json_response['error'] == 'rate limit exceeded':
+                    raise RateLimitExceededException(json_response)
+                raise RequestException(
+                    message=json_response['error'] if 'error' in json_response else json_response,
+                    response=json_response)
             return json_response
         except ValueError:
             raise RequestException()
