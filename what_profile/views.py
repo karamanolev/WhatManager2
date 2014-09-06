@@ -16,7 +16,7 @@ def profile(request):
             'delta_month': WhatUserSnapshot.buffer_delta(datetime.timedelta(days=30)),
             'buffer': WhatUserSnapshot.get_last().buffer_105,
         }
-    except (WhatUserSnapshot.DoesNotExist, IndexError):
+    except WhatUserSnapshot.DoesNotExist:
         data = {
             'delta_hour': '-',
             'delta_day': '-',

@@ -114,8 +114,9 @@ def sync_profile(request):
     interval = settings.WHAT_PROFILE_SNAPSHOT_INTERVAL
     try:
         last_snap = WhatUserSnapshot.get_last()
-        if (timezone.now() - last_snap.datetime).total_seconds() <= interval - 30:
-            pass
-    except (WhatUserSnapshot.DoesNotExist, IndexError):
-        what = get_what_client(request)
-        WhatUserSnapshot.get(what, user_id).save()
+        if (timezone.now() - last_snap.datetime).total_seconds() < interval - 30:
+            return
+    except WhatUserSnapshot.DoesNotExist:
+        pass
+    what = get_what_client(request)
+    WhatUserSnapshot.get(what, user_id).save()

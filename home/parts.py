@@ -151,7 +151,7 @@ def torrent_stats(request):
     what_buffer = 0
     try:
         what_buffer = WhatUserSnapshot.get_last().buffer_105
-    except (WhatUserSnapshot.DoesNotExist, IndexError):
+    except WhatUserSnapshot.DoesNotExist:
         pass
     data = {
         'master': ReplicaSet.get_what_master(),
