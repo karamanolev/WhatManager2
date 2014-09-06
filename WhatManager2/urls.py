@@ -13,8 +13,6 @@ urlpatterns = patterns(
     url(r'^queue/', include('queue.urls')),
     url(r'^profile/', include('what_profile.urls')),
     url(r'^player/', include('player.urls')),
-    url(r'^allmusic/', include('allmusic.urls')),
-    url(r'^torrent_list/', include('torrent_list.urls')),
     url(r'^transcode/', include('what_transcode.urls')),
     url(r'^books/', include('books.urls')),
     url(r'^books/', include('bibliotik.urls')),
