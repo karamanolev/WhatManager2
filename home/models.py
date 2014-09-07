@@ -276,7 +276,7 @@ class WhatTorrent(models.Model, InfoHolder):
     info = models.TextField()
     tags = models.TextField()
     added_by = models.ForeignKey(User, null=True)
-    what_group_id = models.ForeignKey('what_meta.WhatTorrentGroup')
+    what_group = models.ForeignKey('what_meta.WhatTorrentGroup', db_column='what_group_id')
 
     def save(self, *args, **kwargs):
         if self.what_group_id != self.info_loads['group']['id']:
