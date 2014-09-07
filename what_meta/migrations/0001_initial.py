@@ -44,6 +44,7 @@ class Migration(migrations.Migration):
                 ('retrieved', models.DateTimeField()),
                 ('wiki_body', models.TextField()),
                 ('wiki_image', models.CharField(max_length=255)),
+                ('joined_artists', models.TextField()),
                 ('name', models.CharField(max_length=300)),
                 ('year', models.IntegerField()),
                 ('record_label', models.CharField(max_length=80)),
