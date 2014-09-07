@@ -2,10 +2,13 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+from WhatManager2.management.commands import what_meta_fixer
 
 
 def run_meta_fixer(apps, schema_editor):
     WhatTorrent = apps.get_model('home', 'WhatTorrent')
+    meta_fixer = what_meta_fixer.Command(WhatTorrent)
+    meta_fixer.handle()
 
 
 class Migration(migrations.Migration):
