@@ -123,7 +123,7 @@ def get_artists(group):
     link = []
 
     if len(a_composers) and len(a_composers) < 3:
-        link.append(' & '.join(a['name'] for a in a_composers))
+        link.append(' & '.join(html_unescape(a['name']) for a in a_composers))
 
         if len(a_composers) < 3 and len(a_main) > 0:
             link.append('performed by')
@@ -132,7 +132,7 @@ def get_artists(group):
 
     if len(a_main):
         if len(a_main) <= 2:
-            link.append(' & '.join(a['name'] for a in a_main))
+            link.append(' & '.join(html_unescape(a['name']) for a in a_main))
         else:
             link.append('Various Artists')
 
@@ -141,7 +141,7 @@ def get_artists(group):
             link.append('under')
 
         if len(a_conductors) <= 2:
-            link.append(' & '.join(a['name'] for a in a_conductors))
+            link.append(' & '.join(html_unescape(a['name']) for a in a_conductors))
         else:
             link.append('Various Conductors')
 
@@ -154,7 +154,7 @@ def get_artists(group):
 
     if len(a_djs):
         if len(a_djs) <= 2:
-            link = [' & '.join(a['name'] for a in a_djs)]
+            link = [' & '.join(html_unescape(a['name']) for a in a_djs)]
         else:
             link = ['Various DJs']
 

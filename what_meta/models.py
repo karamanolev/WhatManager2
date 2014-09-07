@@ -6,6 +6,7 @@ from django.db import models, transaction
 # Lengths taken from gazelle.sql from GitHub
 from django.db.backends.mysql.base import parse_datetime_with_timezone_support
 from django.utils import timezone
+from WhatManager2.utils import html_unescape, get_artists
 
 
 class WhatArtist(models.Model):
@@ -34,6 +35,7 @@ class WhatTorrentGroup(models.Model):
     artists = models.ManyToManyField(WhatArtist, through='WhatTorrentArtist')
     wiki_body = models.TextField()
     wiki_image = models.CharField(max_length=255)
+    joined_artists = models.TextField()
     name = models.CharField(max_length=300)
     year = models.IntegerField()
     record_label = models.CharField(max_length=80)
@@ -50,7 +52,7 @@ class WhatTorrentGroup(models.Model):
     def add_artists(self, importance, artists):
         for artist in artists:
             what_artist = WhatArtist.get_or_create_shell(
-                artist['id'], artist['name'], self.retrieved)
+                artist['id'], html_unescape(artist['name']), self.retrieved)
             WhatTorrentArtist(
                 artist=what_artist,
                 torrent_group=self,
@@ -69,11 +71,12 @@ class WhatTorrentGroup(models.Model):
             )
         group.retrieved = retrieved
         group.wiki_body = data_dict['wikiBody']
-        group.wiki_image = data_dict['wikiImage']
-        group.name = data_dict['name']
+        group.wiki_image = html_unescape(data_dict['wikiImage'])
+        group.joined_artists = get_artists(data_dict)
+        group.name = html_unescape(data_dict['name'])
         group.year = data_dict['year']
-        group.record_label = data_dict['recordLabel']
-        group.catalogue_number = data_dict['catalogueNumber']
+        group.record_label = html_unescape(data_dict['recordLabel'])
+        group.catalogue_number = html_unescape(data_dict['catalogueNumber'])
         group.release_type = data_dict['releaseType']
         group.category_id = data_dict['categoryId']
         group.category_name = data_dict['categoryName']

@@ -6,8 +6,8 @@ from WhatManager2.management.commands import what_meta_fixer
 
 
 def run_meta_fixer(apps, schema_editor):
-    WhatTorrent = apps.get_model('home', 'WhatTorrent')
-    meta_fixer = what_meta_fixer.Command(WhatTorrent)
+    what_torrent = apps.get_model('home', 'WhatTorrent')
+    meta_fixer = what_meta_fixer.Command(what_torrent)
     meta_fixer.handle()
 
 
