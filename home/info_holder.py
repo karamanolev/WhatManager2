@@ -155,3 +155,7 @@ class InfoHolder(object):
     @cached_property
     def info_size(self):
         return self.info_loads['torrent']['size']
+
+    @cached_property
+    def info_category_id(self):
+        return self.info_loads['group']['categoryId']

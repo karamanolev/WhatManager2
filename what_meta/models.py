@@ -93,12 +93,13 @@ class WhatTorrentGroup(models.Model):
             group.add_artists(5, data_dict['musicInfo']['conductor'])
             group.add_artists(6, data_dict['musicInfo']['dj'])
             group.add_artists(7, data_dict['musicInfo']['producer'])
+        return group
 
     @classmethod
     def update_from_what(cls, what_client, group_id):
         retrieved = timezone.now()
         group = what_client.request('torrentgroup', id=group_id)['response']
-        cls.update_if_newer(group_id, retrieved, group['group'], group['torrents'])
+        return cls.update_if_newer(group_id, retrieved, group['group'], group['torrents'])
 
 
 class WhatTorrentArtist(models.Model):

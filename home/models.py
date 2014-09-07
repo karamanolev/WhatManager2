@@ -246,28 +246,12 @@ class WhatFulltext(models.Model):
         return u'WhatFulltext id={0}'.format(self.id)
 
 
-class WhatTorrentManager(models.Manager):
-    def efficient_all(self, page_size=8192):
-        try:
-            max = self.all().order_by("-pk")[0].pk
-        except IndexError:
-            return
-        pages = max / page_size + 1
-        for page_num in xrange(pages):
-            lower = page_num * page_size
-            page = self.filter(pk__gte=lower, pk__lt=lower + page_size)
-            for obj in page:
-                yield obj
-
-
 class WhatTorrent(models.Model, InfoHolder):
     class Meta:
         permissions = (
             ('view_whattorrent', 'Can view torrents.'),
             ('download_whattorrent', 'Can download and play torrents.'),
         )
-
-    objects = WhatTorrentManager()
 
     info_hash = models.TextField()
     torrent_file = models.TextField()
@@ -276,22 +260,20 @@ class WhatTorrent(models.Model, InfoHolder):
     info = models.TextField()
     tags = models.TextField()
     added_by = models.ForeignKey(User, null=True)
-    what_group = models.ForeignKey('what_meta.WhatTorrentGroup', db_column='what_group_id')
+    torrent_group = models.ForeignKey('what_meta.WhatTorrentGroup', null=True)
 
     def save(self, *args, **kwargs):
-        if self.what_group_id != self.info_loads['group']['id']:
-            self.what_group_id = self.info_loads['group']['id']
-
         with transaction.atomic():
+            self.torrent_group = WhatTorrentGroup.update_if_newer(
+                self.info_loads['group']['id'], self.retrieved, self.info_loads['group'])
             super(WhatTorrent, self).save(*args, **kwargs)
-            WhatTorrentGroup.update_if_newer(self.what_group_id)
-            try:
-                what_fulltext = WhatFulltext.objects.get(id=self.id)
-                if not what_fulltext.match(self):
-                    what_fulltext.update(self)
-            except WhatFulltext.DoesNotExist:
-                what_fulltext = WhatFulltext(id=self.id)
+        try:
+            what_fulltext = WhatFulltext.objects.get(id=self.id)
+            if not what_fulltext.match(self):
                 what_fulltext.update(self)
+        except WhatFulltext.DoesNotExist:
+            what_fulltext = WhatFulltext(id=self.id)
+            what_fulltext.update(self)
 
     def delete(self, *args, **kwargs):
         try:
