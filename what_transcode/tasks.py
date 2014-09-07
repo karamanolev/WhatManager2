@@ -11,7 +11,8 @@ from django.utils.functional import cached_property
 import requests
 
 from WhatManager2.settings import WHAT_ANNOUNCE, WHAT_UPLOAD_URL, TRANSCODER_ADD_TORRENT_URL, \
-    TRANSCODER_HTTP_USERNAME, TRANSCODER_HTTP_PASSWORD, TRANSCODER_TEMP_DIR, TRANSCODER_ERROR_OUTPUT
+    TRANSCODER_HTTP_USERNAME, TRANSCODER_HTTP_PASSWORD, TRANSCODER_TEMP_DIR, \
+    TRANSCODER_ERROR_OUTPUT, TRANSCODER_FORMATS
 from WhatManager2.utils import get_artists
 from home.models import get_what_client, DownloadLocation, ReplicaSet
 from what_transcode.flac_lame import transcode_file
@@ -361,7 +362,7 @@ class TranscodeJob(object):
             del mp3_ids['V0']
         if self.force_320 and '320' in mp3_ids:
             del mp3_ids['320']
-        for bitrate in ['V0', '320']:
+        for bitrate in TRANSCODER_FORMATS:
             if bitrate not in mp3_ids:
                 single_job = TranscodeSingleJob(self.what, self.what_torrent, self.report_progress,
                                                 self.source_dir,
