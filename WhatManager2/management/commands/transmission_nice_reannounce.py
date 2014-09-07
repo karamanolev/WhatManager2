@@ -52,7 +52,7 @@ class Command(BaseCommand):
                 time.sleep(self.sleep_time)
 
     def handle(self, *args, **options):
-        self.sleep_time = 0.5 if options['fast'] else 0.5
+        self.sleep_time = 0.5 if options['fast'] else 2.0
         if options['zone']:
             master = ReplicaSet.objects.get(zone=options['zone'], name='master')
             self.reannounce_zone(master)
