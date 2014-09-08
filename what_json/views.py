@@ -8,6 +8,7 @@ import time
 
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.utils import timezone
+from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
@@ -142,30 +143,36 @@ def add_torrent(request):
     if not request.user.has_perm('home.add_whattorrent'):
         return {
             'success': False,
-            'error': 'You don\'t have permission to add torrents. Talk to the administrator.'
+            'error': 'You don\'t have permission to add torrents. Talk to the administrator.',
         }
 
-    if 'dir' in request.POST:
-        download_location = DownloadLocation.objects.get(
-            zone=ReplicaSet.ZONE_WHAT,
-            path=request.POST['dir']
-        )
-    else:
-        download_location = DownloadLocation.get_what_preferred()
+    try:
+        if 'dir' in request.POST:
+            download_location = DownloadLocation.objects.get(
+                zone=ReplicaSet.ZONE_WHAT,
+                path=request.POST['dir']
+            )
+        else:
+            download_location = DownloadLocation.get_what_preferred()
+    except DownloadLocation.DoesNotExist:
+        return {
+            'success': False,
+            'error': u'Download location does not exist.',
+        }
 
     if download_location.free_space_percent < MIN_FREE_DISK_SPACE:
         LogEntry.add(request.user, u'error', u'Failed to add torrent. Not enough disk space.')
         return {
             'success': False,
-            'error': u'Not enough free space on disk.'
+            'error': u'Not enough free space on disk.',
         }
 
     try:
         what_id = int(request.POST['id'])
-    except ValueError:
+    except (ValueError, MultiValueDictKeyError):
         return {
             'success': False,
-            'error': u'Invalid id'
+            'error': u'Invalid id',
         }
 
     instance = ReplicaSet.get_what_master().get_preferred_instance()
