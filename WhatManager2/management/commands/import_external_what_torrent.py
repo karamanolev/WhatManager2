@@ -1,3 +1,4 @@
+from optparse import make_option
 import os
 import os.path
 import errno
@@ -20,6 +21,14 @@ def safe_makedirs(p):
 
 
 class Command(BaseCommand):
+    option_list = BaseCommand.option_list + (
+        make_option('--base-dir',
+                    action='store_true',
+                    dest='base_dir',
+                    default=False,
+                    help='Pass the containing directory of the torrent instead of the directory'
+                         ' itself. The name of the torrent will be automatically appended.'),
+    )
     help = u'Moves existing torrent data and import the torrent in WM.'
 
     def __init__(self):
@@ -105,6 +114,9 @@ class Command(BaseCommand):
         self.data_path, self.torrent_path = [wm_unicode(i) for i in args]
         with open(self.torrent_path, 'rb') as f:
             self.torrent_info = bencode.bdecode(f.read())
+        if options['base_dir']:
+            self.data_path = os.path.join(self.data_path,
+                                          wm_unicode(self.torrent_info['info']['name']))
         self.what_torrent = WhatTorrent.get_or_create(self.pseudo_request, info_hash=self.info_hash)
         if not self.check_files():
             return
