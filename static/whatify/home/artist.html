@@ -1,0 +1,40 @@
+<div class="row">
+    <div class="col-sm-12 well">
+        artist information<br/>
+
+        <div style="display: inline-block; width: 600px; vertical-align: top;">
+            <div class="thumbnail" style="width: 100px;">
+                <img ng-src="{{ artist.image }}">
+            </div>
+            <h3>name: {{ artist.name }}</h3>
+            albums:
+            <ul>
+                <li ng-repeat="group in artist.torrentGroups.Album">
+                    <span>{{ group.name }}</span>
+                    (<span>{{ group.year }}</span>)
+                <span ng-show="group.have === true"
+                      ng-click="playTorrentGroup(group.id)"
+                      class="btn btn-default btn-xs">&#9654;</span>
+                <span ng-show="group.have !== false && group.have !== true">
+                    {{ group.have * 100 | number:0 }}%
+                </span>
+                </li>
+            </ul>
+            eps:
+            <ul>
+                <li ng-repeat="group in artist.torrentGroups.EP">
+                    {{ group.name }}
+                </li>
+            </ul>
+            singles:
+            <ul>
+                <li ng-repeat="group in artist.torrentGroups.Single">
+                    {{ group.name }}
+                </li>
+            </ul>
+        </div>
+
+        <div style="display: inline-block; width: 400px; vertical-align: top;"
+             ng-bind-html="artist.wiki | trustAsHtml"></div>
+    </div>
+</div>

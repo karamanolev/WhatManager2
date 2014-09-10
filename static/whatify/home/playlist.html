@@ -1,0 +1,17 @@
+<div class="row">
+    <div class="col-sm-12 well">
+        Playlist:
+        <ul>
+            <li ng-repeat="item in player.playlist">
+                {{ $index }}.
+                <span ng-show="player.currentItem.id == item.id">
+                    <span ng-show="player.isPlaying">playing</span>
+                    <span ng-show="!player.isPlaying">paused</span>
+                </span>
+                <a ng-click="player.play($index)">{{ item.id }}</a><br>
+                {{ item.url }}<br>
+                {{ item.metadata.title }}<br>
+            </li>
+        </ul>
+    </div>
+</div>

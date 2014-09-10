@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html ng-app="whatify">
+<head>
+    <link rel="stylesheet" href="../../static/whatify/static/css/bootstrap.min.css">
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="../../static/whatify/static/js/bootstrap.min.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+
+    <script src="../../static/whatify/app.js"></script>
+    <script src="../../static/whatify/home/home.js"></script>
+    <script src="../../static/whatify/player/player.js"></script>
+    <script src="../../static/whatify/searchBar/searchBar.js"></script>
+    <style type="text/css">
+        html, body {
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div ng-wm-search-bar></div>
+
+    <div ng-view></div>
+</div>
+
+<div class="container-fluid">
+    <div ng-wm-player-sm></div>
+</div>
+
+</body>
+</html>

@@ -31,7 +31,7 @@ def json_return_method(fn):
         val = fn(*args, **kwargs)
         if type(val) is HttpResponse:
             return val
-        return HttpResponse(json.dumps(val, indent=True))
+        return HttpResponse(json.dumps(val, indent=True), content_type='text/json')
 
     return wrapped
 

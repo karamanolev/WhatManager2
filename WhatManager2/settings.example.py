@@ -215,6 +215,7 @@ INSTALLED_APPS = (
     'bibliotik',
     'bibliotik_json',
     'what_meta',
+    'whatify',
 )
 
 # A sample logging configuration. The only tangible logging
