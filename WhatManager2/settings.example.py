@@ -58,6 +58,7 @@ TRANSCODER_HTTP_USERNAME = 'http username'
 TRANSCODER_HTTP_PASSWORD = 'http password'
 TRANSCODER_TEMP_DIR = '/mnt/bulk/temp/whatup.celery.{0}'.format(os.getpid())
 TRANSCODER_ERROR_OUTPUT = '/mnt/bulk/temp/what_error.html'
+TRANSCODER_FORMATS = ['V0', '320']  # You can also add V2
 BROKER_URL = 'amqp://guest:guest@localhost:5672/'
 
 # You only need to set these if you are running transmission_files_sync

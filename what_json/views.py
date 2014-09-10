@@ -1,4 +1,3 @@
-import json
 import os
 from random import choice
 import shutil
@@ -7,7 +6,7 @@ import traceback
 import time
 
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
-from django.utils import timezone
+from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
@@ -18,8 +17,8 @@ from WhatManager2.templatetags.custom_filters import filesizeformat
 from WhatManager2.utils import json_return_method
 from home.models import ReplicaSet, LogEntry, TransTorrent, TorrentAlreadyAddedException, \
     WhatTorrent, DownloadLocation, \
-    TransInstance, get_what_client, send_freeleech_email, \
-    RequestException
+    TransInstance, get_what_client, send_freeleech_email
+from what_json import utils
 
 
 @login_required
@@ -142,30 +141,36 @@ def add_torrent(request):
     if not request.user.has_perm('home.add_whattorrent'):
         return {
             'success': False,
-            'error': 'You don\'t have permission to add torrents. Talk to the administrator.'
+            'error': 'You don\'t have permission to add torrents. Talk to the administrator.',
         }
 
-    if 'dir' in request.POST:
-        download_location = DownloadLocation.objects.get(
-            zone=ReplicaSet.ZONE_WHAT,
-            path=request.POST['dir']
-        )
-    else:
-        download_location = DownloadLocation.get_what_preferred()
+    try:
+        if 'dir' in request.POST:
+            download_location = DownloadLocation.objects.get(
+                zone=ReplicaSet.ZONE_WHAT,
+                path=request.POST['dir']
+            )
+        else:
+            download_location = DownloadLocation.get_what_preferred()
+    except DownloadLocation.DoesNotExist:
+        return {
+            'success': False,
+            'error': u'Download location does not exist.',
+        }
 
     if download_location.free_space_percent < MIN_FREE_DISK_SPACE:
         LogEntry.add(request.user, u'error', u'Failed to add torrent. Not enough disk space.')
         return {
             'success': False,
-            'error': u'Not enough free space on disk.'
+            'error': u'Not enough free space on disk.',
         }
 
     try:
         what_id = int(request.POST['id'])
-    except ValueError:
+    except (ValueError, MultiValueDictKeyError):
         return {
             'success': False,
-            'error': u'Invalid id'
+            'error': u'Invalid id',
         }
 
     instance = ReplicaSet.get_what_master().get_preferred_instance()
@@ -373,46 +378,8 @@ def what_proxy(request):
 @json_return_method
 @user_passes_test(lambda u: u.is_superuser is True)
 def refresh_whattorrent(request):
+    what_torrent = None
     if 'id' in request.GET:
-        most_recent = WhatTorrent.objects.get(id=request.GET['id'])
-    else:
-        most_recent = WhatTorrent.objects.defer('torrent_file').order_by('retrieved')[0]
-    most_recent_id = most_recent.id
-    what = get_what_client(request)
-    try:
-        response = what.request('torrent', id=most_recent.id)['response']
-    except RequestException as ex:
-        if ex.response and type(ex.response) is dict and ex.response.get(
-                'error') == 'bad id parameter':
-            try:
-                TransTorrent.objects.get(
-                    instance__in=ReplicaSet.get_what_master().transinstance_set.all(),
-                    what_torrent=most_recent)
-                return {
-                    'success': False,
-                    'id': most_recent_id,
-                    'status': 'missing',
-                }
-            except TransTorrent.DoesNotExist:
-                most_recent.delete()
-                return {
-                    'success': True,
-                    'id': most_recent_id,
-                    'status': 'deleted',
-                }
-        else:
-            return {
-                'success': False,
-                'status': 'unknown request exception',
-            }
-
-    old_retrieved = most_recent.retrieved
-    most_recent.info = json.dumps(response)
-    most_recent.retrieved = timezone.now()
-    most_recent.save()
-    return {
-        'success': True,
-        'id': most_recent_id,
-        'status': 'refreshed',
-        'retrieved': unicode(old_retrieved),
-    }
+        what_torrent = WhatTorrent.objects.get(id=request.GET['id'])
+    what_client = get_what_client(request)
+    return utils.refresh_whattorrent(what_client, what_torrent)

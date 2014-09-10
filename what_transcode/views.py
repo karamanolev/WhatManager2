@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
 from WhatManager2.manage_torrent import add_torrent
+from WhatManager2.settings import TRANSCODER_FORMATS
 from WhatManager2.utils import json_return_method
 from home.models import WhatTorrent, TransTorrent, ReplicaSet, DownloadLocation, LogEntry, \
     get_what_client
@@ -211,9 +212,11 @@ def request_transcode(request):
 
         mp3_ids = get_mp3_ids(group, what_torrent.info_loads)
 
-        if '320' in mp3_ids and 'V0' in mp3_ids:
+        if all(f in mp3_ids for f in TRANSCODER_FORMATS):
             return {
-                'message': 'This torrent already has both a V0 and a 320.'
+                'message': 'This torrent already has all the formats: {0}.'.format(
+                    ', '.join(TRANSCODER_FORMATS)
+                )
             }
 
         transcode_request = TranscodeRequest(
