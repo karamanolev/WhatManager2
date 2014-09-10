@@ -26,7 +26,7 @@ def index(request):
 
 
 @auth_username_token
-def file(request):
+def get_file(request):
     path = request.GET['path']
     if not is_allowed_file(path):
         return HttpResponse(status=404)
