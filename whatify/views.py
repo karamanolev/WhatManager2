@@ -1,12 +1,8 @@
-import json
-
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
-from django.http.response import HttpResponse
 from django.utils.http import urlquote
 
 from WhatManager2.utils import json_return_method
-
 from home import info_holder
 from home.models import WhatTorrent, get_what_client, TransTorrent
 from player.player_utils import get_playlist_files, get_metadata_dict
@@ -97,25 +93,16 @@ def get_artist_dict(artist, include_torrents=False):
     return data
 
 
+@json_return_method
 def search_artists(request, query):
-    response = HttpResponse(
-        json.dumps([get_artist_dict(artist) for artist in
-                    WhatArtist.objects.filter(name__icontains=query)]),
-        content_type='text/json',
-    )
-    response['Access-Control-Allow-Origin'] = '*'
-    return response
+    return [get_artist_dict(artist) for artist in
+            WhatArtist.objects.filter(name__icontains=query)]
 
 
+@json_return_method
 def get_artist(request, artist_id):
     artist = WhatArtist.objects.get(id=artist_id)
     if artist.is_shell:
         artist.update_from_what(get_what_client(request))
-    data = get_artist_dict(artist, True)
-    response = HttpResponse(
-        json.dumps(data, indent=4),
-        content_type='text/json',
-    )
-    response['Access-Control-Allow-Origin'] = '*'
-    return response
+    return get_artist_dict(artist, True)
 

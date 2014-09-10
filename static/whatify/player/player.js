@@ -46,7 +46,7 @@ angular.
             this.goTo = function (index) {
                 this.playlistIndex = index;
                 this.currentItem = this.playlist[this.playlistIndex];
-                this.audio.src = 'http://localhost:8000' + this.currentItem.url;
+                this.audio.src = this.currentItem.url;
                 this.currentTime = 0;
                 this.duration = 0;
                 this.isPlaying = false;
@@ -104,7 +104,7 @@ angular.
     }).
     directive('ngWmPlayerSm', function () {
         return {
-            'templateUrl': 'player/player.html',
+            'templateUrl': templateRoot + '/player/player.html',
             'controller': 'WhatPlayerController'
         }
     })

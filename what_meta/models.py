@@ -1,15 +1,15 @@
 import json
 
 from django.db import models, transaction
-
-
-# Lengths taken from gazelle.sql from GitHub
 from django.db.backends.mysql.base import parse_datetime_with_timezone_support
 from django.utils import timezone
+
 from django.utils.functional import cached_property
+
 from WhatManager2.utils import html_unescape, get_artists
 
 
+# Lengths taken from gazelle.sql from GitHub
 class WhatArtist(models.Model):
     retrieved = models.DateTimeField()
     name = models.CharField(max_length=200)

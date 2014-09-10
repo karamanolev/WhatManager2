@@ -5,19 +5,19 @@ angular.
     config(function ($routeProvider) {
         $routeProvider.
             when('/', {
-                templateUrl: 'home/home.html',
+                templateUrl: templateRoot + '/home/home.html',
                 controller: 'HomeController'
             }).
             when('/torrentGroups/:id', {
-                templateUrl: 'home/torrentGroup.html',
+                templateUrl: templateRoot + '/home/torrentGroup.html',
                 controller: 'TorrentGroupController'
             }).
             when('/artists/:id', {
-                templateUrl: 'home/artist.html',
+                templateUrl: templateRoot + '/home/artist.html',
                 controller: 'ArtistController'
             }).
             when('/playlist', {
-                templateUrl: 'home/playlist.html',
+                templateUrl: templateRoot + '/home/playlist.html',
                 controller: 'WhatPlayerController'
             })
     }).

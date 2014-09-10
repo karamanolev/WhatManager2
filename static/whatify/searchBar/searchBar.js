@@ -2,7 +2,7 @@
 
 angular.
     module('whatify.searchBar', ['whatify']).
-    controller('SearchController', function($scope, WhatMeta) {
+    controller('SearchController', function ($scope, WhatMeta) {
         $scope.searchQuery = '';
         $scope.search = function () {
             if ($scope.searchQuery.length > 2) {
@@ -20,7 +20,7 @@ angular.
     }).
     directive('ngWmSearchBar', function () {
         return {
-            'templateUrl': 'searchBar/searchBar.html',
+            'templateUrl': templateRoot + '/searchBar/searchBar.html',
             'controller': 'SearchController'
         }
     })
