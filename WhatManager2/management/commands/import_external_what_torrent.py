@@ -2,6 +2,7 @@ from optparse import make_option
 import os
 import os.path
 import errno
+import shutil
 
 import bencode
 from django.core.management.base import BaseCommand
@@ -98,13 +99,13 @@ class Command(BaseCommand):
                 f_path = os.path.join(self.data_path, *f['path'])
                 f_dest_path = os.path.join(self.dest_path, *f['path'])
                 safe_makedirs(os.path.dirname(f_dest_path))
-                os.rename(f_path, f_dest_path)
+                shutil.move(f_path, f_dest_path)
         else:
             f_path = os.path.join(self.data_path, wm_unicode(self.torrent_info['info']['name']))
             f_dest_path = os.path.join(self.dest_path, wm_unicode(
                 self.torrent_info['info']['name']))
             safe_makedirs(os.path.dirname(f_dest_path))
-            os.rename(f_path, f_dest_path)
+            shutil.move(f_path, f_dest_path)
 
     def handle(self, *args, **options):
         if not self.check_args(args):
