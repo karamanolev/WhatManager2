@@ -6,6 +6,7 @@ from django.db import models, transaction
 # Lengths taken from gazelle.sql from GitHub
 from django.db.backends.mysql.base import parse_datetime_with_timezone_support
 from django.utils import timezone
+from django.utils.functional import cached_property
 from WhatManager2.utils import html_unescape, get_artists
 
 
@@ -15,6 +16,25 @@ class WhatArtist(models.Model):
     image = models.CharField(max_length=255, null=True)
     wiki_body = models.TextField(null=True)
     vanity_house = models.BooleanField(default=False)
+    info_json = models.TextField(null=True)
+
+    @cached_property
+    def info(self):
+        return json.loads(self.info_json)
+
+    @property
+    def is_shell(self):
+        return self.info_json is None
+
+    def update_from_what(self, what_client):
+        retrieved = timezone.now()
+        response = what_client.request('artist', id=self.id)['response']
+        self.retrieved = retrieved
+        self.name = html_unescape(response['name'])
+        self.image = html_unescape(response['image'])
+        self.wiki_body = response['body']
+        self.info_json = json.dumps(response)
+        self.save()
 
     @classmethod
     def get_or_create_shell(cls, artist_id, name, retrieved):

@@ -19,6 +19,7 @@ class Migration(migrations.Migration):
                 ('image', models.CharField(max_length=255, null=True)),
                 ('wiki_body', models.TextField(null=True)),
                 ('vanity_house', models.BooleanField(default=False)),
+                ('info_json', models.TextField(null=True)),
             ],
             options={
             },
