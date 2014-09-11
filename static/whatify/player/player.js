@@ -75,7 +75,13 @@ angular.
             };
             this.playlistAdd = function (item) {
                 this.playlist.push(item);
-            }
+            };
+            this.setVolume = function(volume) {
+                this.audio.volume = volume;
+            };
+            this.getVolume = function() {
+                return this.audio.volume;
+            };
         };
     }).
     controller('WhatPlayerController', function ($scope, WhatMeta, WhatPlayerService) {
