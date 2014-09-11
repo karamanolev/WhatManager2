@@ -111,54 +111,95 @@ def wm_str(s):
     raise Exception('Unknown string type: {0}'.format(type(s)))
 
 
-def get_artists(group):
+class JoinedArtistsBuilder(object):
+    def __init__(self, joined_artists_builder=None):
+        if joined_artists_builder is None:
+            self.result = []
+        else:
+            self.result = list(joined_artists_builder.result)
+
+    def append_joined(self, join_string, artists):
+        for a in artists:
+            self.result.append({
+                u'id': a['id'],
+                u'name': a['name'],
+                u'join': join_string,
+            })
+        self.result[-1]['join'] = ''
+
+    def append_artist(self, artist):
+        self.result.append({
+            u'id': artist['id'],
+            u'name': html_unescape(artist['name']),
+            u'join': '',
+        })
+
+    def append_join(self, join_string):
+        assert not self.result[-1][u'join'], 'Last join should be empty before adding a new join'
+        self.result[-1][u'join'] = join_string
+
+    def clear(self):
+        self.result = []
+
+
+def get_artists_list(group):
     a_main = group['musicInfo']['artists']
     a_composers = group['musicInfo']['composers']
     a_conductors = group['musicInfo']['conductor']
     a_djs = group['musicInfo']['dj']
 
     if len(a_main) == 0 and len(a_conductors) == 0 and len(a_djs) == 0 and len(a_composers) == 0:
-        return ''
+        return []
 
-    link = []
+    builder = JoinedArtistsBuilder()
 
     if len(a_composers) and len(a_composers) < 3:
-        link.append(' & '.join(html_unescape(a['name']) for a in a_composers))
-
+        builder.append_joined(u' & ', a_composers)
         if len(a_composers) < 3 and len(a_main) > 0:
-            link.append('performed by')
+            builder.append_join(u' performed by ')
 
-    composer_str = list(link)
+    composer_builder = JoinedArtistsBuilder(builder)
 
     if len(a_main):
         if len(a_main) <= 2:
-            link.append(' & '.join(html_unescape(a['name']) for a in a_main))
+            builder.append_joined(u' & ', a_main)
         else:
-            link.append('Various Artists')
+            builder.append_artist({u'id': -1, u'name': u'Various Artists'})
 
     if len(a_conductors):
         if (len(a_main) or len(a_composers)) and (len(a_composers) < 3 or len(a_main)):
-            link.append('under')
-
+            builder.append_join(u' under ')
         if len(a_conductors) <= 2:
-            link.append(' & '.join(html_unescape(a['name']) for a in a_conductors))
+            builder.append_joined(u' & ', a_conductors)
         else:
-            link.append('Various Conductors')
+            builder.append_artist({u'id': -1, u'name': u'Various Conductors'})
 
     if len(a_composers) and len(a_main) + len(a_conductors) > 3 and len(a_main) > 1 and len(
             a_conductors) > 1:
-        link = composer_str
-        link.append('Various Artists')
+        builder = composer_builder
+        builder.append_artist({u'id': -1, u'name': u'Various Artists'})
     elif len(a_composers) > 2 and len(a_main) + len(a_conductors) == 0:
-        link = ['Various Composers']
+        builder.clear()
+        builder.append_artist({u'id': -1, u'name': u'Various Composers'})
 
     if len(a_djs):
         if len(a_djs) <= 2:
-            link = [' & '.join(html_unescape(a['name']) for a in a_djs)]
+            builder.clear()
+            builder.append_joined(u' & ', a_djs)
         else:
-            link = ['Various DJs']
+            builder.clear()
+            builder.append_artist({u'id': -1, u'name': u'Various DJs'})
 
-    return ' '.join(link)
+    return builder.result
+
+
+def get_artists(group):
+    artists_list = get_artists_list(group)
+    result = []
+    for a in artists_list:
+        result.append(a['name'])
+        result.append(a['join'])
+    return u''.join(result)
 
 
 def read_text(path):
