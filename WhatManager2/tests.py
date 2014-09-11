@@ -2,16 +2,17 @@
 from __future__ import unicode_literals
 
 from django.test.testcases import TestCase
+from mock import patch
 
-# from WhatManager2.management.commands import transmission_provision
+from WhatManager2.management.commands import transmission_provision
 from WhatManager2.utils import get_artists, get_artists_list
 
 
-# @patch('WhatManager2.management.commands.transmission_provision.confirm')
-# class ProvisioningTests(TestCase):
-# def test_ensure_replica_sets_exist(self, mock_confirm):
-# transmission_provision.ensure_replica_sets_exist()
-# self.assertEqual(transmission_provision.confirm.call_count, 2)
+@patch('WhatManager2.management.commands.transmission_provision.confirm')
+class ProvisioningTests(TestCase):
+    def test_ensure_replica_sets_exist(self, mock_confirm):
+        transmission_provision.ensure_replica_sets_exist()
+        self.assertEqual(transmission_provision.confirm.call_count, 2)
 
 
 class GetArtistsTests(TestCase):
