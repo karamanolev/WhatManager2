@@ -10,14 +10,14 @@
             albums:
             <ul>
                 <li ng-repeat="group in artist.torrentGroups.Album">
-                    <span>{{ group.name }}</span>
+                    <a ng-href="#/torrentGroups/{{ group.id }}">{{ group.name }}</a>
                     (<span>{{ group.year }}</span>)
-                <span ng-show="group.have === true"
-                      ng-click="playTorrentGroup(group.id)"
-                      class="btn btn-default btn-xs">&#9654;</span>
-                <span ng-show="group.have !== false && group.have !== true">
-                    {{ group.have * 100 | number:0 }}%
-                </span>
+                    <span ng-show="group.have === true"
+                          ng-click="playTorrentGroup(group.id)"
+                          class="btn btn-default btn-xs">&#9654;</span>
+                    <span ng-show="group.have !== false && group.have !== true">
+                        {{ group.have * 100 | number:0 }}%
+                    </span>
                 </li>
             </ul>
             eps:

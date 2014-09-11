@@ -32,19 +32,24 @@ def search_torrent_groups(request, query):
 
 @json_return_method
 def get_torrent_group(request, group_id):
-    torrent_group = WhatTorrentGroup.objects.get(id=group_id)
+    try:
+        torrent_group = WhatTorrentGroup.objects.get(id=group_id)
+    except WhatTorrentGroup.DoesNotExist:
+        what_client = get_what_client(request)
+        torrent_group = WhatTorrentGroup.update_from_what(what_client, group_id)
     torrent = WhatTorrent.objects.filter(torrent_group=torrent_group)[0]
     data = get_torrent_group_dict(torrent_group)
-    data.update({
-        'playlist': [
-            {
-                'id': 'what/' + str(torrent.id) + '#' + str(i),
-                'url': reverse('player.views.get_file') + '?path=' + urlquote(path),
-                'metadata': get_metadata_dict(path)
-            }
-            for i, path in enumerate(get_playlist_files('what/' + str(torrent.id))[1])
-        ]
-    })
+    if torrent.master_trans_torrent is not None:
+        data.update({
+            'playlist': [
+                {
+                    'id': 'what/' + str(torrent.id) + '#' + str(i),
+                    'url': reverse('player.views.get_file') + '?path=' + urlquote(path),
+                    'metadata': get_metadata_dict(path)
+                }
+                for i, path in enumerate(get_playlist_files('what/' + str(torrent.id))[1])
+            ]
+        })
     return data
 
 
