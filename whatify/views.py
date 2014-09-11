@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.utils.http import urlquote
 
-from WhatManager2.utils import json_return_method
+from WhatManager2.utils import json_return_method, get_artists_list
 from home import info_holder
 from home.models import WhatTorrent, get_what_client, TransTorrent
 from player.player_utils import get_playlist_files, get_metadata_dict
@@ -17,7 +17,8 @@ def index(request):
 def get_torrent_group_dict(torrent_group):
     return {
         'id': torrent_group.id,
-        'artists': torrent_group.joined_artists,
+        'joined_artists': torrent_group.joined_artists,
+        'artists': get_artists_list(torrent_group.info),
         'name': torrent_group.name,
         'wikiImage': torrent_group.wiki_image,
     }

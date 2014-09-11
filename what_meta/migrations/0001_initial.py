@@ -55,6 +55,7 @@ class Migration(migrations.Migration):
                 ('category_name', models.CharField(max_length=32)),
                 ('time', models.DateTimeField()),
                 ('vanity_house', models.BooleanField(default=False)),
+                ('info_json', models.TextField()),
                 ('torrents_json', models.TextField(null=True)),
                 ('artists', models.ManyToManyField(to='what_meta.WhatArtist',
                                                    through='what_meta.WhatTorrentArtist')),

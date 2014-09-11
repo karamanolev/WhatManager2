@@ -4,7 +4,12 @@
         <div class="thumbnail" style="width: 100px;">
             <img ng-src="{{ torrentGroup.wikiImage }}">
         </div>
-        name: {{ torrentGroup.name }}
+        <span ng-repeat="a in torrentGroup.artists" ng-switch="a.id">
+            <span ng-switch-when="-1">{{ a.name }}{{ a.join }}</span>
+            <span ng-switch-default>
+                <a ng-href="#/artists/{{ a.id }}">{{ a.name }}</a>{{ a.join }}
+            </span>
+        </span> - {{ torrentGroup.name }}
         <span ng-click="playTorrentGroup(torrentGroup.id)"
               class="btn btn-default btn-xs">&#9654;</span>
         <ol>

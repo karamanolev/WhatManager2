@@ -3,7 +3,6 @@ import json
 from django.db import models, transaction
 from django.db.backends.mysql.base import parse_datetime_with_timezone_support
 from django.utils import timezone
-
 from django.utils.functional import cached_property
 
 from WhatManager2.utils import html_unescape, get_artists
@@ -65,9 +64,14 @@ class WhatTorrentGroup(models.Model):
     category_name = models.CharField(max_length=32)
     time = models.DateTimeField()
     vanity_house = models.BooleanField(default=False)
+    info_json = models.TextField()
     # Will contain the JSON for the "torrent" response field if this was fetched through
     # action=torrentgroup. If it was created from an action=torrent, then it will be NULL
     torrents_json = models.TextField(null=True)
+
+    @cached_property
+    def info(self):
+        return json.loads(self.info_json)
 
     def add_artists(self, importance, artists):
         for artist in artists:
@@ -102,6 +106,7 @@ class WhatTorrentGroup(models.Model):
         group.category_name = data_dict['categoryName']
         group.time = parse_datetime_with_timezone_support(data_dict['time'])
         group.vanity_house = data_dict['vanityHouse']
+        group.info_json = json.dumps(data_dict)
         if torrents_dict is not None:
             group.torrents_json = json.dumps(torrents_dict)
         else:
