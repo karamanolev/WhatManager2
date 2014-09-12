@@ -37,7 +37,14 @@ def get_torrent_group(request, group_id):
     except WhatTorrentGroup.DoesNotExist:
         what_client = get_what_client(request)
         torrent_group = WhatTorrentGroup.update_from_what(what_client, group_id)
-    torrent = WhatTorrent.objects.filter(torrent_group=torrent_group).first()
+    torrents = WhatTorrent.objects.filter(torrent_group=torrent_group)
+    torrent = None
+    for candidate in torrents:
+        if candidate.info_format == 'MP3':
+            torrent = candidate
+    if torrent is None:
+        for candidate in torrents:
+            torrent = candidate
     data = get_torrent_group_dict(torrent_group)
     if torrent and torrent.master_trans_torrent is not None:
         data.update({

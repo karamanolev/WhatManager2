@@ -88,7 +88,7 @@ class WhatTorrentGroup(models.Model):
         try:
             group = WhatTorrentGroup.objects.get(id=group_id)
             if retrieved < group.retrieved:
-                return
+                return group
         except WhatTorrentGroup.DoesNotExist:
             group = WhatTorrentGroup(
                 id=group_id

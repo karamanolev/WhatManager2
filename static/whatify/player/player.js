@@ -76,16 +76,21 @@ angular.
             this.playlistAdd = function (item) {
                 this.playlist.push(item);
             };
-            this.setVolume = function(volume) {
+            this.setVolume = function (volume) {
                 this.audio.volume = volume;
             };
-            this.getVolume = function() {
+            this.getVolume = function () {
                 return this.audio.volume;
             };
         };
     }).
     controller('WhatPlayerController', function ($scope, WhatMeta, WhatPlayerService) {
         $scope.player = WhatPlayerService;
+        $scope.volume = WhatPlayerService.getVolume();
+        $scope.$watch('volume', function (newValue) {
+            WhatPlayerService.setVolume(newValue);
+        });
+
         $scope.playTorrentGroup = function (torrentGroupId, index) {
             WhatMeta.getTorrentGroup(torrentGroupId).success(function (torrentGroup) {
                 var inPlaylist = false;
