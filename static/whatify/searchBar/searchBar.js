@@ -8,11 +8,8 @@ angular.
         $scope.search = function () {
             if ($scope.searchQuery.length > 2) {
                 $scope.showResults = true;
-                WhatMeta.searchTorrentGroups($scope.searchQuery).success(function (response) {
-                    $scope.torrentGroups = response;
-                });
-                WhatMeta.searchArtists($scope.searchQuery).success(function (response) {
-                    $scope.artists = response;
+                WhatMeta.search($scope.searchQuery).success(function (response) {
+                    $scope.searchResults = response;
                 });
             } else {
                 $scope.hideResults()

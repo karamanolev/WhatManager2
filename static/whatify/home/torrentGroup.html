@@ -1,6 +1,6 @@
 torrent group information
 <div class="thumbnail" style="width: 100px;">
-    <img ng-src="{{ torrentGroup.wikiImage }}">
+    <img ng-src="{{ torrentGroup.wiki_image }}">
 </div>
 <span ng-repeat="a in torrentGroup.artists" ng-switch="a.id">
     <span ng-switch-when="-1">{{ a.name }}{{ a.join }}</span>
@@ -15,7 +15,7 @@ torrent group information
       class="btn btn-default btn-xs" ng-if="!torrentGroup.playlist">download</span>
 
 
-<ol>
+<ol ng-if="torrentGroup.playlist">
     <li ng-repeat="item in torrentGroup.playlist">
                 <span ng-show="player.currentItem.id == item.id">
                     <span ng-show="player.isPlaying">playing</span>
@@ -26,3 +26,5 @@ torrent group information
         </a>
     </li>
 </ol>
+
+<div ng-if="!torrentGroup.playlist" ng-bind-html="torrentGroup.wiki_body | trustAsHtml"></div>

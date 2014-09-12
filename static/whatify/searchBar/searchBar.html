@@ -2,27 +2,27 @@
        placeholder="Search Here">
 <br>
 <div style="position: absolute; background: red; max-height: calc(100% - 200px); overflow: scroll;"
-        ng-show="showResults">
-    <div style="display: inline-block; width: 400px; vertical-align: top;">
-        Artists:
+     ng-show="showResults">
+    <div style="display: inline-block; width: 600px; vertical-align: top;">
+        Results:
         <div class="thumbnail" target="_blank"
-             ng-repeat="artist in artists">
-            <a ng-href="#/artists/{{ artist.id }}" ng-click="hideResults()">
-                {{ artist.name }}
-            </a>
-        </div>
-    </div>
-    <div style="display: inline-block; width: 400px; vertical-align: top;">
-        Albums:
-        <div class="thumbnail" target="_blank"
-             ng-repeat="group in torrentGroups">
-            <!--<img ng-src="{{ group.fields.wiki_image }}">-->
-            <div class="caption">
-                    <span ng-click="playTorrentGroup(group.id)"
-                          class="btn btn-default btn-xs">&#9654;</span>
-                <a ng-href="#/torrentGroups/{{ group.id }}" ng-click="hideResults()">
-                    {{ group.name }}
+             ng-repeat="result in searchResults" ng-switch="result.type">
+            <div ng-switch-when="artist">
+                <a ng-href="#/artists/{{ result.artist.id }}" ng-click="hideResults()">
+                    Artist: {{ result.artist.name }}
                 </a>
+            </div>
+            <div ng-switch-when="torrent_group">
+                <!--<img ng-src="{{ result.torrent_group.wiki_image }}">-->
+
+                <div class="caption">
+                    <span ng-click="playTorrentGroup(result.torrent_group.id)"
+                          class="btn btn-default btn-xs">&#9654;</span>
+                    <a ng-href="#/torrentGroups/{{ result.torrent_group.id }}"
+                       ng-click="hideResults()">
+                        Album: {{ result.torrent_group.name }}
+                    </a>
+                </div>
             </div>
         </div>
     </div>

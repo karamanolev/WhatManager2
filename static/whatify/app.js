@@ -9,27 +9,17 @@ angular.
     ]).
     factory('WhatMeta', function ($q, $http) {
         return new function () {
-            this.searchTorrentGroupsCanceller = null;
-            this.searchTorrentGroups = function (query) {
-                if (this.searchTorrentGroupsCanceller) {
-                    this.searchTorrentGroupsCanceller.resolve('New search coming');
-                }
-                this.searchTorrentGroupsCanceller = $q.defer();
-                return $http.get('torrent_groups/search/' +
-                        encodeURIComponent(query), {timeout: this.searchTorrentGroupsCanceller.promise}
-                );
-            };
             this.getTorrentGroup = function (id) {
                 return $http.get('torrent_groups/' + id);
             };
-            this.searchArtistsCanceller = null;
-            this.searchArtists = function (query) {
-                if (this.searchArtistsCanceller) {
-                    this.searchArtistsCanceller.resolve('New search coming');
+            this.searchCanceller = null;
+            this.search = function (query) {
+                if (this.searchCanceller) {
+                    this.searchCanceller.resolve('New search coming');
                 }
-                this.searchArtistsCanceller = $q.defer();
-                return $http.get('artists/search/' +
-                        encodeURIComponent(query), {timeout: this.searchArtistsCanceller.promise}
+                this.searchCanceller = $q.defer();
+                return $http.get('search/' +
+                        encodeURIComponent(query), {timeout: this.searchCanceller.promise}
                 );
             };
             this.getArtist = function (id) {

@@ -6,7 +6,7 @@ from WhatManager2.utils import json_return_method, get_artists_list
 from home import info_holder
 from home.models import WhatTorrent, get_what_client, TransTorrent
 from player.player_utils import get_playlist_files, get_metadata_dict
-from what_meta.models import WhatTorrentGroup, WhatArtist
+from what_meta.models import WhatTorrentGroup, WhatArtist, WhatMetaFulltext
 from what_transcode.utils import html_unescape
 
 
@@ -20,14 +20,30 @@ def get_torrent_group_dict(torrent_group):
         'joined_artists': torrent_group.joined_artists,
         'artists': get_artists_list(torrent_group.info),
         'name': torrent_group.name,
-        'wikiImage': torrent_group.wiki_image,
+        'wiki_image': torrent_group.wiki_image,
+        'wiki_body': torrent_group.wiki_body,
     }
 
 
 @json_return_method
-def search_torrent_groups(request, query):
-    return [get_torrent_group_dict(group) for group in
-            WhatTorrentGroup.objects.filter(name__icontains=query)]
+def search(request, query):
+    meta_fulltext = WhatMetaFulltext.objects.only('id', 'artist', 'torrent_group')
+    meta_fulltext = meta_fulltext.extra(
+        where=['MATCH(`info`, `more_info`) AGAINST (%s IN BOOLEAN MODE)'], params=[query])
+    meta_fulltext = meta_fulltext.extra(select={'score': 'MATCH (`info`) AGAINST (%s)'},
+                                        select_params=[query])
+    meta_fulltext = meta_fulltext.extra(order_by=['-score'])
+    meta_fulltext = meta_fulltext.prefetch_related('artist', 'torrent_group')
+    results = []
+    for result in meta_fulltext:
+        if result.artist:
+            results.append({'type': 'artist', 'artist': get_artist_dict(result.artist)})
+        elif result.torrent_group:
+            results.append({
+                'type': 'torrent_group',
+                'torrent_group': get_torrent_group_dict(result.torrent_group)
+            })
+    return results
 
 
 @json_return_method
@@ -104,12 +120,6 @@ def get_artist_dict(artist, include_torrents=False):
             } if not artist.is_shell else None,
         })
     return data
-
-
-@json_return_method
-def search_artists(request, query):
-    return [get_artist_dict(artist) for artist in
-            WhatArtist.objects.filter(name__icontains=query)]
 
 
 @json_return_method

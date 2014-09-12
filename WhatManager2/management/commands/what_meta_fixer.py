@@ -9,6 +9,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         print 'Running what_meta fixer...'
+        print 'Fixing WhatTorrent -> WhatTorrentGroup mapping'
         what_torrent_ids = WhatTorrent.objects.filter(torrent_group=None).values_list(
             'id', flat=True)
         start = 0
