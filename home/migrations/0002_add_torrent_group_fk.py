@@ -2,13 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-from WhatManager2.management.commands import what_meta_fixer
-
-
-def run_meta_fixer(apps, schema_editor):
-    what_torrent = apps.get_model('home', 'WhatTorrent')
-    meta_fixer = what_meta_fixer.Command(what_torrent)
-    meta_fixer.handle()
 
 
 class Migration(migrations.Migration):
@@ -28,5 +21,4 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(to='what_meta.WhatTorrentGroup', null=True),
             preserve_default=True,
         ),
-        migrations.RunPython(run_meta_fixer, reverse_code=lambda apps, schema_editor: None)
     ]

@@ -111,4 +111,3 @@ def get_artist(request, artist_id):
     if artist.is_shell:
         artist.update_from_what(get_what_client(request))
     return get_artist_dict(artist, True)
-
