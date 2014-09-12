@@ -21,9 +21,21 @@ class WhatArtist(models.Model):
     def info(self):
         return json.loads(self.info_json)
 
+    @cached_property
+    def fulltext_info(self):
+        return self.name
+
+    @cached_property
+    def fulltext_more_info(self):
+        return self.name
+
     @property
     def is_shell(self):
         return self.info_json is None
+
+    def save(self, *args, **kwargs):
+        WhatMetaFulltext.create_or_update_artist(self)
+        super(WhatArtist, self).save(*args, **kwargs)
 
     def update_from_what(self, what_client):
         retrieved = timezone.now()
@@ -73,6 +85,14 @@ class WhatTorrentGroup(models.Model):
     def info(self):
         return json.loads(self.info_json)
 
+    @cached_property
+    def fulltext_info(self):
+        return self.name
+
+    @cached_property
+    def fulltext_more_info(self):
+        return self.joined_artists + ' ' + self.year + ' ' + self.catalogue_number
+
     def add_artists(self, importance, artists):
         for artist in artists:
             what_artist = WhatArtist.get_or_create_shell(
@@ -82,6 +102,10 @@ class WhatTorrentGroup(models.Model):
                 torrent_group=self,
                 importance=importance
             ).save()
+
+    def save(self, *args, **kwargs):
+        WhatMetaFulltext.create_or_update_torrent_group(self)
+        super(WhatTorrentGroup, self).save(*args, **kwargs)
 
     @classmethod
     def update_if_newer(cls, group_id, retrieved, data_dict, torrents_dict=None):
@@ -134,3 +158,41 @@ class WhatTorrentArtist(models.Model):
     artist = models.ForeignKey(WhatArtist)
     torrent_group = models.ForeignKey(WhatTorrentGroup)
     importance = models.IntegerField()
+
+
+class WhatMetaFulltext(models.Model):
+    info = models.TextField()
+    more_info = models.TextField()
+    artist = models.ForeignKey(WhatArtist, unique=True, null=True)
+    torrent_group = models.ForeignKey(WhatTorrentGroup, unique=True, null=True)
+
+    @classmethod
+    def create_or_update_artist(cls, artist):
+        info = artist.fulltext_info
+        more_info = artist.fulltext_more_info
+        try:
+            fulltext = WhatMetaFulltext.objects.get(artist=artist)
+            if fulltext.info == info and fulltext.more_info == more_info:
+                return fulltext
+        except WhatMetaFulltext.DoesNotExist:
+            fulltext = WhatMetaFulltext(artist=artist)
+        fulltext.info = info
+        fulltext.more_info = more_info
+        fulltext.save()
+        return fulltext
+
+
+    @classmethod
+    def create_or_update_torrent_group(cls, torrent_group):
+        info = torrent_group.fulltext_info
+        more_info = torrent_group.fulltext_more_info
+        try:
+            fulltext = WhatMetaFulltext.objects.get(torrent_group=torrent_group)
+            if fulltext.info == info and fulltext.more_info == more_info:
+                return fulltext
+        except WhatMetaFulltext.DoesNotExist:
+            fulltext = WhatMetaFulltext(torrent_group=torrent_group)
+        fulltext.info = info
+        fulltext.more_info = more_info
+        fulltext.save()
+        return fulltext
