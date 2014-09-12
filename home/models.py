@@ -253,7 +253,7 @@ class WhatTorrent(models.Model, InfoHolder):
             ('download_whattorrent', 'Can download and play torrents.'),
         )
 
-    info_hash = models.TextField()
+    info_hash = models.CharField(max_length=40, db_index=True)
     torrent_file = models.TextField()
     torrent_file_name = models.TextField()
     retrieved = models.DateTimeField()
@@ -385,7 +385,7 @@ class TransTorrentBase(models.Model):
     instance = models.ForeignKey(TransInstance)
     location = models.ForeignKey(DownloadLocation)
 
-    info_hash = models.TextField()
+    info_hash = models.CharField(max_length=40)
     torrent_id = models.IntegerField(null=True)
     torrent_name = models.TextField(null=True)
     torrent_size = models.BigIntegerField(null=True)

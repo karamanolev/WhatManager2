@@ -36,7 +36,7 @@ def load_bibliotik_data(bibliotik_client, torrent_id):
 
 
 class BibliotikTorrent(models.Model):
-    info_hash = models.TextField()
+    info_hash = models.CharField(max_length=40, db_index=True)
     retrieved = models.DateTimeField()
     category = models.CharField(max_length=32)
     format = models.CharField(max_length=16)
