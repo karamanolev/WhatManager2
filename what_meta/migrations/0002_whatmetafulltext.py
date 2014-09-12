@@ -24,4 +24,19 @@ class Migration(migrations.Migration):
             },
             bases=(models.Model,),
         ),
+
+        # Add indexes and fix fulltext
+        migrations.RunSQL(
+            'ALTER TABLE `what_meta_whatmetafulltext` ENGINE = MYISAM',
+            'ALTER TABLE `what_meta_whatmetafulltext` ENGINE = INNODB',
+            ),
+        migrations.RunSQL(
+            'ALTER TABLE `what_meta_whatmetafulltext` ADD FULLTEXT `info_fts` (`info`)',
+            'ALTER TABLE `what_meta_whatmetafulltext` DROP INDEX `info_fts`',
+            ),
+        migrations.RunSQL(
+            'ALTER TABLE `what_meta_whatmetafulltext` ADD ' +
+            'FULLTEXT `info_more_info_fts` (`info`,`more_info`)',
+            'ALTER TABLE `what_meta_whatmetafulltext` DROP INDEX `info_more_info_fts`'
+        ),
     ]
