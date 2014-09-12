@@ -1,27 +1,28 @@
-<div class="row">
-    <div class="col-sm-12 well">
-        torrent group information
-        <div class="thumbnail" style="width: 100px;">
-            <img ng-src="{{ torrentGroup.wikiImage }}">
-        </div>
-        <span ng-repeat="a in torrentGroup.artists" ng-switch="a.id">
-            <span ng-switch-when="-1">{{ a.name }}{{ a.join }}</span>
-            <span ng-switch-default>
-                <a ng-href="#/artists/{{ a.id }}">{{ a.name }}</a>{{ a.join }}
-            </span>
-        </span> - {{ torrentGroup.name }}
-        <span ng-click="playTorrentGroup(torrentGroup.id)"
-              class="btn btn-default btn-xs">&#9654;</span>
-        <ol>
-            <li ng-repeat="item in torrentGroup.playlist">
+torrent group information
+<div class="thumbnail" style="width: 100px;">
+    <img ng-src="{{ torrentGroup.wikiImage }}">
+</div>
+<span ng-repeat="a in torrentGroup.artists" ng-switch="a.id">
+    <span ng-switch-when="-1">{{ a.name }}{{ a.join }}</span>
+    <span ng-switch-default>
+        <a ng-href="#/artists/{{ a.id }}">{{ a.name }}</a>{{ a.join }}
+    </span>
+</span> - {{ torrentGroup.name }}
+
+<span ng-click="playTorrentGroup(torrentGroup.id)"
+      class="btn btn-default btn-xs" ng-if="torrentGroup.playlist">&#9654;</span>
+<span ng-click="downloadTorrentGroup(torrentGroup.id)"
+      class="btn btn-default btn-xs" ng-if="!torrentGroup.playlist">download</span>
+
+
+<ol>
+    <li ng-repeat="item in torrentGroup.playlist">
                 <span ng-show="player.currentItem.id == item.id">
                     <span ng-show="player.isPlaying">playing</span>
                     <span ng-show="!player.isPlaying">paused</span>
                 </span>
-                <a href ng-click="playTorrentGroup(torrentGroup.id, $index)">
-                    {{ item.metadata.title }}
-                </a>
-            </li>
-        </ol>
-    </div>
-</div>
+        <a href ng-click="playTorrentGroup(torrentGroup.id, $index)">
+            {{ item.metadata.title }}
+        </a>
+    </li>
+</ol>

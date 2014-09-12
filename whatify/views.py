@@ -37,9 +37,9 @@ def get_torrent_group(request, group_id):
     except WhatTorrentGroup.DoesNotExist:
         what_client = get_what_client(request)
         torrent_group = WhatTorrentGroup.update_from_what(what_client, group_id)
-    torrent = WhatTorrent.objects.filter(torrent_group=torrent_group)[0]
+    torrent = WhatTorrent.objects.filter(torrent_group=torrent_group).first()
     data = get_torrent_group_dict(torrent_group)
-    if torrent.master_trans_torrent is not None:
+    if torrent and torrent.master_trans_torrent is not None:
         data.update({
             'playlist': [
                 {

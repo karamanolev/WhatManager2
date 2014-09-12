@@ -3,9 +3,11 @@
 angular.
     module('whatify.searchBar', ['whatify']).
     controller('SearchController', function ($scope, WhatMeta) {
+        $scope.showResults = false;
         $scope.searchQuery = '';
         $scope.search = function () {
             if ($scope.searchQuery.length > 2) {
+                $scope.showResults = true;
                 WhatMeta.searchTorrentGroups($scope.searchQuery).success(function (response) {
                     $scope.torrentGroups = response;
                 });
@@ -13,10 +15,14 @@ angular.
                     $scope.artists = response;
                 });
             } else {
-                $scope.torrentGroups = [];
-                $scope.artists = [];
+                $scope.hideResults()
             }
         };
+        $scope.hideResults = function () {
+            $scope.showResults = false;
+            $scope.torrentGroups = [];
+            $scope.artists = [];
+        }
     }).
     directive('ngWmSearchBar', function () {
         return {

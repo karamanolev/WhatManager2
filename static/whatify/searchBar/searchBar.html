@@ -1,31 +1,28 @@
-<div class="row">
-    <div class="col-sm-12 well">
-        <input type="text" class="form-control" ng-model="searchQuery" ng-change="search()"
-               placeholder="Search Here">
-        <a href="#/playlist">playlist</a>
-        <br>
-
-        <div style="display: inline-block; width: 400px; vertical-align: top;">
-            Artists:
-            <div class="thumbnail" target="_blank"
-                 ng-repeat="artist in artists">
-                <a ng-href="#/artists/{{ artist.id }}">
-                    {{ artist.name }}
-                </a>
-            </div>
+<input type="text" class="form-control" ng-model="searchQuery" ng-change="search()"
+       placeholder="Search Here">
+<br>
+<div style="position: absolute; background: red; max-height: calc(100% - 200px); overflow: scroll;"
+        ng-show="showResults">
+    <div style="display: inline-block; width: 400px; vertical-align: top;">
+        Artists:
+        <div class="thumbnail" target="_blank"
+             ng-repeat="artist in artists">
+            <a ng-href="#/artists/{{ artist.id }}" ng-click="hideResults()">
+                {{ artist.name }}
+            </a>
         </div>
-        <div style="display: inline-block; width: 400px; vertical-align: top;">
-            Albums:
-            <div class="thumbnail" target="_blank"
-                 ng-repeat="group in torrentGroups">
-                <!--<img ng-src="{{ group.fields.wiki_image }}">-->
-                <div class="caption">
+    </div>
+    <div style="display: inline-block; width: 400px; vertical-align: top;">
+        Albums:
+        <div class="thumbnail" target="_blank"
+             ng-repeat="group in torrentGroups">
+            <!--<img ng-src="{{ group.fields.wiki_image }}">-->
+            <div class="caption">
                     <span ng-click="playTorrentGroup(group.id)"
                           class="btn btn-default btn-xs">&#9654;</span>
-                    <a ng-href="#/torrentGroups/{{ group.id }}">
-                        {{ group.name }}
-                    </a>
-                </div>
+                <a ng-href="#/torrentGroups/{{ group.id }}" ng-click="hideResults()">
+                    {{ group.name }}
+                </a>
             </div>
         </div>
     </div>
