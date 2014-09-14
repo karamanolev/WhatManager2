@@ -126,6 +126,11 @@ angular.
         };
 
         $scope.playTorrentGroup = function(torrentGroupId, index) {
+            if (whatPlaylist.currentItem &&
+                whatPlaylist.currentItem.torrentGroup.id == torrentGroupId) {
+                whatPlayer.play();
+                return;
+            }
             WhatMeta.getTorrentGroup(torrentGroupId).success(function(torrentGroup) {
                 var inPlaylist = false;
                 if (index != undefined) {
@@ -140,12 +145,16 @@ angular.
                 if (!inPlaylist) {
                     whatPlaylist.clear();
                     $.each(torrentGroup.playlist, function(i, item) {
+                        item.torrentGroup = torrentGroup;
                         whatPlaylist.add(item);
                     });
                     whatPlaylist.play(index || 0);
                 }
             });
         };
+
+        $scope.playTorrentGroup(74715);
+        $scope.volume = 0;
     }).
     directive('wmPlayerSm', function() {
         return {
@@ -243,6 +252,17 @@ angular.
                         slider.slider('disable');
                     }
                 });
+            }
+        }
+    }).
+    directive('artistList', function() {
+        return {
+            template: '<span ng-repeat="a in artists" ng-switch="a.id">' +
+                '<span ng-switch-when="-1">{{ a.name }}{{ a.join }}</span>' +
+                '<span ng-switch-default><a ng-href="#/artists/{{ a.id }}">{{ a.name }}</a>' +
+                '{{ a.join }}</span></span>',
+            scope: {
+                artists: '='
             }
         }
     })

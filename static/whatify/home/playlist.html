@@ -1,14 +1,34 @@
-Playlist:
-{{ playlist.currentItem.id }}
-<ul>
-    <li ng-repeat="item in playlist.items">
-        {{ $index }}.
-        <span ng-show="playlist.currentItem.id == item.id">
-            <span ng-show="player.isPlaying">playing</span>
-            <span ng-show="!player.isPlaying">paused</span>
-        </span>
-        <a ng-click="playlist.play($index)">{{ item.id }}</a><br>
-        {{ item.url }}<br>
-        {{ item.metadata.title }}<br>
-    </li>
-</ul>
+<div class="playlist-page">
+    <h1>Playlist</h1>
+    <table class="table playlist">
+        <thead>
+        <tr>
+            <td></td>
+            <td>Track</td>
+            <td>Artist</td>
+            <td>Album</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="item in playlist.items" ng-click="playlist.play($index)">
+            <td>
+            <span ng-show="playlist.currentItem.id == item.id">
+                <span class="glyphicon glyphicon-play" ng-show="player.isPlaying"></span>
+                <span class="glyphicon glyphicon-pause" ng-show="!player.isPlaying"></span>
+            </span>
+                {{ $index + 1 }}
+            </td>
+            <td>
+                {{ item.metadata.title }}
+            </td>
+            <td>
+                <span artist-list artists="item.torrentGroup.artists"></span></td>
+            <td>
+                <a ng-href="#/torrentGroups/{{ item.torrentGroup.id }}">
+                    {{ item.torrentGroup.name }}
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

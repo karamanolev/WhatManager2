@@ -4,16 +4,20 @@
 @mainPanelBackground: #101112;
 @leftPanelWidth: 200px;
 
+.a-no-underline() {
+  a:hover {
+    text-decoration: inherit;
+  }
+}
+
 html, body {
   height: 100%;
 }
 
 body {
-  *, a:hover {
+  color: @textColor;
+  a, a:hover {
     color: @textColor;
-  }
-  a:hover {
-    text-decoration: inherit;
   }
   font-family: proxima_nova, "Helvetica Neue", Helvetica, Arial, sans-serif;
   display: flex;
@@ -28,13 +32,15 @@ body {
   display: flex;
   align-items: center;
 
+  .a-no-underline;
+
   input {
     width: 400px;
   }
 
   .search-results {
     position: absolute;
-    left: @leftPanelWidth + 20px;
+    left: @leftPanelWidth + 14px;
     top: 50px;
     background: @sidePanelBackground;
     //    border: @sidePanelBorder;
@@ -69,6 +75,8 @@ body {
 .whatify-left-bar {
   background: @sidePanelBackground;
   width: @leftPanelWidth;
+
+  .a-no-underline;
 
   ul.menu {
     display: block;
@@ -134,20 +142,75 @@ body {
 }
 
 .torrent-group-details {
-  padding: 14px 22px;
   .title-cover {
-    width: 200px;
+    height: 250px;
     float: left;
-    margin: 0 16px 20px 0;
+    margin: 4px 16px 20px 22px;
   }
-  .title-name {
-    font-weight: lighter;
-    font-size: 220%;
-  }
-  .title-artists {
-    font-size: 140%;
-    .by {
+  .title-info {
+    display: flex;
+    height: 254px;
+    flex-direction: column;
+    margin: 14px 0px 0 22px;
+    .title-name {
       font-weight: lighter;
+      letter-spacing: 2px;
+      font-size: 240%;
     }
+    .title-artists {
+      font-size: 180%;
+      .by {
+        font-weight: lighter;
+      }
+    }
+    .title-year {
+      font-weight: lighter;
+      font-size: 140%;
+      flex: 1;
+    }
+    .title-buttons {
+      .btn-playpause {
+        width: 100px;
+        text-align: center;
+        span {
+          float: left;
+          margin-top: 1px;
+        }
+      }
+    }
+  }
+  > p {
+    margin: 16px;
+    padding: 10px 20px;
+    background: @sidePanelBackground;
+  }
+}
+
+.playlist-page {
+  > h1 {
+    margin: 20px 20px 10px 20px;
+    font-weight: lighter;
+    letter-spacing: 2px;
+  }
+}
+
+.table.playlist {
+  a:hover {
+    text-decoration: underline;
+  }
+  td {
+    cursor: pointer;
+    border-top-color: #333333;
+  }
+  tbody tr:hover {
+    background-color: #222222;
+  }
+  td:nth-child(1) {
+    span {
+      float: left;
+      margin-top: 1px;
+    }
+    width: 60px;
+    text-align: right;
   }
 }

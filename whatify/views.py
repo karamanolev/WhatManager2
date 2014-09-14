@@ -20,6 +20,7 @@ def get_torrent_group_dict(torrent_group):
         'joined_artists': torrent_group.joined_artists,
         'artists': get_artists_list(torrent_group.info),
         'name': torrent_group.name,
+        'year': torrent_group.year,
         'wiki_image': torrent_group.wiki_image,
         'wiki_body': torrent_group.wiki_body,
     }

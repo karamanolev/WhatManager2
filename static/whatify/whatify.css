@@ -3,16 +3,14 @@ body {
   height: 100%;
 }
 body {
+  color: #eeeeee;
   font-family: proxima_nova, "Helvetica Neue", Helvetica, Arial, sans-serif;
   display: flex;
   flex-flow: column;
 }
-body *,
+body a,
 body a:hover {
   color: #eeeeee;
-}
-body a:hover {
-  text-decoration: inherit;
 }
 .whatify-header-bar {
   border-bottom: 1px solid #393b40;
@@ -22,12 +20,15 @@ body a:hover {
   display: flex;
   align-items: center;
 }
+.whatify-header-bar a:hover {
+  text-decoration: inherit;
+}
 .whatify-header-bar input {
   width: 400px;
 }
 .whatify-header-bar .search-results {
   position: absolute;
-  left: 220px;
+  left: 214px;
   top: 50px;
   background: #202124;
   max-height: calc(-100%);
@@ -57,6 +58,9 @@ body a:hover {
 .whatify-left-bar {
   background: #202124;
   width: 200px;
+}
+.whatify-left-bar a:hover {
+  text-decoration: inherit;
 }
 .whatify-left-bar ul.menu {
   display: block;
@@ -114,21 +118,66 @@ body a:hover {
   display: inline-block;
   flex: 1;
 }
-.torrent-group-details {
-  padding: 14px 22px;
-}
 .torrent-group-details .title-cover {
-  width: 200px;
+  height: 250px;
   float: left;
-  margin: 0 16px 20px 0;
+  margin: 4px 16px 20px 22px;
 }
-.torrent-group-details .title-name {
+.torrent-group-details .title-info {
+  display: flex;
+  height: 254px;
+  flex-direction: column;
+  margin: 14px 0px 0 22px;
+}
+.torrent-group-details .title-info .title-name {
   font-weight: lighter;
-  font-size: 220%;
+  letter-spacing: 2px;
+  font-size: 240%;
 }
-.torrent-group-details .title-artists {
+.torrent-group-details .title-info .title-artists {
+  font-size: 180%;
+}
+.torrent-group-details .title-info .title-artists .by {
+  font-weight: lighter;
+}
+.torrent-group-details .title-info .title-year {
+  font-weight: lighter;
   font-size: 140%;
+  flex: 1;
 }
-.torrent-group-details .title-artists .by {
+.torrent-group-details .title-info .title-buttons .btn-playpause {
+  width: 100px;
+  text-align: center;
+}
+.torrent-group-details .title-info .title-buttons .btn-playpause span {
+  float: left;
+  margin-top: 1px;
+}
+.torrent-group-details > p {
+  margin: 16px;
+  padding: 10px 20px;
+  background: #202124;
+}
+.playlist-page > h1 {
+  margin: 20px 20px 10px 20px;
   font-weight: lighter;
+  letter-spacing: 2px;
+}
+.table.playlist a:hover {
+  text-decoration: underline;
+}
+.table.playlist td {
+  cursor: pointer;
+  border-top-color: #333333;
+}
+.table.playlist tbody tr:hover {
+  background-color: #222222;
+}
+.table.playlist td:nth-child(1) {
+  width: 60px;
+  text-align: right;
+}
+.table.playlist td:nth-child(1) span {
+  float: left;
+  margin-top: 1px;
 }
