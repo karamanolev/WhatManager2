@@ -1,32 +1,74 @@
-@darkPanelBackground: #202124;
-@darkPanelBorderColor: #393b40;
+@textColor: #eeeeee;
+@sidePanelBackground: #202124;
+@sidePanelBorder: 1px solid #393b40;
+@mainPanelBackground: #101112;
+@leftPanelWidth: 200px;
 
 html, body {
   height: 100%;
 }
 
 body {
+  *, a:hover {
+    color: @textColor;
+  }
+  a:hover {
+    text-decoration: inherit;
+  }
+  font-family: proxima_nova, "Helvetica Neue", Helvetica, Arial, sans-serif;
   display: flex;
   flex-flow: column;
 }
 
 .whatify-header-bar {
-  border-bottom: 1px solid @darkPanelBorderColor;
-  background: @darkPanelBackground;
-  height: 100px;
-  padding-left: 200px;
+  border-bottom: @sidePanelBorder;
+  background: @sidePanelBackground;
+  height: 50px;
+  padding-left: @leftPanelWidth + 20px;
+  display: flex;
+  align-items: center;
 
   input {
     width: 400px;
   }
+
+  .search-results {
+    position: absolute;
+    left: @leftPanelWidth + 20px;
+    top: 50px;
+    background: @sidePanelBackground;
+    //    border: @sidePanelBorder;
+    max-height: calc(100% - 200px);
+    overflow: auto;
+
+    > ul {
+      display: block;
+      list-style: none;
+      margin: 0;
+      padding: 8px;
+
+      > li {
+        padding: 6px 16px;
+        margin-bottom: 2px;
+        .inactive {
+          cursor: default;
+          color: darken(@textColor, 20%);
+        }
+        &:not(.inactive) {
+          cursor: pointer;
+          background: lighten(@sidePanelBackground, 10%);
+          &:hover {
+            background: lighten(@sidePanelBackground, 20%);
+          }
+        }
+      }
+    }
+  }
 }
 
 .whatify-left-bar {
-  * {
-    color: #eeeeee;
-  }
-  background: @darkPanelBackground;
-  width: 200px;
+  background: @sidePanelBackground;
+  width: @leftPanelWidth;
 
   ul.menu {
     display: block;
@@ -37,28 +79,28 @@ body {
       display: block;
       color: inherit;
       text-decoration: inherit;
-      padding: 4px 10px;
+      padding: 4px 16px;
     }
     > li {
       cursor: pointer;
-    }
-    > li:hover {
-      background: lighten(@darkPanelBackground, 10%);
+      &:hover {
+        background: lighten(@sidePanelBackground, 10%);
+      }
     }
   }
 }
 
 .whatify-main-pane {
-  background: yellow;
+  background: @mainPanelBackground;
   flex: 1;
   overflow: auto;
 }
 
 .whatify-player-bar {
-  border-top: 1px solid @darkPanelBorderColor;
+  border-top: @sidePanelBorder;
   height: 60px;
   color: #eeeeee;
-  background: @darkPanelBackground;
+  background: @sidePanelBackground;
   font-family: "Lucida Console";
   display: flex;
   flex-direction: row;
@@ -91,3 +133,21 @@ body {
   }
 }
 
+.torrent-group-details {
+  padding: 14px 22px;
+  .title-cover {
+    width: 200px;
+    float: left;
+    margin: 0 16px 20px 0;
+  }
+  .title-name {
+    font-weight: lighter;
+    font-size: 220%;
+  }
+  .title-artists {
+    font-size: 140%;
+    .by {
+      font-weight: lighter;
+    }
+  }
+}

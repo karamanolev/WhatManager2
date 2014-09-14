@@ -3,24 +3,60 @@ body {
   height: 100%;
 }
 body {
+  font-family: proxima_nova, "Helvetica Neue", Helvetica, Arial, sans-serif;
   display: flex;
   flex-flow: column;
+}
+body *,
+body a:hover {
+  color: #eeeeee;
+}
+body a:hover {
+  text-decoration: inherit;
 }
 .whatify-header-bar {
   border-bottom: 1px solid #393b40;
   background: #202124;
-  height: 100px;
-  padding-left: 200px;
+  height: 50px;
+  padding-left: 220px;
+  display: flex;
+  align-items: center;
 }
 .whatify-header-bar input {
   width: 400px;
 }
+.whatify-header-bar .search-results {
+  position: absolute;
+  left: 220px;
+  top: 50px;
+  background: #202124;
+  max-height: calc(-100%);
+  overflow: auto;
+}
+.whatify-header-bar .search-results > ul {
+  display: block;
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+}
+.whatify-header-bar .search-results > ul > li {
+  padding: 6px 16px;
+  margin-bottom: 2px;
+}
+.whatify-header-bar .search-results > ul > li .inactive {
+  cursor: default;
+  color: #bbbbbb;
+}
+.whatify-header-bar .search-results > ul > li:not(.inactive) {
+  cursor: pointer;
+  background: #383a3f;
+}
+.whatify-header-bar .search-results > ul > li:not(.inactive):hover {
+  background: #50535a;
+}
 .whatify-left-bar {
   background: #202124;
   width: 200px;
-}
-.whatify-left-bar * {
-  color: #eeeeee;
 }
 .whatify-left-bar ul.menu {
   display: block;
@@ -32,7 +68,7 @@ body {
   display: block;
   color: inherit;
   text-decoration: inherit;
-  padding: 4px 10px;
+  padding: 4px 16px;
 }
 .whatify-left-bar ul.menu > li {
   cursor: pointer;
@@ -41,7 +77,7 @@ body {
   background: #383a3f;
 }
 .whatify-main-pane {
-  background: yellow;
+  background: #101112;
   flex: 1;
   overflow: auto;
 }
@@ -77,4 +113,22 @@ body {
   margin: 0 16px 0 10px;
   display: inline-block;
   flex: 1;
+}
+.torrent-group-details {
+  padding: 14px 22px;
+}
+.torrent-group-details .title-cover {
+  width: 200px;
+  float: left;
+  margin: 0 16px 20px 0;
+}
+.torrent-group-details .title-name {
+  font-weight: lighter;
+  font-size: 220%;
+}
+.torrent-group-details .title-artists {
+  font-size: 140%;
+}
+.torrent-group-details .title-artists .by {
+  font-weight: lighter;
 }
