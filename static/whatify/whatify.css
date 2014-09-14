@@ -1,0 +1,80 @@
+html,
+body {
+  height: 100%;
+}
+body {
+  display: flex;
+  flex-flow: column;
+}
+.whatify-header-bar {
+  border-bottom: 1px solid #393b40;
+  background: #202124;
+  height: 100px;
+  padding-left: 200px;
+}
+.whatify-header-bar input {
+  width: 400px;
+}
+.whatify-left-bar {
+  background: #202124;
+  width: 200px;
+}
+.whatify-left-bar * {
+  color: #eeeeee;
+}
+.whatify-left-bar ul.menu {
+  display: block;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.whatify-left-bar ul.menu a {
+  display: block;
+  color: inherit;
+  text-decoration: inherit;
+  padding: 4px 10px;
+}
+.whatify-left-bar ul.menu > li {
+  cursor: pointer;
+}
+.whatify-left-bar ul.menu > li:hover {
+  background: #383a3f;
+}
+.whatify-main-pane {
+  background: yellow;
+  flex: 1;
+  overflow: auto;
+}
+.whatify-player-bar {
+  border-top: 1px solid #393b40;
+  height: 60px;
+  color: #eeeeee;
+  background: #202124;
+  font-family: "Lucida Console";
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 10px 0 10px;
+}
+.whatify-player-bar > * {
+  margin-right: 10px;
+}
+.whatify-player-bar .volume-slider {
+  margin: 0 20px 0 6px;
+  display: inline-block;
+  width: 100px;
+}
+.whatify-player-bar .volume-slider .slider-handle {
+  background-color: #EEEEEE;
+}
+.whatify-player-bar .time {
+  width: 42px;
+  /* Enough to fit 5 chars */
+
+  text-align: right;
+}
+.whatify-player-bar .seek-slider {
+  margin: 0 16px 0 10px;
+  display: inline-block;
+  flex: 1;
+}

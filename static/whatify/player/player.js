@@ -166,11 +166,10 @@ angular.
 
         return {
             template: '<input type="text">',
-            replace: true,
             require: '?ngModel',
             link: function(scope, element, attrs, ngModel) {
                 if (!ngModel) return;
-                var slider = $(element[0]).slider({
+                var slider = $(element.children()[0]).slider({
                     min: 0,
                     max: 100,
                     value: volumeToPercent(ngModel.$viewValue || 0)
@@ -192,7 +191,6 @@ angular.
         var scale = 1000;
         return {
             template: '<input type="text">',
-            replace: true,
             require: '?ngModel',
             link: function(scope, element, attrs, ngModel) {
                 var isSliding = false;
@@ -202,7 +200,7 @@ angular.
                 }
 
                 if (!ngModel) return;
-                var slider = $(element[0]).slider({
+                var slider = $(element.children()[0]).slider({
                     min: 0,
                     max: scale,
                     value: 0,

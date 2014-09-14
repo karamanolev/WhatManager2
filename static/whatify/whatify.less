@@ -1,0 +1,93 @@
+@darkPanelBackground: #202124;
+@darkPanelBorderColor: #393b40;
+
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-flow: column;
+}
+
+.whatify-header-bar {
+  border-bottom: 1px solid @darkPanelBorderColor;
+  background: @darkPanelBackground;
+  height: 100px;
+  padding-left: 200px;
+
+  input {
+    width: 400px;
+  }
+}
+
+.whatify-left-bar {
+  * {
+    color: #eeeeee;
+  }
+  background: @darkPanelBackground;
+  width: 200px;
+
+  ul.menu {
+    display: block;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    a {
+      display: block;
+      color: inherit;
+      text-decoration: inherit;
+      padding: 4px 10px;
+    }
+    > li {
+      cursor: pointer;
+    }
+    > li:hover {
+      background: lighten(@darkPanelBackground, 10%);
+    }
+  }
+}
+
+.whatify-main-pane {
+  background: yellow;
+  flex: 1;
+  overflow: auto;
+}
+
+.whatify-player-bar {
+  border-top: 1px solid @darkPanelBorderColor;
+  height: 60px;
+  color: #eeeeee;
+  background: @darkPanelBackground;
+  font-family: "Lucida Console";
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 10px 0 10px;
+
+  > * {
+    margin-right: 10px;
+  }
+
+  .volume-slider {
+    margin: 0 20px 0 6px;
+    display: inline-block;
+    width: 100px;
+
+    .slider-handle {
+      background-color: #EEEEEE;
+    }
+  }
+
+  .time {
+    width: 42px; /* Enough to fit 5 chars */
+    text-align: right;
+  }
+
+  .seek-slider {
+    margin: 0 16px 0 10px;
+    display: inline-block;
+    flex: 1;
+  }
+}
+

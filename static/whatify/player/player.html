@@ -1,40 +1,31 @@
-<div class="container-fluid" style="position: fixed; bottom: 0; left: 0; right: 0;">
-    <div class="row">
-        <div class="col-xs-12 well" style="margin-bottom: 0;">
-            <h4>
-                <volume-slider ng-model="volume"></volume-slider>
+<button class="btn btn-default" ng-disabled="!playlist.canBackward"
+        ng-click="playlist.backward()">
+    <span class="glyphicon glyphicon-backward"></span>
+</button>
 
+<!-- Play/Pause buttons -->
+<button class="btn btn-success" ng-show="!player.isPlaying"
+        ng-click="player.play()" ng-disabled="playlist.currentItem === null">
+    <span class="glyphicon glyphicon-play"></span>
+</button>
 
-                <button class="btn btn-default btn-lg" ng-disabled="!playlist.canBackward"
-                        ng-click="playlist.backward()">
-                    <span class="glyphicon glyphicon-backward"></span>
-                </button>
+<button class="btn btn-success" ng-show="player.isPlaying"
+        ng-click="player.pause()">
+    <span class="glyphicon glyphicon-pause"></span>
+</button>
+<!-- End Play/Pause buttons -->
 
-                <!-- Play/Pause buttons -->
-                <button class="btn btn-default btn-lg" ng-show="!player.isPlaying"
-                        ng-click="player.play()" ng-disabled="playlist.currentItem === null">
-                    <span class="glyphicon glyphicon-play"></span>
-                </button>
+<button class="btn btn-default" ng-disabled="!playlist.canForward"
+        ng-click="playlist.forward()">
+    <span class="glyphicon glyphicon-forward"></span>
+</button>
 
-                <button class="btn btn-default btn-lg" ng-show="player.isPlaying"
-                        ng-click="player.pause()">
-                    <span class="glyphicon glyphicon-pause"></span>
-                </button>
-                <!-- End Play/Pause buttons -->
+<span class="volume-slider" volume-slider ng-model="volume"></span>
 
-                <button class="btn btn-default btn-lg" ng-disabled="!playlist.canForward"
-                        ng-click="playlist.forward()">
-                    <span class="glyphicon glyphicon-forward"></span>
-                </button>
+<span class="time elapsed">{{ player.currentTime | asTime }}</span>
 
-                {{ player.currentTime | asTime }}
+<span class="seek-slider" seek-slider ng-model="player.currentTime"
+      duration="{{ player.duration }}">
+</span>
 
-                <seek-slider ng-model="player.currentTime" duration="{{ player.duration }}"
-                             style="width: 400px;">
-                </seek-slider>
-
-                <span>{{ player.duration | asTime }}</span>
-            </h4>
-        </div>
-    </div>
-</div>
+<span class="time total">{{ player.duration | asTime }}</span>

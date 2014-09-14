@@ -3,7 +3,8 @@
 <html ng-app="whatify">
 <head>
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/bootstrap-slider.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-slider.css' %}">
+    <link rel="stylesheet" href="{% static 'whatify/whatify.css' %}">
     <script src="{% static 'js/jquery-2.1.1.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.js' %}"></script>
     <script src="{% static 'js/angular.min.js' %}"></script>
@@ -17,42 +18,6 @@
     <script src="{% static 'whatify/home/home.js' %}"></script>
     <script src="{% static 'whatify/player/player.js' %}"></script>
     <script src="{% static 'whatify/searchBar/searchBar.js' %}"></script>
-    <style type="text/css">
-        html, body {
-            height: 100%;
-        }
-
-        body {
-            display: flex;
-            flex-flow: column;
-        }
-
-        .whatify-header-bar {
-            background: #202124;
-            height: 100px;
-            padding-left: 200px;
-        }
-
-        .whatify-left-bar {
-            background: blue;
-            width: 200px;
-        }
-
-        .whatify-main-pane {
-            background: yellow;
-            flex: 1;
-            overflow: auto;
-        }
-
-        .whatify-player-bar {
-            height: 100px;
-            background: green;
-        }
-
-        .whatify-header-bar input {
-            width: 400px;
-        }
-    </style>
 </head>
 <body>
 
@@ -60,8 +25,20 @@
 </div>
 <div style="flex: 1; display: flex;">
     <div class="whatify-left-bar">
-        <a href="#/">home</a><br>
-        <a href="#/playlist">playlist</a>
+        <ul class="menu">
+            <li>
+                <a href="#/">
+                    <span class="glyphicon glyphicon-home"></span>
+                    Home
+                </a>
+            </li>
+            <li>
+                <a href="#/playlist">
+                    <span class="glyphicon glyphicon-list"></span>
+                    Playlist
+                </a>
+            </li>
+        </ul>
     </div>
     <div class="whatify-main-pane" ng-view>
         <div ng-view></div>
