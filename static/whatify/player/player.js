@@ -2,121 +2,250 @@
 
 angular.
     module('whatify.player', []).
-    factory('WhatPlayerService', function ($rootScope) {
-        return new function () {
-            var service = this;
-            window.service = this;
-            this.audio = document.createElement('audio');
-            this.currentItem = null;
-            this.isPlaying = false;
-            this.currentTime = 0;
-            this.duration = 0;
-            this.playlist = [];
-            this.playlistIndex = 0;
+    factory('whatPlayer', function($rootScope) {
+        var s = {};
+        s.audio = document.createElement('audio');
+        s.isPlaying = false;
+        s.currentTime = 0;
+        s.duration = null;
 
-            $(this.audio).on('playing', function () {
-                $rootScope.$apply(function () {
-                    service.isPlaying = true;
-                });
+        $(s.audio).on('playing', function() {
+            $rootScope.$apply(function() {
+                s.isPlaying = true;
             });
-            $(this.audio).on('timeupdate', function () {
-                $rootScope.$apply(function () {
-                    service.currentTime = service.audio.currentTime;
-                });
-            });
-            $(this.audio).on('loadedmetadata', function () {
-                $rootScope.$apply(function () {
-                    service.duration = service.audio.duration;
-                });
-            });
-            $(this.audio).on('ended', function () {
-                $rootScope.$apply(function () {
-                    if (service.playlistIndex < service.playlist.length - 1) {
-                        service.play(service.playlistIndex + 1);
-                    } else {
-                        service.goTo(0);
-                    }
-                });
-            });
-            $(this.audio).on('error', function () {
-                $rootScope.$apply(function () {
-                    service.isPlaying = false;
-                });
-            });
-            this.goTo = function (index) {
-                this.playlistIndex = index;
-                this.currentItem = this.playlist[this.playlistIndex];
-                this.audio.src = this.currentItem.url;
-                this.currentTime = 0;
-                this.duration = 0;
-                this.isPlaying = false;
-            };
-            this.play = function (index) {
-                console.log('Called play ' + index);
-                if (index != undefined) {
-                    this.goTo(index);
-                }
-                this.isPlaying = true;
-                this.audio.play();
-            };
-            this.pause = function () {
-                this.isPlaying = false;
-                this.audio.pause();
-            };
-            this.playlistClear = function () {
-                this.playlist = [];
-                this.playlistIndex = -1;
-                this.audio.pause();
-                this.audio.src = '';
-                this.currentItem = null;
-                this.currentTime = 0;
-                this.duration = 0;
-                this.isPlaying = false;
-            };
-            this.playlistAdd = function (item) {
-                this.playlist.push(item);
-            };
-            this.setVolume = function (volume) {
-                this.audio.volume = volume;
-            };
-            this.getVolume = function () {
-                return this.audio.volume;
-            };
-        };
-    }).
-    controller('WhatPlayerController', function ($scope, WhatMeta, WhatPlayerService) {
-        $scope.player = WhatPlayerService;
-        $scope.volume = WhatPlayerService.getVolume();
-        $scope.$watch('volume', function (newValue) {
-            WhatPlayerService.setVolume(newValue);
         });
+        $(s.audio).on('timeupdate', function() {
+            $rootScope.$apply(function() {
+                s.currentTime = s.audio.currentTime;
+            });
+        });
+        $(s.audio).on('loadedmetadata', function() {
+            $rootScope.$apply(function() {
+                s.duration = s.audio.duration;
+            });
+        });
+        $(s.audio).on('ended', function() {
+            $rootScope.$emit('songEnded');
+        });
+        $(s.audio).on('error', function() {
+            $rootScope.$apply(function() {
+                s.isPlaying = false;
+            });
+        });
+        s.play = function() {
+            if (s.audio.src) {
+                s.audio.play();
+                s.isPlaying = true;
+            }
+        };
+        s.load = function(src) {
+            s.pause();
+            s.audio.src = src || '';
+            s.currentTime = 0;
+            s.duration = null;
+        };
+        s.pause = function() {
+            s.isPlaying = false;
+            s.audio.pause();
+        };
+        s.setVolume = function(volume) {
+            s.audio.volume = volume;
+        };
+        s.getVolume = function() {
+            return s.audio.volume;
+        };
+        s.seek = function(time) {
+            s.audio.currentTime = time;
+        };
+        return s;
+    }).
+    factory('whatPlaylist', function($rootScope, whatPlayer) {
+        var s = {
+            items: [],
+            index: -1
+        };
+        var update = function() {
+            if (s.index == -1) {
+                s.currentItem = null;
+            } else {
+                s.currentItem = s.items[s.index];
+            }
+            s.canForward = s.index != -1 && s.index < s.items.length - 1;
+            s.canBackward = s.index > 0;
+        };
+        update();
 
-        $scope.playTorrentGroup = function (torrentGroupId, index) {
-            WhatMeta.getTorrentGroup(torrentGroupId).success(function (torrentGroup) {
+        $rootScope.$on('songEnded', function() {
+            if (s.canForward) {
+                s.play(s.index + 1);
+            } else {
+                s.index = 0;
+                update();
+                whatPlayer.load(s.currentItem.url);
+            }
+        });
+        s.clear = function() {
+            s.items = [];
+            s.index = -1;
+            update();
+            whatPlayer.load(null);
+        };
+        s.play = function(index) {
+            s.index = index;
+            update();
+            whatPlayer.load(s.currentItem.url);
+            whatPlayer.play();
+        };
+        s.add = function(item) {
+            s.items.push(item);
+            update();
+        };
+        s.forward = function() {
+            if (!s.canForward) {
+                return;
+            }
+            s.play(s.index + 1);
+        };
+        s.backward = function() {
+            if (!s.canBackward) {
+                return;
+            }
+            s.play(s.index - 1);
+        };
+        return s;
+    }).
+    controller('WhatPlayerController', function($scope, WhatMeta, whatPlayer, whatPlaylist) {
+        $scope.player = whatPlayer;
+        $scope.playlist = whatPlaylist;
+        $scope.volume = whatPlayer.getVolume();
+        $scope.$watch('volume', function(newValue) {
+            whatPlayer.setVolume(newValue);
+        });
+        $scope.seek = function(time) {
+            whatPlayer.seek(time);
+        };
+
+        $scope.playTorrentGroup = function(torrentGroupId, index) {
+            WhatMeta.getTorrentGroup(torrentGroupId).success(function(torrentGroup) {
                 var inPlaylist = false;
                 if (index != undefined) {
-                    $.each(WhatPlayerService.playlist, function (i, item) {
+                    $.each(whatPlaylist.items, function(i, item) {
                         if (item.id == torrentGroup.playlist[index].id) {
-                            WhatPlayerService.play(i);
+                            whatPlaylist.play(i);
                             inPlaylist = true;
                             return false;
                         }
                     });
                 }
                 if (!inPlaylist) {
-                    WhatPlayerService.playlistClear();
-                    $.each(torrentGroup.playlist, function (i, item) {
-                        WhatPlayerService.playlistAdd(item);
+                    whatPlaylist.clear();
+                    $.each(torrentGroup.playlist, function(i, item) {
+                        whatPlaylist.add(item);
                     });
-                    WhatPlayerService.play(index || 0);
+                    whatPlaylist.play(index || 0);
                 }
             });
         };
     }).
-    directive('ngWmPlayerSm', function () {
+    directive('wmPlayerSm', function() {
         return {
-            'templateUrl': templateRoot + '/player/player.html',
-            'controller': 'WhatPlayerController'
+            templateUrl: templateRoot + '/player/player.html',
+            controller: 'WhatPlayerController'
+        }
+    }).
+    directive('volumeSlider', function() {
+        function volumeToPercent(volume) {
+            var value = Math.sqrt(volume);
+            return value * 100;
+        }
+
+        function percentToVolume(percent) {
+            var value = percent / 100;
+            return value * value;
+        }
+
+        return {
+            template: '<input type="text">',
+            replace: true,
+            require: '?ngModel',
+            link: function(scope, element, attrs, ngModel) {
+                if (!ngModel) return;
+                var slider = $(element[0]).slider({
+                    min: 0,
+                    max: 100,
+                    value: volumeToPercent(ngModel.$viewValue || 0)
+                });
+                ngModel.$render = function() {
+                    slider.slider('setValue', volumeToPercent(ngModel.$viewValue || 0), false);
+                };
+                function updateScope(ev) {
+                    scope.$apply(function() {
+                        ngModel.$setViewValue(percentToVolume(ev.value || 0));
+                    });
+                }
+
+                slider.on('slide', updateScope).on('slideStart', updateScope);
+            }
+        }
+    }).
+    directive('seekSlider', function($filter) {
+        var scale = 1000;
+        return {
+            template: '<input type="text">',
+            replace: true,
+            require: '?ngModel',
+            link: function(scope, element, attrs, ngModel) {
+                var isSliding = false;
+
+                function getDuration() {
+                    return parseFloat(attrs.duration);
+                }
+
+                if (!ngModel) return;
+                var slider = $(element[0]).slider({
+                    min: 0,
+                    max: scale,
+                    value: 0,
+                    formatter: function() {
+                        var duration = getDuration();
+                        var time = 0;
+                        if (duration) {
+                            time = slider.slider('getValue') / scale * duration;
+                        }
+                        return $filter('asTime')(time);
+                    },
+                    enabled: false
+                });
+                ngModel.$render = function() {
+                    var value;
+                    var duration = getDuration();
+                    if (isSliding) {
+                        return;
+                    }
+                    if (duration) {
+                        value = ngModel.$viewValue / duration;
+                    } else {
+                        value = 0;
+                    }
+                    slider.slider('setValue', value * scale, false);
+                };
+                slider.on('slideStart', function() {
+                    isSliding = true;
+                }).on('slideStop', function(ev) {
+                    var value = ev.value || 0;
+                    var duration = getDuration();
+                    isSliding = false;
+                    scope.seek(value / scale * duration);
+                });
+                scope.$watch(function() {
+                    var duration = getDuration();
+                    if (duration && !slider.slider('isEnabled')) {
+                        slider.slider('enable');
+                    } else if (!duration && slider.slider('isEnabled')) {
+                        slider.slider('disable');
+                    }
+                });
+            }
         }
     })
 ;

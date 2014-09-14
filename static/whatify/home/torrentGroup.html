@@ -17,7 +17,7 @@ torrent group information
 
 <ol ng-if="torrentGroup.playlist">
     <li ng-repeat="item in torrentGroup.playlist">
-                <span ng-show="player.currentItem.id == item.id">
+                <span ng-show="playlist.currentItem.id == item.id">
                     <span ng-show="player.isPlaying">playing</span>
                     <span ng-show="!player.isPlaying">paused</span>
                 </span>

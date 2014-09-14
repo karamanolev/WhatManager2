@@ -7,13 +7,13 @@ angular.
         'whatify.player',
         'whatify.searchBar'
     ]).
-    factory('WhatMeta', function ($q, $http) {
-        return new function () {
-            this.getTorrentGroup = function (id) {
+    factory('WhatMeta', function($q, $http) {
+        return new function() {
+            this.getTorrentGroup = function(id) {
                 return $http.get('torrent_groups/' + id);
             };
             this.searchCanceller = null;
-            this.search = function (query) {
+            this.search = function(query) {
                 if (this.searchCanceller) {
                     this.searchCanceller.resolve('New search coming');
                 }
@@ -22,16 +22,32 @@ angular.
                         encodeURIComponent(query), {timeout: this.searchCanceller.promise}
                 );
             };
-            this.getArtist = function (id) {
+            this.getArtist = function(id) {
                 return $http.get('artists/' + id);
             };
         };
     }).
-    filter('trustAsHtml', function ($sce) {
-        return function (input) {
+    filter('trustAsHtml', function($sce) {
+        return function(input) {
             return $sce.trustAsHtml(input);
         };
     }).
-    config(function ($routeProvider) {
+    filter('asPercent', function() {
+        return function(value) {
+            return Math.floor(value * 100) + '%';
+        };
+    }).
+    filter('asTime', function() {
+        return function(value) {
+            if (value === null) {
+                return '-:--';
+            }
+            var seconds = Math.floor(value % 60);
+            var minutes = Math.floor(value / 60);
+            return minutes + ':' + (seconds < 10 ? '0' + seconds : seconds);
+        }
+    }).
+    config(function($routeProvider) {
         $routeProvider.otherwise({redirectTo: '/'})
-    });
+    })
+;

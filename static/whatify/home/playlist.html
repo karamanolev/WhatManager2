@@ -1,12 +1,13 @@
 Playlist:
+{{ playlist.currentItem.id }}
 <ul>
-    <li ng-repeat="item in player.playlist">
+    <li ng-repeat="item in playlist.items">
         {{ $index }}.
-                <span ng-show="player.currentItem.id == item.id">
-                    <span ng-show="player.isPlaying">playing</span>
-                    <span ng-show="!player.isPlaying">paused</span>
-                </span>
-        <a ng-click="player.play($index)">{{ item.id }}</a><br>
+        <span ng-show="playlist.currentItem.id == item.id">
+            <span ng-show="player.isPlaying">playing</span>
+            <span ng-show="!player.isPlaying">paused</span>
+        </span>
+        <a ng-click="playlist.play($index)">{{ item.id }}</a><br>
         {{ item.url }}<br>
         {{ item.metadata.title }}<br>
     </li>
