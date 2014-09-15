@@ -25,6 +25,22 @@ body {
   flex-flow: column;
 }
 
+h1 {
+  font-weight: lighter;
+  letter-spacing: 2px;
+}
+
+.btn.btn-whatify {
+  background: none;
+  border: 1px solid #aaaaaa;
+  border-radius: 20px;
+}
+
+.btn.btn-whatify:hover {
+  color: inherit;
+  border-color: #84bd00;
+}
+
 .whatify-header-bar {
   border-bottom: @sidePanelBorder;
   background: @sidePanelBackground;
@@ -74,9 +90,9 @@ body {
   }
 }
 
-h1 {
-  font-weight: lighter;
-  letter-spacing: 2px;
+.whatify-main-flex {
+  flex: 1;
+  display: flex;
 }
 
 .whatify-left-bar {
@@ -109,6 +125,16 @@ h1 {
   background: @mainPanelBackground;
   flex: 1;
   overflow: auto;
+  position: relative;
+}
+
+#main-pane-spinner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: @mainPanelBackground;
 }
 
 .whatify-player-bar {
@@ -148,11 +174,17 @@ h1 {
   }
 }
 
-.torrent-group-details-page {
+.torrent-group-details-page, .artist-details-page {
   .title-cover {
     height: 250px;
     float: left;
     margin: 4px 16px 10px 22px;
+  }
+  .title-cover.small {
+    height: 150px;
+  }
+  .title-cover.small + .title-info {
+    height: 154px;
   }
   .title-info {
     display: flex;

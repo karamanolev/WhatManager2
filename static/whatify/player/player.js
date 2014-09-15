@@ -168,9 +168,6 @@ angular.
                 }
             });
         };
-
-        $scope.playTorrentGroup(74715);
-        $scope.volume = 0;
     }).
     directive('wmPlayerSm', function() {
         return {

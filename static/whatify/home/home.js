@@ -2,7 +2,7 @@
 
 angular.
     module('whatify.home', ['ngRoute']).
-    config(function ($routeProvider) {
+    config(function($routeProvider) {
         $routeProvider.
             when('/', {
                 templateUrl: templateRoot + '/home/home.html',
@@ -21,16 +21,28 @@ angular.
                 controller: 'WhatPlayerController'
             })
     }).
-    controller('HomeController', function ($scope) {
+    controller('HomeController', function($scope) {
     }).
-    controller('TorrentGroupController', function ($scope, whatMeta, $routeParams) {
-        whatMeta.getTorrentGroup($routeParams.id).success(function (torrentGroup) {
-            $scope.torrentGroup = torrentGroup;
-        });
+    controller('TorrentGroupController', function($scope, whatMeta, $routeParams) {
+        $scope.reloadTorrentGroup = function(defeatCache) {
+            $scope.torrentGroup = null;
+            $scope.mainSpinner.visible = true;
+            whatMeta.getTorrentGroup($routeParams.id, defeatCache).success(function(torrentGroup) {
+                $scope.torrentGroup = torrentGroup;
+                $scope.mainSpinner.visible = false;
+            });
+        };
+        $scope.reloadTorrentGroup();
     }).
-    controller('ArtistController', function ($scope, whatMeta, $routeParams) {
-        whatMeta.getArtist($routeParams.id).success(function (artist) {
-            $scope.artist = artist;
-        });
+    controller('ArtistController', function($scope, whatMeta, $routeParams) {
+        $scope.reloadArtist = function(defeatCache) {
+            $scope.artist = null;
+            $scope.mainSpinner.visible = true;
+            whatMeta.getArtist($routeParams.id, defeatCache).success(function(artist) {
+                $scope.artist = artist;
+                $scope.mainSpinner.visible = false;
+            });
+        };
+        $scope.reloadArtist();
     })
 ;

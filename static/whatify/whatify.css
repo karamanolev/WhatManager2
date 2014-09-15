@@ -13,6 +13,19 @@ body a,
 body a:hover {
   color: #eeeeee;
 }
+h1 {
+  font-weight: lighter;
+  letter-spacing: 2px;
+}
+.btn.btn-whatify {
+  background: none;
+  border: 1px solid #aaaaaa;
+  border-radius: 20px;
+}
+.btn.btn-whatify:hover {
+  color: inherit;
+  border-color: #84bd00;
+}
 .whatify-header-bar {
   border-bottom: 1px solid #393b40;
   background: #202124;
@@ -57,9 +70,9 @@ body a:hover {
 .whatify-header-bar .search-results > ul > li:not(.inactive):hover {
   background: #50535a;
 }
-h1 {
-  font-weight: lighter;
-  letter-spacing: 2px;
+.whatify-main-flex {
+  flex: 1;
+  display: flex;
 }
 .whatify-left-bar {
   background: #202124;
@@ -90,6 +103,15 @@ h1 {
   background: #101112;
   flex: 1;
   overflow: auto;
+  position: relative;
+}
+#main-pane-spinner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #101112;
 }
 .whatify-player-bar {
   border-top: 1px solid #393b40;
@@ -124,47 +146,65 @@ h1 {
   display: inline-block;
   flex: 1;
 }
-.torrent-group-details-page .title-cover {
+.torrent-group-details-page .title-cover,
+.artist-details-page .title-cover {
   height: 250px;
   float: left;
   margin: 4px 16px 10px 22px;
 }
-.torrent-group-details-page .title-info {
+.torrent-group-details-page .title-cover.small,
+.artist-details-page .title-cover.small {
+  height: 150px;
+}
+.torrent-group-details-page .title-cover.small + .title-info,
+.artist-details-page .title-cover.small + .title-info {
+  height: 154px;
+}
+.torrent-group-details-page .title-info,
+.artist-details-page .title-info {
   display: flex;
   height: 254px;
   flex-direction: column;
   margin: 14px 0 0 22px;
 }
-.torrent-group-details-page .title-info .title-name {
+.torrent-group-details-page .title-info .title-name,
+.artist-details-page .title-info .title-name {
   font-weight: lighter;
   letter-spacing: 2px;
   font-size: 240%;
 }
-.torrent-group-details-page .title-info .title-artists {
+.torrent-group-details-page .title-info .title-artists,
+.artist-details-page .title-info .title-artists {
   font-size: 180%;
 }
-.torrent-group-details-page .title-info .title-artists .by {
+.torrent-group-details-page .title-info .title-artists .by,
+.artist-details-page .title-info .title-artists .by {
   font-weight: lighter;
 }
-.torrent-group-details-page .title-info .title-year {
+.torrent-group-details-page .title-info .title-year,
+.artist-details-page .title-info .title-year {
   font-weight: lighter;
   font-size: 140%;
   flex: 1;
 }
-.torrent-group-details-page .title-info .title-buttons .btn-playpause {
+.torrent-group-details-page .title-info .title-buttons .btn-playpause,
+.artist-details-page .title-info .title-buttons .btn-playpause {
   width: 100px;
   text-align: center;
 }
-.torrent-group-details-page .title-info .title-buttons .btn-playpause span {
+.torrent-group-details-page .title-info .title-buttons .btn-playpause span,
+.artist-details-page .title-info .title-buttons .btn-playpause span {
   float: left;
   margin-top: 1px;
 }
-.torrent-group-details-page > p {
+.torrent-group-details-page > p,
+.artist-details-page > p {
   margin: 16px;
   padding: 10px 20px;
   background: #202124;
 }
-.torrent-group-details-page .table.playlist {
+.torrent-group-details-page .table.playlist,
+.artist-details-page .table.playlist {
   cursor: pointer;
 }
 .playlist-page > h1 {

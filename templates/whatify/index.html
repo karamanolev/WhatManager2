@@ -12,6 +12,7 @@
     <script src="{% static 'js/angular.min.js' %}"></script>
     <script src="{% static 'js/angular-route.min.js' %}"></script>
     <script src="{% static 'js/bootstrap-slider.min.js' %}"></script>
+    <script src="{% static 'js/spin.min.js' %}"></script>
 
     <script type="text/javascript">
         var templateRoot = '{% static "whatify" %}';
@@ -23,9 +24,9 @@
 </head>
 <body>
 
-<div class="whatify-header-bar" ng-wm-search-bar>
-</div>
-<div style="flex: 1; display: flex;">
+<div class="whatify-header-bar" ng-wm-search-bar></div>
+
+<div class="whatify-main-flex">
     <div class="whatify-left-bar">
         <ul class="menu">
             <li>
@@ -42,11 +43,13 @@
             </li>
         </ul>
     </div>
-    <div class="whatify-main-pane" ng-view>
+    <div class="whatify-main-pane">
         <div ng-view></div>
+        <div main-pane-spinner></div>
     </div>
 </div>
-<div class="whatify-player-bar" wm-player-sm>
+
+<div class="whatify-player-bar" wm-player-sm></div>
 
 </body>
 </html>

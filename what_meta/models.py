@@ -37,16 +37,6 @@ class WhatArtist(models.Model):
         WhatMetaFulltext.create_or_update_artist(self)
         super(WhatArtist, self).save(*args, **kwargs)
 
-    def update_from_what(self, what_client):
-        retrieved = timezone.now()
-        response = what_client.request('artist', id=self.id)['response']
-        self.retrieved = retrieved
-        self.name = html_unescape(response['name'])
-        self.image = html_unescape(response['image'])
-        self.wiki_body = response['body']
-        self.info_json = json.dumps(response)
-        self.save()
-
     @classmethod
     def get_or_create_shell(cls, artist_id, name, retrieved):
         try:
@@ -59,6 +49,27 @@ class WhatArtist(models.Model):
             )
             new_artist.save()
             return new_artist
+
+    @classmethod
+    def update_from_what(cls, what_client, artist_id):
+        try:
+            artist = WhatArtist.objects.get(id=artist_id)
+        except WhatTorrentGroup.DoesNotExist:
+            artist = WhatArtist(
+                id=artist_id
+            )
+        retrieved = timezone.now()
+        response = what_client.request('artist', id=artist_id)['response']
+
+        artist.retrieved = retrieved
+        artist.name = html_unescape(response['name'])
+        artist.image = html_unescape(response['image'])
+        artist.wiki_body = response['body']
+        artist.vanity_house = response['vanityHouse']
+        artist.info_json = json.dumps(response)
+        artist.save()
+
+        return artist
 
 
 class WhatTorrentGroup(models.Model):

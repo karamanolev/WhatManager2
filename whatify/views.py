@@ -2,16 +2,23 @@ from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.utils.http import urlquote
 
-from WhatManager2.utils import json_return_method, get_artists_list
+from WhatManager2.utils import json_return_method, get_artists_list, get_artists
 from home import info_holder
 from home.models import WhatTorrent, get_what_client, TransTorrent
 from player.player_utils import get_playlist_files, get_metadata_dict
 from what_meta.models import WhatTorrentGroup, WhatArtist, WhatMetaFulltext
 from what_transcode.utils import html_unescape
+from whatify.utils import extended_artists_to_music_info
 
 
 def index(request):
     return render(request, 'whatify/index.html')
+
+
+def hack_whatimg_url(url):
+    if 'whatimg.com' in url:
+        return url.replace('.jpg', '_thumb.jpg')
+    return url
 
 
 def get_torrent_group_dict(torrent_group):
@@ -21,8 +28,29 @@ def get_torrent_group_dict(torrent_group):
         'artists': get_artists_list(torrent_group.info),
         'name': torrent_group.name,
         'year': torrent_group.year,
-        'wiki_image': torrent_group.wiki_image,
+        'wiki_image': hack_whatimg_url(torrent_group.wiki_image),
         'wiki_body': torrent_group.wiki_body,
+    }
+
+
+def get_artist_group_dict(torrents_done, torrent_group):
+    have = False
+    for torrent in torrent_group['torrent']:
+        if torrent['id'] in torrents_done:
+            done = torrents_done[torrent['id']]
+            if done == 1:
+                have = True
+            elif have is not True:
+                have = max(have, done)
+    music_info = extended_artists_to_music_info(torrent_group['extendedArtists'])
+    return {
+        'id': torrent_group['groupId'],
+        'joined_artists': get_artists(music_info),
+        'artists': get_artists_list(music_info),
+        'name': html_unescape(torrent_group['groupName']),
+        'year': torrent_group['groupYear'],
+        'wiki_image': hack_whatimg_url(torrent_group['wikiImage']),
+        'have': have,
     }
 
 
@@ -50,6 +78,8 @@ def search(request, query):
 @json_return_method
 def get_torrent_group(request, group_id):
     try:
+        if 'HTTP_X_REFRESH' in request.META:
+            raise WhatTorrentGroup.DoesNotExist()
         torrent_group = WhatTorrentGroup.objects.get(id=group_id)
     except WhatTorrentGroup.DoesNotExist:
         what_client = get_what_client(request)
@@ -94,26 +124,10 @@ def get_artist_dict(artist, include_torrents=False):
             TransTorrent.objects.filter(what_torrent_id__in=torrent_ids)
         }
 
-        def get_artist_group_dict(torrent_group):
-            have = False
-            for torrent in torrent_group['torrent']:
-                if torrent['id'] in torrents_done:
-                    done = torrents_done[torrent['id']]
-                    if done == 1:
-                        have = True
-                    elif have is not True:
-                        have = max(have, done)
-            return {
-                'id': torrent_group['groupId'],
-                'name': html_unescape(torrent_group['groupName']),
-                'year': torrent_group['groupYear'],
-                'have': have,
-            }
-
         data.update({
-            'torrentGroups': {
+            'torrent_groups': {
                 releaseTypeName: [
-                    get_artist_group_dict(t)
+                    get_artist_group_dict(torrents_done, t)
                     for t in sorted(artist.info['torrentgroup'], key=lambda g: g['groupYear'])
                     if t['releaseType'] == releaseTypeId
                 ]
@@ -125,7 +139,12 @@ def get_artist_dict(artist, include_torrents=False):
 
 @json_return_method
 def get_artist(request, artist_id):
-    artist = WhatArtist.objects.get(id=artist_id)
-    if artist.is_shell:
-        artist.update_from_what(get_what_client(request))
+    try:
+        if 'HTTP_X_REFRESH' in request.META:
+            raise WhatArtist.DoesNotExist()
+        artist = WhatArtist.objects.get(id=artist_id)
+        if artist.is_shell:
+            raise WhatArtist.DoesNotExist()
+    except WhatArtist.DoesNotExist:
+        artist = WhatArtist.update_from_what(get_what_client(request), artist_id)
     return get_artist_dict(artist, True)
