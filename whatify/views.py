@@ -1,8 +1,10 @@
 from django.shortcuts import render
+
 from django.core.urlresolvers import reverse
 from django.utils.http import urlquote
 
 from WhatManager2.utils import json_return_method, get_artists_list, get_artists
+
 from home import info_holder
 from home.models import WhatTorrent, get_what_client, TransTorrent
 from player.player_utils import get_playlist_files, get_metadata_dict
@@ -15,10 +17,8 @@ def index(request):
     return render(request, 'whatify/index.html')
 
 
-def hack_whatimg_url(url):
-    if 'whatimg.com' in url:
-        return url.replace('.jpg', '_thumb.jpg')
-    return url
+def get_image_cache_url(url):
+    return reverse('what_meta.views.image', args=[url])
 
 
 def get_torrent_group_dict(torrent_group):
@@ -28,7 +28,7 @@ def get_torrent_group_dict(torrent_group):
         'artists': get_artists_list(torrent_group.info),
         'name': torrent_group.name,
         'year': torrent_group.year,
-        'wiki_image': hack_whatimg_url(torrent_group.wiki_image),
+        'wiki_image': get_image_cache_url(torrent_group.wiki_image),
         'wiki_body': torrent_group.wiki_body,
     }
 
@@ -49,7 +49,7 @@ def get_artist_group_dict(torrents_done, torrent_group):
         'artists': get_artists_list(music_info),
         'name': html_unescape(torrent_group['groupName']),
         'year': torrent_group['groupYear'],
-        'wiki_image': hack_whatimg_url(torrent_group['wikiImage']),
+        'wiki_image': get_image_cache_url(torrent_group['wikiImage']),
         'have': have,
     }
 
@@ -111,7 +111,7 @@ def get_artist_dict(artist, include_torrents=False):
     data = {
         'id': artist.id,
         'name': artist.name,
-        'image': artist.image,
+        'image': get_image_cache_url(artist.image),
         'wiki': artist.wiki_body,
     }
     if artist.info is not None:
