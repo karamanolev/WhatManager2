@@ -33,6 +33,7 @@ body a:hover {
   top: 50px;
   background: #202124;
   max-height: calc(-100%);
+  width: 600px;
   overflow: auto;
 }
 .whatify-header-bar .search-results > ul {
@@ -55,6 +56,10 @@ body a:hover {
 }
 .whatify-header-bar .search-results > ul > li:not(.inactive):hover {
   background: #50535a;
+}
+h1 {
+  font-weight: lighter;
+  letter-spacing: 2px;
 }
 .whatify-left-bar {
   background: #202124;
@@ -119,53 +124,60 @@ body a:hover {
   display: inline-block;
   flex: 1;
 }
-.torrent-group-details .title-cover {
+.torrent-group-details-page .title-cover {
   height: 250px;
   float: left;
-  margin: 4px 16px 20px 22px;
+  margin: 4px 16px 10px 22px;
 }
-.torrent-group-details .title-info {
+.torrent-group-details-page .title-info {
   display: flex;
   height: 254px;
   flex-direction: column;
-  margin: 14px 0px 0 22px;
+  margin: 14px 0 0 22px;
 }
-.torrent-group-details .title-info .title-name {
+.torrent-group-details-page .title-info .title-name {
   font-weight: lighter;
   letter-spacing: 2px;
   font-size: 240%;
 }
-.torrent-group-details .title-info .title-artists {
+.torrent-group-details-page .title-info .title-artists {
   font-size: 180%;
 }
-.torrent-group-details .title-info .title-artists .by {
+.torrent-group-details-page .title-info .title-artists .by {
   font-weight: lighter;
 }
-.torrent-group-details .title-info .title-year {
+.torrent-group-details-page .title-info .title-year {
   font-weight: lighter;
   font-size: 140%;
   flex: 1;
 }
-.torrent-group-details .title-info .title-buttons .btn-playpause {
+.torrent-group-details-page .title-info .title-buttons .btn-playpause {
   width: 100px;
   text-align: center;
 }
-.torrent-group-details .title-info .title-buttons .btn-playpause span {
+.torrent-group-details-page .title-info .title-buttons .btn-playpause span {
   float: left;
   margin-top: 1px;
 }
-.torrent-group-details > p {
+.torrent-group-details-page > p {
   margin: 16px;
   padding: 10px 20px;
   background: #202124;
 }
+.torrent-group-details-page .table.playlist {
+  cursor: pointer;
+}
 .playlist-page > h1 {
   margin: 20px 20px 10px 20px;
-  font-weight: lighter;
-  letter-spacing: 2px;
 }
 .table.playlist a:hover {
   text-decoration: underline;
+}
+.table.playlist tr {
+  cursor: default;
+}
+.table.playlist tr.clickable {
+  cursor: pointer;
 }
 .table.playlist td {
   border-top-color: #333333;
@@ -173,14 +185,17 @@ body a:hover {
 .table.playlist tbody tr:hover {
   background-color: #222222;
 }
-.table.playlist td:nth-child(1) {
+.table.playlist td.col-number {
   width: 60px;
   text-align: right;
 }
-.table.playlist td:nth-child(1) span {
+.table.playlist td.col-number span {
   float: left;
   margin-top: 1px;
 }
+.table.playlist td.col-duration {
+  width: 70px;
+}
 .table.playlist tr.selected {
-  background: #111111;
+  background: #1f1f1f;
 }

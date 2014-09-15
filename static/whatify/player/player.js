@@ -128,7 +128,7 @@ angular.
         };
         return s;
     }).
-    controller('WhatPlayerController', function($scope, WhatMeta, whatPlayer, whatPlaylist) {
+    controller('WhatPlayerController', function($scope, whatMeta, whatPlayer, whatPlaylist) {
         $scope.player = whatPlayer;
         $scope.playlist = whatPlaylist;
         $scope.volume = whatPlayer.getVolume();
@@ -142,12 +142,14 @@ angular.
         $scope.playTorrentGroup = function(torrentGroupId, index) {
             if (whatPlaylist.currentItem &&
                 whatPlaylist.currentItem.torrentGroup.id == torrentGroupId) {
-                whatPlayer.play();
-                return;
+                if (index === undefined) {
+                    whatPlayer.play();
+                    return;
+                }
             }
-            WhatMeta.getTorrentGroup(torrentGroupId).success(function(torrentGroup) {
+            whatMeta.getTorrentGroup(torrentGroupId).success(function(torrentGroup) {
                 var inPlaylist = false;
-                if (index != undefined) {
+                if (index !== undefined) {
                     $.each(whatPlaylist.items, function(i, item) {
                         if (item.id == torrentGroup.playlist[index].id) {
                             whatPlaylist.play(i);

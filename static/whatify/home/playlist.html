@@ -3,16 +3,17 @@
     <table class="table playlist">
         <thead>
         <tr>
-            <td></td>
+            <td class="col-number"></td>
             <td>Track</td>
             <td>Artist</td>
             <td>Album</td>
+            <td class="col-duration"><span class="glyphicon glyphicon-time"></span></td>
         </tr>
         </thead>
         <tbody sortable-playlist>
         <tr ng-repeat="item in playlist.items" ng-dblclick="playlist.play($index)"
             data-item-id="{{ item.id }}">
-            <td>
+            <td class="col-number">
             <span ng-show="playlist.currentItem.id == item.id">
                 <span class="glyphicon glyphicon-play" ng-show="player.isPlaying"></span>
                 <span class="glyphicon glyphicon-pause" ng-show="!player.isPlaying"></span>
@@ -23,11 +24,15 @@
                 {{ item.metadata.title }}
             </td>
             <td>
-                <span artist-list artists="item.torrentGroup.artists"></span></td>
+                <span artist-list artists="item.torrentGroup.artists"></span>
+            </td>
             <td>
                 <a ng-href="#/torrentGroups/{{ item.torrentGroup.id }}">
                     {{ item.torrentGroup.name }}
                 </a>
+            </td>
+            <td class="col-duration">
+                {{ item.metadata.duration | asTime }}
             </td>
         </tr>
         </tbody>

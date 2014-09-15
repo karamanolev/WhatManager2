@@ -7,7 +7,7 @@ angular.
         'whatify.player',
         'whatify.searchBar'
     ]).
-    factory('WhatMeta', function($q, $http) {
+    factory('whatMeta', function($q, $http) {
         return new function() {
             this.getTorrentGroup = function(id) {
                 return $http.get('torrent_groups/' + id);

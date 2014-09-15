@@ -23,13 +23,13 @@ angular.
     }).
     controller('HomeController', function ($scope) {
     }).
-    controller('TorrentGroupController', function ($scope, WhatMeta, $routeParams) {
-        WhatMeta.getTorrentGroup($routeParams.id).success(function (torrentGroup) {
+    controller('TorrentGroupController', function ($scope, whatMeta, $routeParams) {
+        whatMeta.getTorrentGroup($routeParams.id).success(function (torrentGroup) {
             $scope.torrentGroup = torrentGroup;
         });
     }).
-    controller('ArtistController', function ($scope, WhatMeta, $routeParams) {
-        WhatMeta.getArtist($routeParams.id).success(function (artist) {
+    controller('ArtistController', function ($scope, whatMeta, $routeParams) {
+        whatMeta.getArtist($routeParams.id).success(function (artist) {
             $scope.artist = artist;
         });
     })

@@ -1,4 +1,4 @@
-<div class="torrent-group-details">
+<div class="torrent-group-details-page">
     <img class="title-cover" ng-src="{{ torrentGroup.wiki_image }}">
 
     <div class="title-info">
@@ -12,56 +12,49 @@
         <div class="title-year">{{ torrentGroup.year }}</div>
 
         <div class="title-buttons">
-                <span ng-if="torrentGroup.playlist">
-                    <span class="btn btn-success btn-playpause"
-                          ng-click="playTorrentGroup(torrentGroup.id)"
-                          ng-if="!player.isPlaying">
-                        <span class="glyphicon glyphicon-play"></span>
-                        Play
-                    </span>
-                    <span class="btn btn-success btn-playpause"
-                          ng-click="player.pause()"
-                          ng-if="player.isPlaying">
-                        <span class="glyphicon glyphicon-pause"></span>
-                        Pause
-                    </span>
+            <span ng-if="torrentGroup.playlist">
+                <span class="btn btn-success btn-playpause"
+                      ng-click="playTorrentGroup(torrentGroup.id)"
+                      ng-if="!player.isPlaying">
+                    <span class="glyphicon glyphicon-play"></span>
+                    Play
                 </span>
-                <span class="btn btn-default"
-                      ng-click="downloadTorrentGroup(torrentGroup.id)"
-                      ng-if="!torrentGroup.playlist">download</span>
+                <span class="btn btn-success btn-playpause"
+                      ng-click="player.pause()"
+                      ng-if="player.isPlaying">
+                    <span class="glyphicon glyphicon-pause"></span>
+                    Pause
+                </span>
+            </span>
+            <span class="btn btn-default"
+                  ng-click="downloadTorrentGroup(torrentGroup.id)"
+                  ng-if="!torrentGroup.playlist">download</span>
         </div>
     </div>
 
-    <div class="clearfix"></div>
-
-    <table class="table playlist" ng-if="torrentGroup.playlist">
+    <table class="clearfix table playlist" ng-if="torrentGroup.playlist">
         <thead>
         <tr>
-            <td></td>
+            <td class="col-number"></td>
             <td>Track</td>
-            <td>Artist</td>
-            <td>Album</td>
+            <td class="col-duration"><span class="glyphicon glyphicon-time"></span></td>
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="item in torrentGroup.playlist"
+        <tr class="clickable" ng-repeat="item in torrentGroup.playlist"
             ng-click="playTorrentGroup(torrentGroup.id, $index)">
-            <td>
-                    <span ng-show="playlist.currentItem.id == item.id">
-                        <span class="glyphicon glyphicon-play" ng-show="player.isPlaying"></span>
-                        <span class="glyphicon glyphicon-pause" ng-show="!player.isPlaying"></span>
-                    </span>
+            <td class="col-number">
+                <span ng-show="playlist.currentItem.id == item.id">
+                    <span class="glyphicon glyphicon-play" ng-show="player.isPlaying"></span>
+                    <span class="glyphicon glyphicon-pause" ng-show="!player.isPlaying"></span>
+                </span>
                 {{ $index + 1 }}
             </td>
             <td>
                 {{ item.metadata.title }}
             </td>
-            <td>
-                <span artist-list artists="item.torrentGroup.artists"></span></td>
-            <td>
-                <a ng-href="#/torrentGroups/{{ item.torrentGroup.id }}">
-                    {{ item.torrentGroup.name }}
-                </a>
+            <td class="col-duration">
+                {{ item.metadata.duration | asTime }}
             </td>
         </tr>
         </tbody>
@@ -71,7 +64,7 @@
     </p>
 
     <p>
-        <a href="asdf">View on What.CD</a>
+        <a ng-href="https://">View on What.CD</a>
     </p>
 
     <div ng-if="!torrentGroup.playlist" ng-bind-html="torrentGroup.wiki_body | trustAsHtml"></div>

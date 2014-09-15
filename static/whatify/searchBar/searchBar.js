@@ -2,29 +2,50 @@
 
 angular.
     module('whatify.searchBar', ['whatify']).
-    controller('SearchController', function ($scope, WhatMeta) {
-        $scope.showResults = false;
+    controller('SearchController', function($scope, whatMeta) {
+        $scope.resultsVisible = false;
         $scope.searchQuery = '';
-        $scope.search = function () {
+        $scope.search = function() {
             if ($scope.searchQuery.length > 2) {
-                $scope.showResults = true;
-                WhatMeta.search($scope.searchQuery).success(function (response) {
+                whatMeta.search($scope.searchQuery).success(function(response) {
                     $scope.searchResults = response;
                 });
-            } else {
-                $scope.hideResults()
             }
         };
-        $scope.hideResults = function () {
-            $scope.showResults = false;
-            $scope.torrentGroups = [];
-            $scope.artists = [];
+        $scope.hideResults = function() {
+            $scope.resultsVisible = false;
+        };
+        $scope.showResults = function() {
+            $scope.resultsVisible = true;
         }
     }).
-    directive('ngWmSearchBar', function () {
+    directive('ngWmSearchBar', function($document) {
         return {
-            'templateUrl': templateRoot + '/searchBar/searchBar.html',
-            'controller': 'SearchController'
+            templateUrl: templateRoot + '/searchBar/searchBar.html',
+            controller: 'SearchController',
+            link: function(scope, element, attrs) {
+                $document.on('click', function(e) {
+                    scope.$apply(function() {
+                        scope.hideResults();
+                    })
+                });
+
+                element.find('.search-results, input').on('click', function(e) {
+                    e.stopPropagation();
+                });
+
+                element.find('input').on('focus', function(e) {
+                    scope.showResults();
+                });
+
+                scope.$watch('resultsVisible', function(newValue, oldValue) {
+                    if (newValue) {
+                        element.find('.search-results').fadeIn('fast');
+                    } else {
+                        element.find('.search-results').fadeOut('fast');
+                    }
+                });
+            }
         }
     })
 ;

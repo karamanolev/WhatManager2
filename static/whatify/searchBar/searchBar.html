@@ -1,6 +1,7 @@
-<input type="text" class="form-control" ng-model="searchQuery" ng-change="search()"
-       placeholder="Search Here">
-<div class="search-results" ng-show="showResults">
+<input type="text" placeholder="Search Here" class="form-control"
+       ng-model="searchQuery" ng-change="search()"
+       ng-blur="blur()">
+<div class="search-results" style="display: none;">
     <ul>
         <li class="inactive">Results</li>
         <li ng-repeat="result in searchResults" ng-switch="result.type">
@@ -8,8 +9,6 @@
                ng-click="hideResults()">
                 Artist: {{ result.artist.name }}
             </a>
-
-            <!--<img ng-src="{{ result.torrent_group.wiki_image }}">-->
 
             <a ng-switch-when="torrent_group"
                ng-href="#/torrentGroups/{{ result.torrent_group.id }}"

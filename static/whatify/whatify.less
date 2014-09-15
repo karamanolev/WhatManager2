@@ -46,6 +46,7 @@ body {
     background: @sidePanelBackground;
     //    border: @sidePanelBorder;
     max-height: calc(100% - 200px);
+    width: 600px;
     overflow: auto;
 
     > ul {
@@ -71,6 +72,11 @@ body {
       }
     }
   }
+}
+
+h1 {
+  font-weight: lighter;
+  letter-spacing: 2px;
 }
 
 .whatify-left-bar {
@@ -142,17 +148,17 @@ body {
   }
 }
 
-.torrent-group-details {
+.torrent-group-details-page {
   .title-cover {
     height: 250px;
     float: left;
-    margin: 4px 16px 20px 22px;
+    margin: 4px 16px 10px 22px;
   }
   .title-info {
     display: flex;
     height: 254px;
     flex-direction: column;
-    margin: 14px 0px 0 22px;
+    margin: 14px 0 0 22px;
     .title-name {
       font-weight: lighter;
       letter-spacing: 2px;
@@ -185,13 +191,14 @@ body {
     padding: 10px 20px;
     background: @sidePanelBackground;
   }
+  .table.playlist {
+    cursor: pointer;
+  }
 }
 
 .playlist-page {
   > h1 {
     margin: 20px 20px 10px 20px;
-    font-weight: lighter;
-    letter-spacing: 2px;
   }
 }
 
@@ -199,13 +206,19 @@ body {
   a:hover {
     text-decoration: underline;
   }
+  tr {
+    cursor: default;
+  }
+  tr.clickable {
+    cursor: pointer;
+  }
   td {
     border-top-color: #333333;
   }
   tbody tr:hover {
     background-color: #222222;
   }
-  td:nth-child(1) {
+  td.col-number {
     span {
       float: left;
       margin-top: 1px;
@@ -213,7 +226,10 @@ body {
     width: 60px;
     text-align: right;
   }
+  td.col-duration {
+    width: 70px;
+  }
   tr.selected {
-    background: #111111;
+    background: #1f1f1f;
   }
 }
