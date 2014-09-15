@@ -46,7 +46,7 @@ h1 {
   left: 214px;
   top: 50px;
   background: #202124;
-  max-height: calc(-100%);
+  max-height: calc(100% - 140px);
   width: 600px;
   overflow: auto;
 }

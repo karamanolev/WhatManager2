@@ -18,6 +18,8 @@ def index(request):
 
 
 def get_image_cache_url(url):
+    if url is None:
+        return None
     return reverse('what_meta.views.image', args=[url])
 
 
