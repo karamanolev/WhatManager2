@@ -19,6 +19,8 @@ class WhatArtist(models.Model):
 
     @cached_property
     def info(self):
+        if self.info_json is None:
+            return None
         return json.loads(self.info_json)
 
     @cached_property
