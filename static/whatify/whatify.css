@@ -1,6 +1,7 @@
 html,
 body {
   height: 100%;
+  overflow: hidden;
 }
 body {
   color: #eeeeee;
@@ -167,7 +168,6 @@ body a:hover {
   text-decoration: underline;
 }
 .table.playlist td {
-  cursor: pointer;
   border-top-color: #333333;
 }
 .table.playlist tbody tr:hover {
@@ -180,4 +180,7 @@ body a:hover {
 .table.playlist td:nth-child(1) span {
   float: left;
   margin-top: 1px;
+}
+.table.playlist tr.selected {
+  background: #111111;
 }

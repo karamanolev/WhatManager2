@@ -12,6 +12,7 @@
 
 html, body {
   height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -199,7 +200,6 @@ body {
     text-decoration: underline;
   }
   td {
-    cursor: pointer;
     border-top-color: #333333;
   }
   tbody tr:hover {
@@ -212,5 +212,8 @@ body {
     }
     width: 60px;
     text-align: right;
+  }
+  tr.selected {
+    background: #111111;
   }
 }

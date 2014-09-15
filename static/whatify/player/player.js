@@ -112,6 +112,20 @@ angular.
             }
             s.play(s.index - 1);
         };
+        s.reorder = function(itemIds) {
+            var itemsById = {};
+            s.items.forEach(function(item) {
+                itemsById[item.id] = item;
+            });
+            s.items = [];
+            itemIds.forEach(function(id) {
+                if (s.currentItem.id == id) {
+                    s.index = s.items.length;
+                }
+                s.items.push(itemsById[id]);
+            });
+            update();
+        };
         return s;
     }).
     controller('WhatPlayerController', function($scope, WhatMeta, whatPlayer, whatPlaylist) {
@@ -178,7 +192,7 @@ angular.
             require: '?ngModel',
             link: function(scope, element, attrs, ngModel) {
                 if (!ngModel) return;
-                var slider = $(element.children()[0]).slider({
+                var slider = element.children().eq(0).slider({
                     min: 0,
                     max: 100,
                     value: volumeToPercent(ngModel.$viewValue || 0)
@@ -263,6 +277,23 @@ angular.
                 '{{ a.join }}</span></span>',
             scope: {
                 artists: '='
+            }
+        }
+    }).
+    directive('sortablePlaylist', function() {
+        return {
+            link: function(scope, element, attrs) {
+                element.multisortable({
+                    items: '> tr',
+                    stop: function(event, ui) {
+                        var ids = $.map(element.children(), function(e) {
+                            return $(e).data('item-id');
+                        });
+                        scope.$apply(function() {
+                            scope.playlist.reorder(ids);
+                        });
+                    }
+                });
             }
         }
     })

@@ -9,8 +9,9 @@
             <td>Album</td>
         </tr>
         </thead>
-        <tbody>
-        <tr ng-repeat="item in playlist.items" ng-click="playlist.play($index)">
+        <tbody sortable-playlist>
+        <tr ng-repeat="item in playlist.items" ng-dblclick="playlist.play($index)"
+            data-item-id="{{ item.id }}">
             <td>
             <span ng-show="playlist.currentItem.id == item.id">
                 <span class="glyphicon glyphicon-play" ng-show="player.isPlaying"></span>
