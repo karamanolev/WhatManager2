@@ -30,6 +30,7 @@ h1 {
   border-bottom: 1px solid #393b40;
   background: #202124;
   height: 50px;
+  z-index: 1;
   padding-left: 220px;
   display: flex;
   align-items: center;
@@ -172,6 +173,10 @@ h1 {
   font-weight: lighter;
   letter-spacing: 2px;
   font-size: 240%;
+}
+.torrent-group-details-page .title-info .title-tags,
+.artist-details-page .title-info .title-tags {
+  font-weight: lighter;
 }
 .torrent-group-details-page .title-info .title-artists,
 .artist-details-page .title-info .title-artists {

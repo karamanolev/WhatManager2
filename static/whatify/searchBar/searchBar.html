@@ -1,7 +1,6 @@
-<input type="text" placeholder="Search Here" class="form-control"
-       ng-model="searchQuery" ng-change="search()"
-       ng-blur="blur()">
-<div class="search-results" style="display: none;">
+<input type="text" placeholder="Search Here" class="form-control" ng-model="searchQuery"
+       ng-change="search()" ng-focus="showResults()">
+<div class="search-results">
     <ul>
         <li class="inactive">Results</li>
         <li ng-repeat="result in searchResults" ng-switch="result.type">

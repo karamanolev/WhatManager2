@@ -1,10 +1,21 @@
 <div class="artist-details-page">
-    artist information<br/>
+    <img class="title-cover" ng-src="{{ artist.image }}">
 
-    <div class="thumbnail" style="width: 100px;">
-        <img ng-src="{{ artist.image }}">
+    <div class="title-info">
+        <div class="title-name">
+            {{ artist.name }}
+        </div>
+
+        <div class="title-tags">
+            <span ng-repeat="tag in artist.tags | limitTo:4">
+                {{ tag.name }}{{ $last ? '' : ', ' }}
+            </span>
+        </div>
+
+        <div class="title-year"></div>
+
+        <div class="title-buttons"></div>
     </div>
-    <h3>name: {{ artist.name }}</h3>
 
     <div ng-repeat="torrentGroup in artist.torrent_groups.Album">
         <img class="title-cover small" ng-src="{{ torrentGroup.wiki_image }}">
@@ -24,29 +35,29 @@
             <div class="title-year">{{ torrentGroup.year }}</div>
 
             <div class="title-buttons">
-            <span ng-if="torrentGroup.playlist">
-                <span class="btn btn-success btn-playpause"
-                      ng-click="playTorrentGroup(torrentGroup.id)"
-                      ng-if="!player.isPlaying">
-                    <span class="glyphicon glyphicon-play"></span>
-                    Play
-                </span>
-                <span class="btn btn-success btn-playpause"
-                      ng-click="player.pause()"
-                      ng-if="player.isPlaying">
-                    <span class="glyphicon glyphicon-pause"></span>
-                    Pause
-                </span>
+
+            <span class="btn btn-success btn-playpause"
+                  ng-click="playTorrentGroup(torrentGroup.id)"
+                  ng-if="torrentGroup.have === true && (!player.isPlaying || playlist.currentItem.torrentGroup.id != torrentGroup.id)">
+                <span class="glyphicon glyphicon-play"></span>
+                Play
+            </span>
+            <span class="btn btn-success btn-playpause"
+                  ng-click="player.pause()"
+                  ng-if="torrentGroup.have === true && player.isPlaying && playlist.currentItem.torrentGroup.id == torrentGroup.id">
+                <span class="glyphicon glyphicon-pause"></span>
+                Pause
             </span>
             <span class="btn btn-default"
                   ng-click="downloadTorrentGroup(torrentGroup.id)"
-                  ng-if="!torrentGroup.playlist">download</span>
+                  ng-if="!torrentGroup.have">download</span>
             </div>
         </div>
     </div>
 
     <p>
-        <a class="btn btn-whatify" ng-href="https://what.cd/artist.php?id={{ artist.id }}">
+        <a class="btn btn-whatify" target="_blank"
+           ng-href="https://what.cd/artist.php?id={{ artist.id }}">
             View on What.CD
         </a>
         <a class="btn btn-whatify" href ng-click="reloadArtist(true)">

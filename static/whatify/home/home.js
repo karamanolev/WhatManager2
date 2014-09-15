@@ -18,10 +18,14 @@ angular.
             }).
             when('/playlist', {
                 templateUrl: templateRoot + '/home/playlist.html',
-                controller: 'WhatPlayerController'
+                controller: 'PlaylistController'
             })
     }).
     controller('HomeController', function($scope) {
+        $scope.mainSpinner.visible = false;
+    }).
+    controller('PlaylistController', function($scope) {
+        $scope.mainSpinner.visible = false;
     }).
     controller('TorrentGroupController', function($scope, whatMeta, $routeParams) {
         $scope.reloadTorrentGroup = function(defeatCache) {

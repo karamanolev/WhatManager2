@@ -113,6 +113,7 @@ def get_artist_dict(artist, include_torrents=False):
         'name': artist.name,
         'image': artist.image,
         'wiki': artist.wiki_body,
+        'tags': sorted(artist.info['tags'], key=lambda t: t['count'], reverse=True)
     }
     if include_torrents:
         assert not artist.is_shell, 'Can not get torrents for a shell artist'

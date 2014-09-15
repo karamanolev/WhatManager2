@@ -34,10 +34,6 @@ angular.
                     e.stopPropagation();
                 });
 
-                element.find('input').on('focus', function(e) {
-                    scope.showResults();
-                });
-
                 scope.$watch('resultsVisible', function(newValue, oldValue) {
                     if (newValue) {
                         element.find('.search-results').fadeIn('fast');
