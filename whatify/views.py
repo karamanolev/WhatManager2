@@ -114,11 +114,13 @@ def get_artist_dict(artist, include_torrents=False):
         'image': get_image_cache_url(artist.image),
         'wiki': artist.wiki_body,
     }
-    if artist.info is not None:
-        data['tags'] = sorted(artist.info['tags'], key=lambda t: t['count'], reverse=True)
+    if not artist.is_shell:
+        data['tags'] = sorted(artist.info['tags'], key=lambda tag: tag['count'], reverse=True)
     if include_torrents:
         assert not artist.is_shell, 'Can not get torrents for a shell artist'
-        group_ids = [t['groupId'] for t in artist.info['torrentgroup']]
+        torrent_groups_by_id = {t['groupId']: t for t in artist.info['torrentgroup']}
+        torrent_groups = list(torrent_groups_by_id.values())
+        group_ids = list(torrent_groups_by_id.keys())
         torrent_ids = WhatTorrent.objects.filter(
             torrent_group_id__in=group_ids).values_list('id', flat=True)
         torrents_done = {
@@ -130,7 +132,7 @@ def get_artist_dict(artist, include_torrents=False):
             'torrent_groups': {
                 releaseTypeName: [
                     get_artist_group_dict(torrents_done, t)
-                    for t in sorted(artist.info['torrentgroup'], key=lambda g: g['groupYear'])
+                    for t in sorted(torrent_groups, key=lambda g: g['groupYear'])
                     if t['releaseType'] == releaseTypeId
                 ]
                 for releaseTypeId, releaseTypeName in info_holder.WHAT_RELEASE_TYPES
