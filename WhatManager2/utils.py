@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from functools import wraps
 import hashlib
 import hmac
-import json
+import ujson
 import re
 import urllib
 
@@ -31,7 +31,7 @@ def json_return_method(fn):
         val = fn(*args, **kwargs)
         if type(val) is HttpResponse:
             return val
-        return HttpResponse(json.dumps(val, indent=True), content_type='text/json')
+        return HttpResponse(ujson.dumps(val), content_type='text/json')
 
     return wrapped
 

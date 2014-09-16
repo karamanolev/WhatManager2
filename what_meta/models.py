@@ -1,17 +1,38 @@
-import json
-
 from django.db import models, transaction
+
 from django.db.backends.mysql.base import parse_datetime_with_timezone_support
 from django.utils import timezone
 from django.utils.functional import cached_property
 
+import ujson
 from WhatManager2.utils import html_unescape, get_artists
+
+
+class WhatArtistAlias(models.Model):
+    artist = models.ForeignKey('WhatArtist')
+    name = models.CharField(max_length=200, unique=True)
+
+    def save(self, *args, **kwargs):
+        super(WhatArtistAlias, self).save(*args, **kwargs)
+        WhatMetaFulltext.create_or_update_artist_alias(self)
+
+    @classmethod
+    def get_or_create(cls, artist, name):
+        try:
+            return artist.whatartistalias_set.get(name=name)
+        except WhatArtistAlias.DoesNotExist:
+            alias = WhatArtistAlias(
+                artist=artist,
+                name=name,
+            )
+            alias.save()
+            return alias
 
 
 # Lengths taken from gazelle.sql from GitHub
 class WhatArtist(models.Model):
-    retrieved = models.DateTimeField()
-    name = models.CharField(max_length=200)
+    retrieved = models.DateTimeField(db_index=True)
+    name = models.CharField(max_length=200, db_index=True)
     image = models.CharField(max_length=255, null=True)
     wiki_body = models.TextField(null=True)
     vanity_house = models.BooleanField(default=False)
@@ -21,7 +42,7 @@ class WhatArtist(models.Model):
     def info(self):
         if self.info_json is None:
             return None
-        return json.loads(self.info_json)
+        return ujson.loads(self.info_json)
 
     @cached_property
     def fulltext_info(self):
@@ -36,13 +57,17 @@ class WhatArtist(models.Model):
         return self.info_json is None
 
     def save(self, *args, **kwargs):
-        WhatMetaFulltext.create_or_update_artist(self)
         super(WhatArtist, self).save(*args, **kwargs)
+        WhatMetaFulltext.create_or_update_artist(self)
 
     @classmethod
     def get_or_create_shell(cls, artist_id, name, retrieved):
         try:
-            return WhatArtist.objects.get(id=artist_id)
+            artist = WhatArtist.objects.get(id=artist_id)
+            alias = None
+            if artist.name != name:
+                alias = WhatArtistAlias.get_or_create(artist, name)
+            return artist, alias
         except WhatArtist.DoesNotExist:
             new_artist = WhatArtist(
                 id=artist_id,
@@ -50,13 +75,13 @@ class WhatArtist(models.Model):
                 retrieved=retrieved,
             )
             new_artist.save()
-            return new_artist
+            return new_artist, None
 
     @classmethod
     def update_from_what(cls, what_client, artist_id):
         try:
             artist = WhatArtist.objects.get(id=artist_id)
-        except WhatTorrentGroup.DoesNotExist:
+        except WhatArtist.DoesNotExist:
             artist = WhatArtist(
                 id=artist_id
             )
@@ -64,12 +89,24 @@ class WhatArtist(models.Model):
         response = what_client.request('artist', id=artist_id)['response']
 
         artist.retrieved = retrieved
+        old_name = artist.name
         artist.name = html_unescape(response['name'])
         artist.image = html_unescape(response['image'])
         artist.wiki_body = response['body']
         artist.vanity_house = response['vanityHouse']
-        artist.info_json = json.dumps(response)
-        artist.save()
+        artist.info_json = ujson.dumps(response)
+
+        if old_name and artist.name != old_name:
+            try:
+                old_alias = artist.whatartistalias_set.get(name=artist.name)
+                old_alias.delete()
+            except WhatArtistAlias.DoesNotExist:
+                pass
+            with transaction.atomic():
+                artist.save()
+                WhatArtistAlias.get_or_create(artist, old_name)
+        else:
+            artist.save()
 
         return artist
 
@@ -80,7 +117,7 @@ class WhatTorrentGroup(models.Model):
     wiki_body = models.TextField()
     wiki_image = models.CharField(max_length=255)
     joined_artists = models.TextField()
-    name = models.CharField(max_length=300)
+    name = models.CharField(max_length=300, db_index=True)
     year = models.IntegerField()
     record_label = models.CharField(max_length=80)
     catalogue_number = models.CharField(max_length=80)
@@ -96,7 +133,7 @@ class WhatTorrentGroup(models.Model):
 
     @cached_property
     def info(self):
-        return json.loads(self.info_json)
+        return ujson.loads(self.info_json)
 
     @cached_property
     def fulltext_info(self):
@@ -108,17 +145,18 @@ class WhatTorrentGroup(models.Model):
 
     def add_artists(self, importance, artists):
         for artist in artists:
-            what_artist = WhatArtist.get_or_create_shell(
+            what_artist, artist_alias = WhatArtist.get_or_create_shell(
                 artist['id'], html_unescape(artist['name']), self.retrieved)
             WhatTorrentArtist(
                 artist=what_artist,
+                artist_alias=artist_alias,
                 torrent_group=self,
-                importance=importance
+                importance=importance,
             ).save()
 
     def save(self, *args, **kwargs):
-        WhatMetaFulltext.create_or_update_torrent_group(self)
         super(WhatTorrentGroup, self).save(*args, **kwargs)
+        WhatMetaFulltext.create_or_update_torrent_group(self)
 
     @classmethod
     def update_if_newer(cls, group_id, retrieved, data_dict, torrents_dict=None):
@@ -143,9 +181,9 @@ class WhatTorrentGroup(models.Model):
         group.category_name = data_dict['categoryName']
         group.time = parse_datetime_with_timezone_support(data_dict['time'])
         group.vanity_house = data_dict['vanityHouse']
-        group.info_json = json.dumps(data_dict)
+        group.info_json = ujson.dumps(data_dict)
         if torrents_dict is not None:
-            group.torrents_json = json.dumps(torrents_dict)
+            group.torrents_json = ujson.dumps(torrents_dict)
         else:
             group.torrents_json = None
         with transaction.atomic():
@@ -169,6 +207,7 @@ class WhatTorrentGroup(models.Model):
 
 class WhatTorrentArtist(models.Model):
     artist = models.ForeignKey(WhatArtist)
+    artist_alias = models.ForeignKey(WhatArtistAlias, null=True)
     torrent_group = models.ForeignKey(WhatTorrentGroup)
     importance = models.IntegerField()
 
@@ -177,6 +216,7 @@ class WhatMetaFulltext(models.Model):
     info = models.TextField()
     more_info = models.TextField()
     artist = models.ForeignKey(WhatArtist, unique=True, null=True)
+    artist_alias = models.ForeignKey(WhatArtistAlias, unique=True, null=True)
     torrent_group = models.ForeignKey(WhatTorrentGroup, unique=True, null=True)
 
     @classmethod
@@ -194,6 +234,23 @@ class WhatMetaFulltext(models.Model):
         fulltext.save()
         return fulltext
 
+    @classmethod
+    def create_or_update_artist_alias(cls, artist_alias):
+        print 'Update artist alias'
+        print artist_alias.id
+        print artist_alias.name
+
+        info = artist_alias.name
+        try:
+            fulltext = WhatMetaFulltext.objects.get(artist_alias=artist_alias)
+            if fulltext.info == info and fulltext.more_info == '':
+                return fulltext
+        except WhatMetaFulltext.DoesNotExist:
+            fulltext = WhatMetaFulltext(artist_alias=artist_alias)
+        fulltext.info = info
+        fulltext.more_info = ''
+        fulltext.save()
+        return fulltext
 
     @classmethod
     def create_or_update_torrent_group(cls, torrent_group):

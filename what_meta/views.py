@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.utils.http import parse_http_date_safe, http_date
 from django.views.decorators.http import last_modified
 import requests
+from requests.exceptions import ConnectionError
 
 from WhatManager2.settings import MEDIA_ROOT
 
@@ -33,7 +34,10 @@ def image(request, url):
         image_file = open(image_path, 'rb')
         return HttpResponse(image_file, content_type='image/' + os.path.splitext(image_path)[1][1:])
 
-    response = requests.get(url)
+    try:
+        response = requests.get(url)
+    except ConnectionError:
+        return HttpResponseNotFound('Error connecting to image host')
     if response.status_code != 200:
         return HttpResponseNotFound('Not Found')
     if 'Last-Modified' in response.headers:

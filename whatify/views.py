@@ -64,7 +64,8 @@ def search(request, query):
     meta_fulltext = meta_fulltext.extra(select={'score': 'MATCH (`info`) AGAINST (%s)'},
                                         select_params=[query])
     meta_fulltext = meta_fulltext.extra(order_by=['-score'])
-    meta_fulltext = meta_fulltext.prefetch_related('artist', 'torrent_group')
+    meta_fulltext = meta_fulltext.prefetch_related('artist', 'torrent_group', 'artist_alias',
+                                                   'artist_alias__artist')
     results = []
     for result in meta_fulltext:
         if result.artist:
@@ -73,6 +74,11 @@ def search(request, query):
             results.append({
                 'type': 'torrent_group',
                 'torrent_group': get_torrent_group_dict(result.torrent_group)
+            })
+        elif result.artist_alias:
+            results.append({
+                'type': 'artist',
+                'artist': get_artist_alias_dict(result.artist_alias)
             })
     return results
 
@@ -109,17 +115,16 @@ def get_torrent_group(request, group_id):
     return data
 
 
-def get_artist_dict(artist, include_torrents=False):
+def get_artist_dict(artist, include_all=False):
     data = {
         'id': artist.id,
         'name': artist.name,
         'image': get_image_cache_url(artist.image),
         'wiki': artist.wiki_body,
     }
-    if not artist.is_shell:
-        data['tags'] = sorted(artist.info['tags'], key=lambda tag: tag['count'], reverse=True)
-    if include_torrents:
+    if include_all:
         assert not artist.is_shell, 'Can not get torrents for a shell artist'
+        data['tags'] = sorted(artist.info['tags'], key=lambda tag: tag['count'], reverse=True)
         torrent_groups_by_id = {t['groupId']: t for t in artist.info['torrentgroup']}
         torrent_groups = list(torrent_groups_by_id.values())
         group_ids = list(torrent_groups_by_id.keys())
@@ -140,6 +145,12 @@ def get_artist_dict(artist, include_torrents=False):
                 for releaseTypeId, releaseTypeName in info_holder.WHAT_RELEASE_TYPES
             } if not artist.is_shell else None,
         })
+    return data
+
+
+def get_artist_alias_dict(artist_alias, *args, **kwargs):
+    data = get_artist_dict(artist_alias.artist, *args, **kwargs)
+    data['name'] = artist_alias.name
     return data
 
 
