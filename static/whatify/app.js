@@ -82,6 +82,24 @@ angular.
             }
         }
     }).
+    directive('percentageProgressBar', function() {
+        return {
+            template: '<div class="number-pb"><div class="number-pb-shown"></div>' +
+                '<div class="number-pb-num">0%</div></div>',
+            require: '?ngModel',
+            link: function(scope, element, attrs, ngModel) {
+                var progressBar = $('.number-pb').NumberProgressBar({
+                    style: 'percentage',
+                    min: 0,
+                    max: 100,
+                    current: ngModel.$viewValue || 0
+                });
+                ngModel.$render = function() {
+                    progressBar.reach(ngModel.$viewValue);
+                }
+            }
+        }
+    }).
     config(function($routeProvider) {
         $routeProvider.otherwise({redirectTo: '/'})
     })

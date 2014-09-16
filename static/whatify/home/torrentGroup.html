@@ -28,7 +28,10 @@
             </span>
             <span class="btn btn-default"
                   ng-click="downloadTorrentGroup(torrentGroup.id)"
-                  ng-if="!torrentGroup.playlist">download</span>
+                  ng-if="!torrentGroup.playlist && !torrentGroup.have">download</span>
+            <div style="width: 300px;" ng-if="torrentGroup.have">
+                <div percentage-progress-bar ng-model="torrentGroup.have * 100"></div>
+            </div>
         </div>
     </div>
 
