@@ -26,7 +26,7 @@ transmission_init_script_template = '''#!/bin/sh -e
 NAME=transmission-daemon-<<<name>>>
 DAEMON=<<<daemon_path>>>
 ENABLE_DAEMON=1
-USER=debian-transmission-<<<name>>>
+USER=transmission-<<<name>>>
 STOP_TIMEOUT=30
 OPTIONS="-g <<<files_path>>>"
 
@@ -232,7 +232,7 @@ class TransInstanceManager(object):
         self.init_path = os.path.join('/etc/init.d', self.service_name)
         self.init_script = get_transmission_init_script(self.name, self.transmission_files_path)
         self.init_script_perms = 0755
-        self.username = 'debian-transmission-{0}'.format(self.name)
+        self.username = 'transmission-{0}'.format(self.name)
         self.settings_path = os.path.join(self.transmission_files_path, 'settings.json')
         self.settings_json = get_transmission_settings(
             TRANSMISSION_BIND_HOST, instance.port, instance.peer_port, instance.password)

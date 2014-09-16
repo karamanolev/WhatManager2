@@ -30,7 +30,12 @@ class Command(BaseCommand):
         else:
             old_instance = models.TransInstance(
                 replica_set=replica_set,
-                name=u'{0}00'.format(replica_set.zone),
+                name=u'{0}00'.format(replica_set.zone
+                                     .replace('.cd', '')
+                                     .replace('.org', '')
+                                     .replace('.net', '')
+                                     .replace('.me', '')
+                ),
                 host='127.0.0.1',
                 port=9090,
                 peer_port=51412,
