@@ -18,7 +18,10 @@ def get_image_cache_path(url):
     return os.path.join(MEDIA_ROOT, 'what_image_cache', urllib.quote(url, ''))
 
 
-def get_image_last_modified(request, url):
+def get_image_last_modified(request):
+    url = request.GET.get('url')
+    if not url:
+        return None
     image_path = get_image_cache_path(url)
     try:
         s = os.path.getmtime(image_path)
@@ -28,7 +31,10 @@ def get_image_last_modified(request, url):
 
 
 @last_modified(get_image_last_modified)
-def image(request, url):
+def image(request):
+    url = request.GET.get('url')
+    if not url:
+        return HttpResponseNotFound('Provide a url get param')
     image_path = get_image_cache_path(url)
     if os.path.isfile(image_path):
         image_file = open(image_path, 'rb')

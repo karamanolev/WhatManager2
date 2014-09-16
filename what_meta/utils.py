@@ -2,7 +2,6 @@ from django.core.urlresolvers import reverse
 from django.utils.http import urlquote
 
 from WhatManager2.utils import get_artists_list, get_artists, html_unescape
-
 from home import info_holder
 from home.models import WhatTorrent, TransTorrent, ReplicaSet
 from player.player_utils import get_metadata_dict, get_playlist_files
@@ -13,8 +12,7 @@ from whatify.utils import extended_artists_to_music_info
 def get_image_cache_url(url):
     if url is None:
         return None
-    resolved_url = reverse('what_meta.views.image', args=['url_placeholder'])
-    return resolved_url.replace('url_placeholder', urlquote(url, ''))
+    return reverse('what_meta.views.image') + u'?url=' + urlquote(url, '')
 
 
 def get_artist_alias_dict(artist_alias, *args, **kwargs):

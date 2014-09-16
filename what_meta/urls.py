@@ -2,5 +2,5 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns(
     '',
-    url(r'^image/(.*)$', 'what_meta.views.image'),
+    url(r'^cached_image$', 'what_meta.views.image'),
 )
