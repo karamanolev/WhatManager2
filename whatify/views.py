@@ -134,7 +134,7 @@ def get_artist_dict(artist, include_torrents=False):
             'torrent_groups': {
                 releaseTypeName: [
                     get_artist_group_dict(torrents_done, t)
-                    for t in sorted(torrent_groups, key=lambda g: g['groupYear'])
+                    for t in sorted(torrent_groups, key=lambda g: g['groupYear'], reverse=True)
                     if t['releaseType'] == releaseTypeId
                 ]
                 for releaseTypeId, releaseTypeName in info_holder.WHAT_RELEASE_TYPES

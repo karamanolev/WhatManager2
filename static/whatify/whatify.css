@@ -22,7 +22,8 @@ h1 {
   border: 1px solid #aaaaaa;
   border-radius: 20px;
 }
-.btn.btn-whatify:hover {
+.btn.btn-whatify:hover,
+.btn.btn-whatify:focus {
   color: inherit;
   border-color: #84bd00;
 }
