@@ -9,11 +9,12 @@ def extract(torrent):
         return torrent.info_media, torrent.info_format
 
 
+# This should be changed when we support FLAC
 def filter_torrent(a):
     _, a_format = extract(a)
     if a_format == 'FLAC':
-        return True
-    return False
+        return False
+    return True
 
 
 def compare_torrents(a, b):
