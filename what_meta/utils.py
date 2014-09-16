@@ -107,8 +107,8 @@ def get_torrent_group_playlist_or_have(torrent_group):
             done = trans_torrent.torrent_done
             if torrent is None or done > trans_torrents[torrent.id].torrent_done:
                 torrent = candidate
-    trans_torrent = trans_torrents[torrent.id]
     if torrent:
+        trans_torrent = trans_torrents[torrent.id]
         if trans_torrent.torrent_done == 1:
             return {
                 'playlist': [
