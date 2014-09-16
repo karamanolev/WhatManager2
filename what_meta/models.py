@@ -117,7 +117,7 @@ class WhatTorrentGroup(models.Model):
     wiki_body = models.TextField()
     wiki_image = models.CharField(max_length=255)
     joined_artists = models.TextField()
-    name = models.CharField(max_length=300, db_index=True)
+    name = models.CharField(max_length=300)  # Indexed with a RunSQL migration
     year = models.IntegerField()
     record_label = models.CharField(max_length=80)
     catalogue_number = models.CharField(max_length=80)

@@ -44,9 +44,8 @@ class Migration(migrations.Migration):
             name='retrieved',
             field=models.DateTimeField(db_index=True),
         ),
-        migrations.AlterField(
-            model_name='whattorrentgroup',
-            name='name',
-            field=models.CharField(max_length=300, db_index=True),
+        migrations.RunSQL(
+            'ALTER TABLE `what_meta_whattorrentgroup` ADD INDEX `name_index` (`name` (200))',
+            'ALTER TABLE `what_meta_whattorrentgroup` DROP INDEX `name_index`',
         ),
     ]
