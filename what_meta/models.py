@@ -236,10 +236,6 @@ class WhatMetaFulltext(models.Model):
 
     @classmethod
     def create_or_update_artist_alias(cls, artist_alias):
-        print 'Update artist alias'
-        print artist_alias.id
-        print artist_alias.name
-
         info = artist_alias.name
         try:
             fulltext = WhatMetaFulltext.objects.get(artist_alias=artist_alias)
