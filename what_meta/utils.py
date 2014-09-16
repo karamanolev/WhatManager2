@@ -13,7 +13,8 @@ from whatify.utils import extended_artists_to_music_info
 def get_image_cache_url(url):
     if url is None:
         return None
-    return reverse('what_meta.views.image', args=[url])
+    resolved_url = reverse('what_meta.views.image', args=['url_placeholder'])
+    return resolved_url.replace('url_placeholder', urlquote(url, ''))
 
 
 def get_artist_alias_dict(artist_alias, *args, **kwargs):
@@ -124,3 +125,4 @@ def get_torrent_group_playlist_or_have(torrent_group):
             return {
                 'have': trans_torrent.torrent_done
             }
+    return dict()

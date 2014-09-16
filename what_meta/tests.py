@@ -9,7 +9,8 @@ class SimpleTest(TestCase):
             {'format': 'MP3', 'media': 'CD'},
             {'format': 'FLAC', 'media': 'CD'},
             {'format': 'MP3', 'media': 'WEB'},
+            {'format': 'MP3', 'media': 'Vinyl'},
         ]
         self.assertEqual(sort_filter_torrents(torrents), [
-            torrents[2], torrents[0]
+            torrents[2], torrents[0], torrents[3]
         ])
