@@ -10,15 +10,17 @@ angular.
     factory('whatMeta', function($q, $http, $cacheFactory) {
         var $httpDefaultCache = $cacheFactory.get('$http');
         return new function() {
-            this.getTorrentGroup = function(id, defeatCache) {
-                var torrentGroupUrl = 'torrent_groups/' + id;
-                var options = {
-                    cache: true
-                };
+            this.getTorrentGroup = function(id, defeatCache, loadFromWhat) {
+                var torrentGroupUrl = 'torrent_groups/' + id,
+                    options = {
+                        cache: true
+                    };
                 if (defeatCache) {
                     $httpDefaultCache.remove(torrentGroupUrl);
-                    options.headers = {
-                        'X-Refresh': 'true'
+                    if (loadFromWhat) {
+                        options.headers = {
+                            'X-Refresh': 'true'
+                        };
                     }
                 }
                 return $http.get(torrentGroupUrl, options);
@@ -33,21 +35,59 @@ angular.
                         encodeURIComponent(query), {timeout: this.searchCanceller.promise}
                 );
             };
-            this.getArtist = function(id, defeatCache) {
+            this.getArtist = function(id, defeatCache, loadFromWhat) {
                 var artistUrl = 'artists/' + id;
                 var options = {
                     cache: true
                 };
                 if (defeatCache) {
                     $httpDefaultCache.remove(artistUrl);
-                    options.headers = {
-                        'X-Refresh': 'true'
+                    if (loadFromWhat) {
+                        options.headers = {
+                            'X-Refresh': 'true'
+                        };
                     }
                 }
                 return $http.get(artistUrl, options);
             };
         };
     }).
+//    factory('torrentProgressUpdater', function($http, $interval, $rootScope) {
+//        return new function() {
+//            var s = {},
+//                torrentsWatched = {};
+//            s.watch = function(id) {
+//                torrentsWatched[id] = (torrentsWatched[id] || 0) + 1;
+//            };
+//            s.unwatch = function(id) {
+//                torrentsWatched[id] = torrentsWatched[id] - 1;
+//                if (torrentsWatched[id] == 0) {
+//                    delete torrentsWatched[id];
+//                }
+//            };
+//            $interval(function() {
+//                var ids = [];
+//                for (var torrentId in torrentsWatched) {
+//                    ids.push(torrentId);
+//                }
+//                if (ids.length > 0) {
+//                    $http({
+//                        method: 'POST',
+//                        url: '../json/torrents_info',
+//                        data: $.param({ids: ids.join(',')}),
+//                        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+//                    }).success(function(response) {
+//                        var byId = {};
+//                        response.forEach(function(value) {
+//                            byId[value.id] = value;
+//                        });
+//                        $rootScope.$broadcast('torrentProgressUpdated', byId);
+//                    });
+//                }
+//            }, 2000);
+//            return s;
+//        };
+//    }).
     filter('trustAsHtml', function($sce) {
         return function(input) {
             return $sce.trustAsHtml(input);
@@ -86,17 +126,23 @@ angular.
         return {
             template: '<div class="number-pb"><div class="number-pb-shown"></div>' +
                 '<div class="number-pb-num">0%</div></div>',
-            require: '?ngModel',
-            link: function(scope, element, attrs, ngModel) {
+            scope: {
+                value: '='
+            },
+            link: function(scope, element, attrs) {
                 var progressBar = $('.number-pb').NumberProgressBar({
                     style: 'percentage',
                     min: 0,
                     max: 100,
-                    current: ngModel.$viewValue || 0
+                    duration: 3000,
+                    current: scope.value || 0
                 });
-                ngModel.$render = function() {
-                    progressBar.reach(ngModel.$viewValue);
-                }
+                window.pb = progressBar;
+                scope.$watch('value', function() {
+                    progressBar.reach(scope.value, {
+                        duration: 1000
+                    });
+                });
             }
         }
     }).

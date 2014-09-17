@@ -48,7 +48,7 @@ def get_torrent_group(request, group_id):
         what_client = get_what_client(request)
         torrent_group = WhatTorrentGroup.update_from_what(what_client, group_id)
     data = get_torrent_group_dict(torrent_group)
-    data.update(get_torrent_group_playlist_or_have(torrent_group))
+    data.update(get_torrent_group_playlist_or_have(torrent_group, True))
     return data
 
 

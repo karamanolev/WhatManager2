@@ -87,7 +87,7 @@ def get_torrent_group_dict(torrent_group):
     }
 
 
-def get_torrent_group_playlist_or_have(torrent_group):
+def get_torrent_group_playlist_or_have(torrent_group, sync_torrents=False):
     torrents = sort_filter_torrents(torrent_group.whattorrent_set.all())
     masters = ReplicaSet.get_what_master().transinstance_set.all()
     trans_torrents = {
@@ -96,13 +96,19 @@ def get_torrent_group_playlist_or_have(torrent_group):
     }
     torrent = None
     for candidate in torrents:
-        trans_torrent = trans_torrents[candidate.id]
-        if trans_torrent is not None and trans_torrent.torrent_done == 1:
+        trans_torrent = trans_torrents.get(candidate.id)
+        if trans_torrent is None:
+            continue
+        if trans_torrent.torrent_done == 1:
             torrent = candidate
             break
     if torrent is None:
         for candidate in torrents:
-            trans_torrent = trans_torrents[candidate.id]
+            trans_torrent = trans_torrents.get(candidate.id)
+            if trans_torrent is None:
+                continue
+            if sync_torrents:
+                trans_torrent.sync_t_torrent()
             done = trans_torrent.torrent_done
             if torrent is None or done > trans_torrents[torrent.id].torrent_done:
                 torrent = candidate
