@@ -4,15 +4,17 @@ from django.db import transaction
 
 from WhatManager2.locking import LockModelTables
 from WhatManager2.utils import norm_t_torrent, dummy_context_manager
-from home.models import WhatTorrent, TransTorrent, TorrentAlreadyAddedException, LogEntry
+from home.models import WhatTorrent, TransTorrent, TorrentAlreadyAddedException, LogEntry, \
+    ReplicaSet
 
 
 def add_torrent(request, instance, download_location, what_id, add_to_client=True):
     w_torrent = WhatTorrent.get_or_create(request, what_id=what_id)
 
+    masters = ReplicaSet.get_what_master().transinstance_set.all()
     with LockModelTables(TransTorrent, LogEntry):
         try:
-            TransTorrent.objects.get(instance=instance, info_hash=w_torrent.info_hash)
+            TransTorrent.objects.get(instance__in=masters, info_hash=w_torrent.info_hash)
             raise TorrentAlreadyAddedException(u'Already added.')
         except TransTorrent.DoesNotExist:
             pass
