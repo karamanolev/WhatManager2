@@ -57,7 +57,7 @@ angular.
                     }
                     $scope.mainSpinner.visible = false;
                 });
-        };
+        }   ;
         $scope.downloadTorrentGroup = function(torrentGroupId) {
             if (confirm('Are you sure you want to download this?')) {
                 whatMeta.downloadTorrentGroup($scope.torrentGroup.id).success(function(resp) {

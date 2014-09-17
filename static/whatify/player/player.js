@@ -3,13 +3,13 @@
 angular.
     module('whatify.player', []).
     factory('whatPlayer', function($rootScope) {
-        var s = {};
-        s.audio = document.createElement('audio');
-        s.isPlaying = false;
-        s.currentTime = 0;
-        s.duration = null;
-
-        s.aurora = null;
+        var s = {
+                isPlaying: false,
+                currentTime: 0,
+                duration: null
+            },
+            audio = document.createElement('audio'),
+            aurora = null;
 
         function auroraDuration(time) {
             $rootScope.$apply(function() {
@@ -30,101 +30,101 @@ angular.
         }
 
         function bindAurora() {
-            s.aurora.on('duration', auroraDuration);
-            s.aurora.on('progress', auroraProgress);
-            s.aurora.on('end', auroraEnd);
+            aurora.on('duration', auroraDuration);
+            aurora.on('progress', auroraProgress);
+            aurora.on('end', auroraEnd);
         }
 
         function unbindAurora() {
-            s.aurora.off('duration', auroraDuration);
-            s.aurora.off('progress', auroraProgress);
-            s.aurora.off('end', auroraEnd);
+            aurora.off('duration', auroraDuration);
+            aurora.off('progress', auroraProgress);
+            aurora.off('end', auroraEnd);
         }
 
-        $(s.audio).on('playing', function() {
+        $(audio).on('playing', function() {
             console.log('<audio>: playing');
             $rootScope.$apply(function() {
                 s.isPlaying = true;
             });
         });
-        $(s.audio).on('timeupdate', function() {
+        $(audio).on('timeupdate', function() {
             console.log('<audio>: timeupdate');
             $rootScope.$apply(function() {
-                s.currentTime = s.audio.currentTime;
+                s.currentTime = audio.currentTime;
             });
         });
-        $(s.audio).on('loadedmetadata', function() {
+        $(audio).on('loadedmetadata', function() {
             console.log('<audio>: loadedmetadata');
             $rootScope.$apply(function() {
-                s.duration = s.audio.duration;
+                s.duration = audio.duration;
             });
         });
-        $(s.audio).on('ended', function() {
+        $(audio).on('ended', function() {
             console.log('<audio>: ended');
             $rootScope.$apply(function() {
                 $rootScope.$emit('songEnded');
             });
         });
-        $(s.audio).on('error', function(e) {
+        $(audio).on('error', function(e) {
             console.log('<audio>: error');
             $rootScope.$apply(function() {
                 s.isPlaying = false;
             });
         });
         s.play = function() {
-            if (s.audio.src) {
-                s.audio.play();
+            if (audio.src) {
+                audio.play();
                 s.isPlaying = true;
-            } else if (s.aurora !== null) {
-                s.aurora.play();
+            } else if (aurora !== null) {
+                aurora.play();
                 s.isPlaying = true;
             }
         };
         s.load = function(src) {
-            if (s.aurora !== null) {
-                s.aurora.stop();
+            if (aurora !== null) {
+                aurora.stop();
                 unbindAurora();
-                s.aurora = null;
+                aurora = null;
             }
-            if (s.audio.src) {
-                s.audio.pause();
-                s.audio.src = '';
-                s.audio.removeAttribute('src');
+            if (audio.src) {
+                audio.pause();
+                audio.src = '';
+                audio.removeAttribute('src');
             }
             s.isPlaying = false;
             s.currentTime = 0;
             s.duration = null;
             if (src) {
                 if (src.toLowerCase().indexOf('.flac') != -1) {
-                    s.aurora = AV.Player.fromURL(src);
+                    aurora = AV.Player.fromURL(src);
                     bindAurora();
                 } else if (src.toLowerCase().indexOf('.mp3') != -1) {
-                    s.audio.src = src;
+                    audio.src = src;
                 } else {
                     console.error('Neither .mp3 nor .flac found in URL.');
                 }
             }
         };
         s.pause = function() {
-            if (s.audio.src) {
+            if (audio.src) {
                 s.isPlaying = false;
-                s.audio.pause();
-            } else if (s.aurora !== null) {
+                audio.pause();
+            } else if (aurora !== null) {
                 s.isPlaying = false;
-                s.aurora.pause();
+                aurora.pause();
             }
         };
         s.setVolume = function(volume) {
-            s.audio.volume = volume;
-            if (s.aurora !== null) {
-                s.aurora.volume = Math.round(volume * 100);
+            audio.volume = volume;
+            if (aurora !== null) {
+                aurora.volume = Math.round(volume * 100);
             }
         };
         s.getVolume = function() {
-            return s.audio.volume;
+            return audio.volume;
         };
         s.seek = function(time) {
-            s.audio.currentTime = time;
+            audio.currentTime = time;
         };
         return s;
     }).
@@ -370,6 +370,34 @@ angular.
             templateUrl: templateRoot + '/player/currentItemSidebar.html',
             scope: {
                 item: '='
+            }
+        }
+    }).
+    directive('playingFormatDisplay', function(whatPlaylist) {
+        return {
+            template: '<img ng-src="{{ playingFormatSrc }}" ng-if="showPlayingFormat"' +
+                ' style="width: 60px; height: 30px;">' +
+                '<div style="width: 60px; height: 30px;" ng-if="!showPlayingFormat"></div>',
+            scope: {
+                item: '='
+            },
+            controller: function($scope) {
+                $scope.showPlayingFormat = false;
+                $scope.$watch('item', function() {
+                    if ($scope.item) {
+                        if ($scope.item.url.indexOf('.flac') !== -1) {
+                            $scope.showPlayingFormat = true;
+                            $scope.playingFormatSrc = '../static/img/logo-flac.png';
+                        } else if ($scope.item.url.indexOf('.mp3') !== -1) {
+                            $scope.showPlayingFormat = true;
+                            $scope.playingFormatSrc = '../static/img/logo-mp3.png';
+                        } else {
+                            $scope.showPlayingFormat = false;
+                        }
+                    } else {
+                        $scope.showPlayingFormat = false;
+                    }
+                });
             }
         }
     })

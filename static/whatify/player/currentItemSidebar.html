@@ -1,5 +1,7 @@
 <div ng-show="item">
-    <img class="cover" ng-src="{{ item.torrentGroup.wiki_image }}">
+    <a ng-href="#/torrentGroups/{{ item.torrentGroup.id }}">
+        <img class="cover" ng-src="{{ item.torrentGroup.wiki_image }}">
+    </a>
 
     <p class="name">{{ item.metadata.title }}</p>
 
