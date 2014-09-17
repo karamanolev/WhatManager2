@@ -12,7 +12,7 @@
     </div>
     <div class="container-fluid">
         {% if perms.queue.view_queueitem %}
-            <div class="row row-flex">
+            <div class="row row-flex wrap">
                 {% include 'queue/part/queue_stats.html' %}
                 {% include 'home/part/location_stats.html' %}
                 {% include 'queue/part/queue_pop.html' %}
