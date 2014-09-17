@@ -67,13 +67,13 @@ def filesizeformat(value):
 
 @register.filter
 def tooltip_files_table(value):
-    result = ['<table cellpadding="2">']
+    result = [u'<table cellpadding="2">']
     for filename in value:
-        result.append('<tr><td>{0}</td><td style="text-align: right;">{1}</td></tr>'.format(
+        result.append(u'<tr><td>{0}</td><td style="text-align: right;">{1}</td></tr>'.format(
             filename['name'], filesizeformat(filename['size'])
         ))
-    result.append('</table>')
-    return ''.join(result)
+    result.append(u'</table>')
+    return u''.join(result)
 
 
 @register.filter('release_type_name')
