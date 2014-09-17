@@ -35,22 +35,24 @@
             <div class="title-year">{{ torrentGroup.year }}</div>
 
             <div class="title-buttons">
-
-            <span class="btn btn-success btn-playpause"
-                  ng-click="playTorrentGroup(torrentGroup.id)"
-                  ng-if="torrentGroup.have === true && (!player.isPlaying || playlist.currentItem.torrentGroup.id != torrentGroup.id)">
-                <span class="glyphicon glyphicon-play"></span>
-                Play
-            </span>
-            <span class="btn btn-success btn-playpause"
-                  ng-click="player.pause()"
-                  ng-if="torrentGroup.have === true && player.isPlaying && playlist.currentItem.torrentGroup.id == torrentGroup.id">
-                <span class="glyphicon glyphicon-pause"></span>
-                Pause
-            </span>
-            <span class="btn btn-default"
-                  ng-click="downloadTorrentGroup(torrentGroup.id)"
-                  ng-if="!torrentGroup.have">download</span>
+                <span class="btn btn-success btn-playpause"
+                      ng-click="playTorrentGroup(torrentGroup.id)"
+                      ng-if="torrentGroup.have === true && (!player.isPlaying || playlist.currentItem.torrentGroup.id != torrentGroup.id)">
+                    <span class="glyphicon glyphicon-play"></span>
+                    Play
+                </span>
+                <span class="btn btn-success btn-playpause"
+                      ng-click="player.pause()"
+                      ng-if="torrentGroup.have === true && player.isPlaying && playlist.currentItem.torrentGroup.id == torrentGroup.id">
+                    <span class="glyphicon glyphicon-pause"></span>
+                    Pause
+                </span>
+                <span class="btn btn-default btn-download"
+                      ng-click="downloadTorrentGroup(torrentGroup.id)"
+                      ng-if="!torrentGroup.have">
+                    <span class="glyphicon glyphicon-download"></span>
+                    Download
+                </span>
             </div>
         </div>
     </div>

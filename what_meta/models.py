@@ -136,6 +136,10 @@ class WhatTorrentGroup(models.Model):
         return ujson.loads(self.info_json)
 
     @cached_property
+    def torrents(self):
+        return ujson.loads(self.torrents_json)
+
+    @cached_property
     def fulltext_info(self):
         return self.name
 

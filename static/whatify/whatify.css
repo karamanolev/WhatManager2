@@ -202,6 +202,15 @@ h1 {
   font-size: 120%;
   flex: 1;
 }
+.torrent-group-details-page .title-info .title-buttons .btn-with-icon,
+.artist-details-page .title-info .title-buttons .btn-with-icon {
+  text-align: center;
+}
+.torrent-group-details-page .title-info .title-buttons .btn-with-icon span,
+.artist-details-page .title-info .title-buttons .btn-with-icon span {
+  float: left;
+  margin-top: 1px;
+}
 .torrent-group-details-page .title-info .title-buttons .btn-playpause,
 .artist-details-page .title-info .title-buttons .btn-playpause {
   width: 100px;
@@ -209,6 +218,16 @@ h1 {
 }
 .torrent-group-details-page .title-info .title-buttons .btn-playpause span,
 .artist-details-page .title-info .title-buttons .btn-playpause span {
+  float: left;
+  margin-top: 1px;
+}
+.torrent-group-details-page .title-info .title-buttons .btn-download,
+.artist-details-page .title-info .title-buttons .btn-download {
+  width: 140px;
+  text-align: center;
+}
+.torrent-group-details-page .title-info .title-buttons .btn-download span,
+.artist-details-page .title-info .title-buttons .btn-download span {
   float: left;
   margin-top: 1px;
 }

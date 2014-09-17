@@ -24,7 +24,9 @@ angular.
         }
 
         function auroraEnd() {
-            $rootScope.$emit('songEnded');
+            $rootScope.$apply(function() {
+                $rootScope.$emit('songEnded');
+            });
         }
 
         function bindAurora() {
@@ -59,7 +61,9 @@ angular.
         });
         $(s.audio).on('ended', function() {
             console.log('<audio>: ended');
-            $rootScope.$emit('songEnded');
+            $rootScope.$apply(function() {
+                $rootScope.$emit('songEnded');
+            });
         });
         $(s.audio).on('error', function(e) {
             console.log('<audio>: error');

@@ -10,3 +10,15 @@ def extended_artists_to_music_info(extended_artists):
             'producer': extended_artists['7'] or [],
         }
     }
+
+
+# Add some preferences here
+def get_ids_to_download(torrent_group):
+    ids = []
+    for torrent in torrent_group.torrents:
+        if torrent['format'].lower() != 'flac':
+            continue
+        if torrent['media'].lower() not in ['cd', 'web']:
+            continue
+        ids.append(torrent['id'])
+    return ids

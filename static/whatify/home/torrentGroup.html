@@ -26,9 +26,12 @@
                     Pause
                 </span>
             </span>
-            <span class="btn btn-default"
+            <span class="btn btn-default btn-download"
                   ng-click="downloadTorrentGroup(torrentGroup.id)"
-                  ng-if="torrentGroup.playlist === undefined && torrentGroup.have === undefined">download</span>
+                  ng-if="torrentGroup.playlist === undefined && torrentGroup.have === undefined">
+                <span class="glyphicon glyphicon-download"></span>
+                Download
+            </span>
 
             <div style="width: 300px;" ng-if="torrentGroup.have !== undefined">
                 <div percentage-progress-bar value="torrentGroup.have * 100"></div>

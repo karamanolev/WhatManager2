@@ -221,13 +221,20 @@ h1 {
       flex: 1;
     }
     .title-buttons {
-      .btn-playpause {
-        width: 100px;
+      .btn-with-icon {
         text-align: center;
         span {
           float: left;
           margin-top: 1px;
         }
+      }
+      .btn-playpause {
+        width: 100px;
+        .btn-with-icon;
+      }
+      .btn-download {
+        width: 120px;
+        .btn-with-icon;
       }
     }
   }

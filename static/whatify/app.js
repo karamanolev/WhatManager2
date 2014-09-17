@@ -50,44 +50,29 @@ angular.
                 }
                 return $http.get(artistUrl, options);
             };
+            this.downloadTorrentGroup = function(id) {
+                return $http.get('torrent_groups/' + id + '/download');
+            };
         };
     }).
-//    factory('torrentProgressUpdater', function($http, $interval, $rootScope) {
-//        return new function() {
-//            var s = {},
-//                torrentsWatched = {};
-//            s.watch = function(id) {
-//                torrentsWatched[id] = (torrentsWatched[id] || 0) + 1;
-//            };
-//            s.unwatch = function(id) {
-//                torrentsWatched[id] = torrentsWatched[id] - 1;
-//                if (torrentsWatched[id] == 0) {
-//                    delete torrentsWatched[id];
-//                }
-//            };
-//            $interval(function() {
-//                var ids = [];
-//                for (var torrentId in torrentsWatched) {
-//                    ids.push(torrentId);
-//                }
-//                if (ids.length > 0) {
-//                    $http({
-//                        method: 'POST',
-//                        url: '../json/torrents_info',
-//                        data: $.param({ids: ids.join(',')}),
-//                        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-//                    }).success(function(response) {
-//                        var byId = {};
-//                        response.forEach(function(value) {
-//                            byId[value.id] = value;
-//                        });
-//                        $rootScope.$broadcast('torrentProgressUpdated', byId);
-//                    });
-//                }
-//            }, 2000);
-//            return s;
-//        };
-//    }).
+    factory('whatifyNoty', function() {
+        var s = {};
+        s.success = function(text) {
+            noty({
+                text: text,
+                type: 'success',
+                timeout: 5000
+            });
+        };
+        s.error = function(text) {
+            noty({
+                text: text,
+                type: 'error',
+                timeout: 30000
+            });
+        };
+        return s;
+    }).
     filter('trustAsHtml', function($sce) {
         return function(input) {
             return $sce.trustAsHtml(input);

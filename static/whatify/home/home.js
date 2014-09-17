@@ -27,36 +27,49 @@ angular.
     controller('PlaylistController', function($scope) {
         $scope.mainSpinner.visible = false;
     }).
-    controller('TorrentGroupController', function($scope, $interval, whatMeta, $routeParams) {
-        var refreshInterval = null;
+    controller('TorrentGroupController', function($scope, $interval, $routeParams, whatMeta, whatifyNoty) {
+        var refreshInterval = null,
+            subscribe = function() {
+                if (refreshInterval === null) {
+                    refreshInterval = $interval(function() {
+                        $scope.reloadTorrentGroup(false, true);
+                    }, 3000);
+                }
+            },
+            unsubscribe = function() {
+                if (refreshInterval !== null) {
+                    $interval.cancel(refreshInterval);
+                    refreshInterval = null;
+                }
+            };
         $scope.reloadTorrentGroup = function(initial, defeatCache, loadFromWhat) {
-            if(initial) {
+            if (initial) {
                 $scope.torrentGroup = null;
                 $scope.mainSpinner.visible = true;
             }
             whatMeta.getTorrentGroup($routeParams.id, defeatCache, loadFromWhat)
                 .success(function(torrentGroup) {
                     $scope.torrentGroup = torrentGroup;
-                    if (refreshInterval === null && $scope.torrentGroup.have !== undefined) {
-                        console.log('subscribing');
-                        refreshInterval = $interval(function() {
-                            console.log('update called');
-                            $scope.reloadTorrentGroup(false, true);
-                        }, 3000);
-                    } else if (refreshInterval !== null && $scope.torrentGroup.have === undefined) {
-                        console.log('downloaded, unsubscribing');
-                        $interval.cancel(refreshInterval);
-                        refreshInterval = null;
+                    if ($scope.torrentGroup.have !== undefined) {
+                        subscribe();
+                    } else if ($scope.torrentGroup.have === undefined) {
+                        unsubscribe();
                     }
                     $scope.mainSpinner.visible = false;
                 });
         };
-        $scope.$on('$destroy', function() {
-            if (refreshInterval !== null) {
-                console.log('unsubscribing');
-                $interval.cancel(refreshInterval);
-                refreshInterval = null;
+        $scope.downloadTorrentGroup = function(torrentGroupId) {
+            if (confirm('Are you sure you want to download this?')) {
+                whatMeta.downloadTorrentGroup($scope.torrentGroup.id).success(function(resp) {
+                    if (resp.success) {
+                        whatifyNoty.success('Downloading ' + $scope.torrentGroup.name);
+                    }
+                });
+                subscribe();
             }
+        };
+        $scope.$on('$destroy', function() {
+            unsubscribe();
         });
         $scope.reloadTorrentGroup(true);
     }).
