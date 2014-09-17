@@ -131,16 +131,16 @@ angular.
     factory('whatPlaylist', function($rootScope, whatPlayer) {
         var s = {
             items: [],
-            index: -1
+            index: 0
         };
         var update = function() {
-            if (s.index == -1) {
+            if (s.index === 0) {
                 s.currentItem = null;
             } else {
-                s.currentItem = s.items[s.index];
+                s.currentItem = s.items[s.index - 1];
             }
-            s.canForward = s.index != -1 && s.index < s.items.length - 1;
-            s.canBackward = s.index > 0;
+            s.canForward = s.index !== 0 && s.index < s.items.length;
+            s.canBackward = s.index > 1;
         };
         update();
 
@@ -148,14 +148,14 @@ angular.
             if (s.canForward) {
                 s.play(s.index + 1);
             } else {
-                s.index = 0;
+                s.index = 1;
                 update();
                 whatPlayer.load(s.currentItem.url);
             }
         });
         s.clear = function() {
             s.items = [];
-            s.index = -1;
+            s.index = 0;
             update();
             whatPlayer.load(null);
         };
@@ -198,6 +198,7 @@ angular.
         return s;
     }).
     controller('WhatPlayerController', function($scope, whatMeta, whatPlayer, whatPlaylist) {
+        console.log('Create WhatPlayerController');
         $scope.player = whatPlayer;
         $scope.playlist = whatPlaylist;
         $scope.volume = whatPlayer.getVolume();
@@ -233,15 +234,14 @@ angular.
                         item.torrentGroup = torrentGroup;
                         whatPlaylist.add(item);
                     });
-                    whatPlaylist.play(index || 0);
+                    whatPlaylist.play(index || 1);
                 }
             });
         };
     }).
     directive('wmPlayerSm', function() {
         return {
-            templateUrl: templateRoot + '/player/player.html',
-            controller: 'WhatPlayerController'
+            templateUrl: templateRoot + '/player/player.html'
         }
     }).
     directive('volumeSlider', function() {

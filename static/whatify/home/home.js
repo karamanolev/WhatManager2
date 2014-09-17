@@ -12,6 +12,14 @@ angular.
                 templateUrl: templateRoot + '/home/torrentGroup.html',
                 controller: 'TorrentGroupController'
             }).
+            when('/torrentGroups/:id/play', {
+                template: '',
+                controller: 'PlayTorrentGroupController'
+            }).
+            when('/torrentGroups/:id/play/:index', {
+                template: '',
+                controller: 'PlayTorrentGroupController'
+            }).
             when('/artists/:id', {
                 templateUrl: templateRoot + '/home/artist.html',
                 controller: 'ArtistController'
@@ -26,6 +34,10 @@ angular.
     }).
     controller('PlaylistController', function($scope) {
         $scope.mainSpinner.visible = false;
+    }).
+    controller('PlayTorrentGroupController', function($scope, $location, $routeParams) {
+        $scope.playTorrentGroup($routeParams.id, $routeParams.index);
+        $location.path('/torrentGroups/' + $routeParams.id);
     }).
     controller('TorrentGroupController', function($scope, $interval, $routeParams, whatMeta, whatifyNoty) {
         var refreshInterval = null,
@@ -57,7 +69,7 @@ angular.
                     }
                     $scope.mainSpinner.visible = false;
                 });
-        }   ;
+        };
         $scope.downloadTorrentGroup = function(torrentGroupId) {
             if (confirm('Are you sure you want to download this?')) {
                 whatMeta.downloadTorrentGroup($scope.torrentGroup.id).success(function(resp) {

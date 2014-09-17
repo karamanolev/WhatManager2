@@ -11,7 +11,7 @@
         </tr>
         </thead>
         <tbody sortable-playlist>
-        <tr ng-repeat="item in playlist.items" ng-dblclick="playlist.play($index)"
+        <tr ng-repeat="item in playlist.items" ng-dblclick="playlist.play($index + 1)"
             data-item-id="{{ item.id }}">
             <td class="col-number">
             <span ng-show="playlist.currentItem.id == item.id">
