@@ -5,6 +5,7 @@ body {
 }
 body {
   color: #eeeeee;
+  font-size: 16px;
   font-family: proxima_nova, "Helvetica Neue", Helvetica, Arial, sans-serif;
   display: flex;
   flex-flow: column;
@@ -75,25 +76,33 @@ h1 {
 .whatify-main-flex {
   flex: 1;
   display: flex;
+  align-items: stretch;
 }
 .whatify-left-bar {
   background: #202124;
   width: 200px;
-}
-.whatify-left-bar a:hover {
-  text-decoration: inherit;
+  display: flex;
+  flex-direction: column;
 }
 .whatify-left-bar ul.menu {
+  flex: 1;
   display: block;
   list-style: none;
   margin: 0;
   padding: 0;
+  overflow-y: auto;
+}
+.whatify-left-bar ul.menu a:hover {
+  text-decoration: inherit;
 }
 .whatify-left-bar ul.menu a {
   display: block;
   color: inherit;
   text-decoration: inherit;
-  padding: 4px 16px;
+  padding: 6px 16px;
+}
+.whatify-left-bar ul.menu a span {
+  margin-right: 10px;
 }
 .whatify-left-bar ul.menu > li {
   cursor: pointer;
@@ -173,7 +182,7 @@ h1 {
 .artist-details-page .title-info .title-name {
   font-weight: lighter;
   letter-spacing: 2px;
-  font-size: 240%;
+  font-size: 220%;
 }
 .torrent-group-details-page .title-info .title-tags,
 .artist-details-page .title-info .title-tags {
@@ -181,7 +190,7 @@ h1 {
 }
 .torrent-group-details-page .title-info .title-artists,
 .artist-details-page .title-info .title-artists {
-  font-size: 180%;
+  font-size: 160%;
 }
 .torrent-group-details-page .title-info .title-artists .by,
 .artist-details-page .title-info .title-artists .by {
@@ -190,7 +199,7 @@ h1 {
 .torrent-group-details-page .title-info .title-year,
 .artist-details-page .title-info .title-year {
   font-weight: lighter;
-  font-size: 140%;
+  font-size: 120%;
   flex: 1;
 }
 .torrent-group-details-page .title-info .title-buttons .btn-playpause,
@@ -270,4 +279,31 @@ h1 {
   top: -0.45em;
   padding: 0 5px;
   min-width: 20px;
+}
+.whatify-current-item-sidebar {
+  position: relative;
+  font-size: 90%;
+  border-top: 1px solid 1px solid #393b40;
+}
+.whatify-current-item-sidebar .cover {
+  position: relative;
+  width: 100%;
+  z-index: 2;
+}
+.whatify-current-item-sidebar p {
+  margin: 2px 0 2px 4px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.whatify-current-item-sidebar p:last-of-type {
+  margin-bottom: 6px;
+}
+.whatify-current-item-sidebar .right-fade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 14px;
+  z-index: 1;
+  background: linear-gradient(to right, rgba(32, 33, 36, 0), #202124);
 }

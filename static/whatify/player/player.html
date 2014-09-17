@@ -4,12 +4,12 @@
 </button>
 
 <!-- Play/Pause buttons -->
-<button class="btn btn-success" ng-show="!player.isPlaying"
+<button class="btn btn-success btn-lg" ng-show="!player.isPlaying"
         ng-click="player.play()" ng-disabled="playlist.currentItem === null">
     <span class="glyphicon glyphicon-play"></span>
 </button>
 
-<button class="btn btn-success" ng-show="player.isPlaying"
+<button class="btn btn-success btn-lg" ng-show="player.isPlaying"
         ng-click="player.pause()">
     <span class="glyphicon glyphicon-pause"></span>
 </button>

@@ -14,6 +14,8 @@
     <script src="{% static 'js/bootstrap-slider.min.js' %}"></script>
     <script src="{% static 'js/spin.min.js' %}"></script>
     <script src="{% static 'js/number-pb.js' %}"></script>
+    <script src="/static/player/aurora/aurora.js"></script>
+    <script src="/static/player/aurora/flac.js"></script>
 
     <script type="text/javascript">
         var templateRoot = '{% static "whatify" %}';
@@ -43,6 +45,9 @@
                 </a>
             </li>
         </ul>
+
+        <div current-item-sidebar class="whatify-current-item-sidebar"
+             ng-controller="WhatPlayerController" item="playlist.currentItem"></div>
     </div>
     <div class="whatify-main-pane">
         <div ng-view></div>

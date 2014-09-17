@@ -9,25 +9,60 @@ angular.
         s.currentTime = 0;
         s.duration = null;
 
+        s.aurora = null;
+
+        function auroraDuration(time) {
+            $rootScope.$apply(function() {
+                s.duration = time / 1000;
+            });
+        }
+
+        function auroraProgress(time) {
+            $rootScope.$apply(function() {
+                s.currentTime = time / 1000;
+            });
+        }
+
+        function auroraEnd() {
+            $rootScope.$emit('songEnded');
+        }
+
+        function bindAurora() {
+            s.aurora.on('duration', auroraDuration);
+            s.aurora.on('progress', auroraProgress);
+            s.aurora.on('end', auroraEnd);
+        }
+
+        function unbindAurora() {
+            s.aurora.off('duration', auroraDuration);
+            s.aurora.off('progress', auroraProgress);
+            s.aurora.off('end', auroraEnd);
+        }
+
         $(s.audio).on('playing', function() {
+            console.log('<audio>: playing');
             $rootScope.$apply(function() {
                 s.isPlaying = true;
             });
         });
         $(s.audio).on('timeupdate', function() {
+            console.log('<audio>: timeupdate');
             $rootScope.$apply(function() {
                 s.currentTime = s.audio.currentTime;
             });
         });
         $(s.audio).on('loadedmetadata', function() {
+            console.log('<audio>: loadedmetadata');
             $rootScope.$apply(function() {
                 s.duration = s.audio.duration;
             });
         });
         $(s.audio).on('ended', function() {
+            console.log('<audio>: ended');
             $rootScope.$emit('songEnded');
         });
-        $(s.audio).on('error', function() {
+        $(s.audio).on('error', function(e) {
+            console.log('<audio>: error');
             $rootScope.$apply(function() {
                 s.isPlaying = false;
             });
@@ -36,20 +71,50 @@ angular.
             if (s.audio.src) {
                 s.audio.play();
                 s.isPlaying = true;
+            } else if (s.aurora !== null) {
+                s.aurora.play();
+                s.isPlaying = true;
             }
         };
         s.load = function(src) {
-            s.pause();
-            s.audio.src = src || '';
+            if (s.aurora !== null) {
+                s.aurora.stop();
+                unbindAurora();
+                s.aurora = null;
+            }
+            if (s.audio.src) {
+                s.audio.pause();
+                s.audio.src = '';
+                s.audio.removeAttribute('src');
+            }
+            s.isPlaying = false;
             s.currentTime = 0;
             s.duration = null;
+            if (src) {
+                if (src.toLowerCase().indexOf('.flac') != -1) {
+                    s.aurora = AV.Player.fromURL(src);
+                    bindAurora();
+                } else if (src.toLowerCase().indexOf('.mp3') != -1) {
+                    s.audio.src = src;
+                } else {
+                    console.error('Neither .mp3 nor .flac found in URL.');
+                }
+            }
         };
         s.pause = function() {
-            s.isPlaying = false;
-            s.audio.pause();
+            if (s.audio.src) {
+                s.isPlaying = false;
+                s.audio.pause();
+            } else if (s.aurora !== null) {
+                s.isPlaying = false;
+                s.aurora.pause();
+            }
         };
         s.setVolume = function(volume) {
             s.audio.volume = volume;
+            if (s.aurora !== null) {
+                s.aurora.volume = Math.round(volume * 100);
+            }
         };
         s.getVolume = function() {
             return s.audio.volume;
@@ -293,6 +358,14 @@ angular.
                         });
                     }
                 });
+            }
+        }
+    }).
+    directive('currentItemSidebar', function() {
+        return {
+            templateUrl: templateRoot + '/player/currentItemSidebar.html',
+            scope: {
+                item: '='
             }
         }
     })

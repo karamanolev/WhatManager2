@@ -3,6 +3,7 @@
 @sidePanelBorder: 1px solid #393b40;
 @mainPanelBackground: #101112;
 @leftPanelWidth: 200px;
+@baseFontSize: 16px;
 
 .a-no-underline() {
   a:hover {
@@ -17,6 +18,7 @@ html, body {
 
 body {
   color: @textColor;
+  font-size: @baseFontSize;
   a, a:hover {
     color: @textColor;
   }
@@ -94,24 +96,31 @@ h1 {
 .whatify-main-flex {
   flex: 1;
   display: flex;
+  align-items: stretch;
 }
 
 .whatify-left-bar {
   background: @sidePanelBackground;
   width: @leftPanelWidth;
-
-  .a-no-underline;
+  display: flex;
+  flex-direction: column;
 
   ul.menu {
+    .a-no-underline;
+    flex: 1;
     display: block;
     list-style: none;
     margin: 0;
     padding: 0;
+    overflow-y: auto;
     a {
       display: block;
       color: inherit;
       text-decoration: inherit;
-      padding: 4px 16px;
+      padding: 6px 16px;
+      span {
+        margin-right: 10px;
+      }
     }
     > li {
       cursor: pointer;
@@ -195,20 +204,20 @@ h1 {
     .title-name {
       font-weight: lighter;
       letter-spacing: 2px;
-      font-size: 240%;
+      font-size: 220%;
     }
     .title-tags {
       font-weight: lighter;
     }
     .title-artists {
-      font-size: 180%;
+      font-size: 160%;
       .by {
         font-weight: lighter;
       }
     }
     .title-year {
       font-weight: lighter;
-      font-size: 140%;
+      font-size: 120%;
       flex: 1;
     }
     .title-buttons {
@@ -284,9 +293,9 @@ h1 {
   top: -1px;
   left: 0;
   height: 5px;
-  -moz-box-shadow:    0 0 3px 0 #499989;
+  -moz-box-shadow: 0 0 3px 0 #499989;
   -webkit-box-shadow: 0 0 3px 0 #499989;
-  box-shadow:         0 0 3px 0 #499989;
+  box-shadow: 0 0 3px 0 #499989;
 }
 
 .number-pb .number-pb-num {
@@ -297,4 +306,32 @@ h1 {
   top: -0.45em;
   padding: 0 5px;
   min-width: 20px;
+}
+
+.whatify-current-item-sidebar {
+  position: relative;
+  font-size: 90%;
+  border-top: 1px solid @sidePanelBorder;
+  .cover {
+    position: relative;
+    width: 100%;
+    z-index: 2;
+  }
+  p {
+    margin: 2px 0 2px 4px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  p:last-of-type {
+    margin-bottom: 6px;
+  }
+  .right-fade {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 14px;
+    z-index: 1;
+    background: linear-gradient(to right, fade(@sidePanelBackground, 0), @sidePanelBackground);
+  }
 }

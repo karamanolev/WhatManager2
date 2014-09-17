@@ -13,7 +13,7 @@ def extract(torrent):
 def filter_torrent(a):
     _, a_format = extract(a)
     if a_format == 'FLAC':
-        return False
+        return True
     return True
 
 

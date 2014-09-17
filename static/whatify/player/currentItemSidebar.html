@@ -1,0 +1,17 @@
+<div ng-show="item">
+    <img class="cover" ng-src="{{ item.torrentGroup.wiki_image }}">
+
+    <p class="name">{{ item.metadata.title }}</p>
+
+    <p class="album">
+        <a ng-href="#/torrentGroups/{{ item.torrentGroup.id }}">
+            {{ item.torrentGroup.name }}
+        </a>
+    </p>
+
+    <p class="artists">
+        <span artist-list artists="item.torrentGroup.artists"></span>
+    </p>
+
+    <div class="right-fade"></div>
+</div>
