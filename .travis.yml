@@ -12,6 +12,7 @@ install:
   - "cp WhatManager2/settings.example.py WhatManager2/settings.py"
   - "./manage.py migrate --noinput"
   - "sudo -- bash -c 'source /home/travis/virtualenv/python2.7/bin/activate && ./manage.py transmission_new --no-confirm what.cd'"
+  - "sudo -- bash -c 'source /home/travis/virtualenv/python2.7/bin/activate && ./manage.py transmission_new --no-confirm bibliotik.org'"
 script:
   - "flake8 ."
   - "./manage.py test"
