@@ -13,7 +13,7 @@
         <div class="year">{{ torrentGroup.year }}</div>
         <div class="spacer"></div>
         <div class="buttons">
-            <span ng-if="torrentGroup.playlist">
+            <span ng-if="torrentGroup.playlist || torrentGroup.have === true">
                 <span class="btn btn-success btn-playpause"
                       ng-click="playTorrentGroup(torrentGroup.id)"
                       ng-if="!player.isPlaying">
@@ -34,7 +34,8 @@
                 Download
             </span>
 
-            <div style="width: 300px;" ng-if="torrentGroup.have !== undefined">
+            <div style="width: 300px;"
+                 ng-if="torrentGroup.have !== undefined && torrentGroup.have !== false">
                 <div percentage-progress-bar value="torrentGroup.have * 100"></div>
             </div>
         </div>
