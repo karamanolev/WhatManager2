@@ -297,6 +297,13 @@ h1 {
   white-space: nowrap;
   overflow: hidden;
 }
+.whatify-current-item-sidebar p.album {
+  font-weight: lighter;
+  font-style: italic;
+}
+.whatify-current-item-sidebar p.artists {
+  font-weight: lighter;
+}
 .whatify-current-item-sidebar p:last-of-type {
   margin-bottom: 6px;
 }
