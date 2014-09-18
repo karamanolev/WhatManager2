@@ -16,13 +16,13 @@
             <span ng-if="torrentGroup.playlist || torrentGroup.have === true">
                 <span class="btn btn-success btn-playpause"
                       ng-click="playTorrentGroup(torrentGroup.id)"
-                      ng-if="!player.isPlaying">
+                      ng-if="!player.isPlaying || torrentGroup.id != playlist.currentItem.torrentGroup.id">
                     <span class="glyphicon glyphicon-play"></span>
                     Play
                 </span>
                 <span class="btn btn-success btn-playpause"
                       ng-click="player.pause()"
-                      ng-if="player.isPlaying">
+                      ng-if="player.isPlaying && torrentGroup.id == playlist.currentItem.torrentGroup.id">
                     <span class="glyphicon glyphicon-pause"></span>
                     Pause
                 </span>
