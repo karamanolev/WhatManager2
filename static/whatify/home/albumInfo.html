@@ -34,8 +34,7 @@
                 Download
             </span>
 
-            <div style="width: 300px;"
-                 ng-if="torrentGroup.have !== undefined && torrentGroup.have !== false">
+            <div style="width: 300px;" ng-if="angular.isNumber(torrentGroup.have)">
                 <div percentage-progress-bar value="torrentGroup.have * 100"></div>
             </div>
         </div>
