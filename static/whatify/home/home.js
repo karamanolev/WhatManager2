@@ -70,16 +70,6 @@ angular.
                     $scope.mainSpinner.visible = false;
                 });
         };
-        $scope.downloadTorrentGroup = function(torrentGroupId) {
-            if (confirm('Are you sure you want to download this?')) {
-                whatMeta.downloadTorrentGroup($scope.torrentGroup.id).success(function(resp) {
-                    if (resp.success) {
-                        whatifyNoty.success('Downloading ' + $scope.torrentGroup.name);
-                    }
-                });
-                subscribe();
-            }
-        };
         $scope.$on('$destroy', function() {
             unsubscribe();
         });
@@ -109,6 +99,9 @@ angular.
                     size = attrs.size || 250;
                 cover.css('width', size);
                 cover.css('height', size);
+                if (attrs.linkTitle !== undefined) {
+                    scope.linkTitle = true;
+                }
                 scope.$watch('torrentGroup.wiki_image', function(newValue) {
                     cover.css('background-image', "url('" + newValue + "')");
                 });

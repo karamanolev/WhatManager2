@@ -1,7 +1,11 @@
 <div class="info-pane">
     <div class="cover"></div>
     <div class="details">
-        <div class="name">{{ torrentGroup.name }}</div>
+        <div class="name">
+            <a ng-href="#/torrentGroups/{{ torrentGroup.id }}"
+               ng-if="linkTitle">{{ torrentGroup.name }}</a>
+            <span ng-if="!linkTitle">{{ torrentGroup.name }}</span>
+        </div>
         <div class="artists">
             <span class="by">by</span>
             <span artist-list artists="torrentGroup.artists"></span>

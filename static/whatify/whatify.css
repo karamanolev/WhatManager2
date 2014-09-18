@@ -218,8 +218,8 @@ h1 {
 }
 .torrent-group-details-page > p,
 .artist-details-page > p {
-  margin: 16px;
-  padding: 10px 20px;
+  margin: 10px 22px;
+  padding: 16px;
   background: #202124;
 }
 .torrent-group-details-page .table.playlist,

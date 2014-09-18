@@ -208,7 +208,6 @@ angular.
         $scope.seek = function(time) {
             whatPlayer.seek(time);
         };
-
         $scope.playTorrentGroup = function(torrentGroupId, index) {
             if (whatPlaylist.currentItem &&
                 whatPlaylist.currentItem.torrentGroup.id == torrentGroupId) {
@@ -237,6 +236,16 @@ angular.
                     whatPlaylist.play(index || 1);
                 }
             });
+        };
+        $scope.downloadTorrentGroup = function(torrentGroupId) {
+            if (confirm('Are you sure you want to download this?')) {
+                whatMeta.downloadTorrentGroup($scope.torrentGroup.id).success(function(resp) {
+                    if (resp.success) {
+                        whatifyNoty.success('Downloading ' + $scope.torrentGroup.name);
+                    }
+                });
+                subscribe();
+            }
         };
     }).
     directive('wmPlayerSm', function() {
