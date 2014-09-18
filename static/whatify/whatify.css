@@ -157,77 +157,62 @@ h1 {
   display: inline-block;
   flex: 1;
 }
-.torrent-group-details-page .title-cover,
-.artist-details-page .title-cover {
-  height: 250px;
-  float: left;
-  margin: 4px 16px 10px 22px;
-}
-.torrent-group-details-page .title-cover.small,
-.artist-details-page .title-cover.small {
-  height: 150px;
-}
-.torrent-group-details-page .title-cover.small + .title-info,
-.artist-details-page .title-cover.small + .title-info {
-  height: 154px;
-}
-.torrent-group-details-page .title-info,
-.artist-details-page .title-info {
+.info-pane {
   display: flex;
-  height: 254px;
-  flex-direction: column;
-  margin: 14px 0 0 22px;
+  padding: 18px 22px;
 }
-.torrent-group-details-page .title-info .title-name,
-.artist-details-page .title-info .title-name {
+.info-pane .cover {
+  background-size: cover;
+}
+.info-pane .details {
+  display: flex;
+  flex-direction: column;
+  padding: 0 0 0 16px;
+  margin: -6px 0 0 0;
+}
+.info-pane .details .name {
   font-weight: lighter;
   letter-spacing: 2px;
   font-size: 220%;
 }
-.torrent-group-details-page .title-info .title-tags,
-.artist-details-page .title-info .title-tags {
-  font-weight: lighter;
-}
-.torrent-group-details-page .title-info .title-artists,
-.artist-details-page .title-info .title-artists {
+.info-pane .details .artists {
   font-size: 160%;
 }
-.torrent-group-details-page .title-info .title-artists .by,
-.artist-details-page .title-info .title-artists .by {
+.info-pane .details .artists .by {
   font-weight: lighter;
 }
-.torrent-group-details-page .title-info .title-year,
-.artist-details-page .title-info .title-year {
+.info-pane .details .tags {
+  font-weight: lighter;
+  margin: 4px 0 0 0;
+}
+.info-pane .details .year {
   font-weight: lighter;
   font-size: 120%;
+  margin: 4px 0 0 0;
+}
+.info-pane .details .spacer {
   flex: 1;
 }
-.torrent-group-details-page .title-info .title-buttons .btn-with-icon,
-.artist-details-page .title-info .title-buttons .btn-with-icon {
+.info-pane .details .buttons .btn-with-icon {
   text-align: center;
 }
-.torrent-group-details-page .title-info .title-buttons .btn-with-icon span,
-.artist-details-page .title-info .title-buttons .btn-with-icon span {
+.info-pane .details .buttons .btn-with-icon span {
   float: left;
   margin-top: 1px;
 }
-.torrent-group-details-page .title-info .title-buttons .btn-playpause,
-.artist-details-page .title-info .title-buttons .btn-playpause {
+.info-pane .details .buttons .btn-playpause {
   width: 100px;
   text-align: center;
 }
-.torrent-group-details-page .title-info .title-buttons .btn-playpause span,
-.artist-details-page .title-info .title-buttons .btn-playpause span {
+.info-pane .details .buttons .btn-playpause span {
   float: left;
   margin-top: 1px;
 }
-.torrent-group-details-page .title-info .title-buttons .btn-download,
-.artist-details-page .title-info .title-buttons .btn-download {
+.info-pane .details .buttons .btn-download {
   width: 120px;
   text-align: center;
 }
-.torrent-group-details-page .title-info .title-buttons .btn-download span,
-.artist-details-page .title-info .title-buttons .btn-download span {
+.info-pane .details .buttons .btn-download span {
   float: left;
   margin-top: 1px;
 }

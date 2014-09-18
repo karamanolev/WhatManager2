@@ -1,0 +1,12 @@
+<div class="info-pane">
+    <div class="cover"></div>
+    <div class="details">
+        <div class="name">{{ artist.name }}</div>
+        <div class="tags">
+            <span ng-repeat="tag in artist.tags | limitTo:4">
+                {{ tag.name }}{{ $last ? '' : ', ' }}
+            </span>
+        </div>
+        <div class="spacer"></div>
+    </div>
+</div>

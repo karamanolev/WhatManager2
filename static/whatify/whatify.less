@@ -184,43 +184,41 @@ h1 {
   }
 }
 
-.torrent-group-details-page, .artist-details-page {
-  .title-cover {
-    height: 250px;
-    float: left;
-    margin: 4px 16px 10px 22px;
+.info-pane {
+  display: flex;
+  padding: 18px 22px;
+  .cover {
+    background-size: cover;
   }
-  .title-cover.small {
-    height: 150px;
-  }
-  .title-cover.small + .title-info {
-    height: 154px;
-  }
-  .title-info {
+  .details {
     display: flex;
-    height: 254px;
     flex-direction: column;
-    margin: 14px 0 0 22px;
-    .title-name {
+    padding: 0 0 0 16px;
+    margin: -6px 0 0 0;
+    .name {
       font-weight: lighter;
       letter-spacing: 2px;
       font-size: 220%;
     }
-    .title-tags {
-      font-weight: lighter;
-    }
-    .title-artists {
+    .artists {
       font-size: 160%;
       .by {
         font-weight: lighter;
       }
     }
-    .title-year {
+    .tags {
+      font-weight: lighter;
+      margin: 4px 0 0 0;
+    }
+    .year {
       font-weight: lighter;
       font-size: 120%;
+      margin: 4px 0 0 0;
+    }
+    .spacer {
       flex: 1;
     }
-    .title-buttons {
+    .buttons {
       .btn-with-icon {
         text-align: center;
         span {
@@ -238,6 +236,9 @@ h1 {
       }
     }
   }
+}
+
+.torrent-group-details-page, .artist-details-page {
   > p {
     margin: 16px;
     padding: 10px 20px;

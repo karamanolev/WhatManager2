@@ -1,60 +1,8 @@
 <div class="artist-details-page">
-    <img class="title-cover" ng-src="{{ artist.image }}">
+    <div artist-info artist="artist"></div>
 
-    <div class="title-info">
-        <div class="title-name">
-            {{ artist.name }}
-        </div>
-
-        <div class="title-tags">
-            <span ng-repeat="tag in artist.tags | limitTo:4">
-                {{ tag.name }}{{ $last ? '' : ', ' }}
-            </span>
-        </div>
-
-        <div class="title-year"></div>
-
-        <div class="title-buttons"></div>
-    </div>
-
-    <div ng-repeat="torrentGroup in artist.torrent_groups.Album">
-        <img class="title-cover small" ng-src="{{ torrentGroup.wiki_image }}">
-
-        <div class="title-info">
-            <div class="title-name">
-                <a ng-href="#/torrentGroups/{{ torrentGroup.id }}">
-                    {{ torrentGroup.name }}
-                </a>
-            </div>
-
-            <div class="title-artists">
-                <span class="by">by</span>
-                <span artist-list artists="torrentGroup.artists"></span>
-            </div>
-
-            <div class="title-year">{{ torrentGroup.year }}</div>
-
-            <div class="title-buttons">
-                <span class="btn btn-success btn-playpause"
-                      ng-click="playTorrentGroup(torrentGroup.id)"
-                      ng-if="torrentGroup.have === true && (!player.isPlaying || playlist.currentItem.torrentGroup.id != torrentGroup.id)">
-                    <span class="glyphicon glyphicon-play"></span>
-                    Play
-                </span>
-                <span class="btn btn-success btn-playpause"
-                      ng-click="player.pause()"
-                      ng-if="torrentGroup.have === true && player.isPlaying && playlist.currentItem.torrentGroup.id == torrentGroup.id">
-                    <span class="glyphicon glyphicon-pause"></span>
-                    Pause
-                </span>
-                <span class="btn btn-default btn-download"
-                      ng-click="downloadTorrentGroup(torrentGroup.id)"
-                      ng-if="!torrentGroup.have">
-                    <span class="glyphicon glyphicon-download"></span>
-                    Download
-                </span>
-            </div>
-        </div>
+    <div album-info ng-repeat="torrentGroup in artist.torrent_groups.Album"
+            torrent-group="torrentGroup" size="150">
     </div>
 
     <p>

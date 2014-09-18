@@ -96,5 +96,40 @@ angular.
                 });
         };
         $scope.reloadArtist();
-    })
+    }).
+    directive('albumInfo', function() {
+        return {
+            templateUrl: templateRoot + '/home/albumInfo.html',
+            scope: {
+                torrentGroup: '='
+            },
+            controller: 'WhatPlayerController',
+            link: function(scope, element, attrs) {
+                var cover = element.find('.cover'),
+                    size = attrs.size || 250;
+                cover.css('width', size);
+                cover.css('height', size);
+                scope.$watch('torrentGroup.wiki_image', function(newValue) {
+                    cover.css('background-image', "url('" + newValue + "')");
+                });
+            }
+        }
+    }).
+    directive('artistInfo', function() {
+        return {
+            templateUrl: templateRoot + '/home/artistInfo.html',
+            scope: {
+                artist: '='
+            },
+            link: function(scope, element, attrs) {
+                var cover = element.find('.cover'),
+                    size = attrs.size || 250;
+                cover.css('width', size);
+                cover.css('height', size);
+                scope.$watch('artist.image', function(newValue) {
+                    cover.css('background-image', "url('" + newValue + "')");
+                });
+            }
+        }
+    });
 ;

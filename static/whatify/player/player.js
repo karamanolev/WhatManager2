@@ -326,7 +326,7 @@ angular.
                     isSliding = false;
                     scope.seek(value / scale * duration);
                 });
-                scope.$watch(function() {
+                attrs.$observe('duration', function() {
                     var duration = getDuration();
                     if (duration && !slider.slider('isEnabled')) {
                         slider.slider('enable');

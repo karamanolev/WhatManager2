@@ -1,0 +1,38 @@
+<div class="info-pane">
+    <div class="cover"></div>
+    <div class="details">
+        <div class="name">{{ torrentGroup.name }}</div>
+        <div class="artists">
+            <span class="by">by</span>
+            <span artist-list artists="torrentGroup.artists"></span>
+        </div>
+        <div class="year">{{ torrentGroup.year }}</div>
+        <div class="spacer"></div>
+        <div class="buttons">
+            <span ng-if="torrentGroup.playlist">
+                <span class="btn btn-success btn-playpause"
+                      ng-click="playTorrentGroup(torrentGroup.id)"
+                      ng-if="!player.isPlaying">
+                    <span class="glyphicon glyphicon-play"></span>
+                    Play
+                </span>
+                <span class="btn btn-success btn-playpause"
+                      ng-click="player.pause()"
+                      ng-if="player.isPlaying">
+                    <span class="glyphicon glyphicon-pause"></span>
+                    Pause
+                </span>
+            </span>
+            <span class="btn btn-whatify btn-download"
+                  ng-click="downloadTorrentGroup(torrentGroup.id)"
+                  ng-if="torrentGroup.playlist === undefined && torrentGroup.have === undefined">
+                <span class="glyphicon glyphicon-download"></span>
+                Download
+            </span>
+
+            <div style="width: 300px;" ng-if="torrentGroup.have !== undefined">
+                <div percentage-progress-bar value="torrentGroup.have * 100"></div>
+            </div>
+        </div>
+    </div>
+</div>

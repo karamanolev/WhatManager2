@@ -64,15 +64,17 @@ def get_artist_group_dict(torrents_done, torrent_group):
             elif have is not True:
                 have = max(have, done)
     music_info = extended_artists_to_music_info(torrent_group['extendedArtists'])
-    return {
+    data = {
         'id': torrent_group['groupId'],
         'joined_artists': get_artists(music_info),
         'artists': get_artists_list(music_info),
         'name': html_unescape(torrent_group['groupName']),
         'year': torrent_group['groupYear'],
         'wiki_image': get_image_cache_url(torrent_group['wikiImage']),
-        'have': have,
     }
+    if have is not False:
+        data['have'] = have
+    return data
 
 
 def get_torrent_group_dict(torrent_group):
