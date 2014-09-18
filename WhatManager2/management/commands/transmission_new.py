@@ -28,12 +28,24 @@ class Command(BaseCommand):
         if len(old_instances):
             old_instance = old_instances[0]
         else:
+            if replica_set.zone == models.ReplicaSet.ZONE_WHAT:
+                zero_port = 9090
+                zero_peer_port = 51412
+            elif replica_set.zone == models.ReplicaSet.ZONE_BIBLIOTIK:
+                zero_port = 10090
+                zero_peer_port = 52412
+            else:
+                raise Exception('Unknown zone')
             old_instance = models.TransInstance(
                 replica_set=replica_set,
-                name=u'{0}00'.format(replica_set.zone),
+                name=u'{0}00'.format(replica_set.zone
+                                     .replace('.cd', '')
+                                     .replace('.org', '')
+                                     .replace('.net', '')
+                                     .replace('.me', '')),
                 host='127.0.0.1',
-                port=9090,
-                peer_port=51412,
+                port=zero_port,
+                peer_port=zero_peer_port,
                 username='transmission',
                 password=settings.TRANSMISSION_PASSWORD,
             )

@@ -219,6 +219,34 @@ def add_torrent(request):
     }
 
 
+def freeleech_add_torrent(request, master, what_id, retry=3):
+    download_locations = DownloadLocation.objects.filter(zone=ReplicaSet.ZONE_WHAT)
+    download_locations = [l for l in download_locations if
+                          l.free_space_percent >= MIN_FREE_DISK_SPACE]
+    if len(download_locations) == 0:
+        raise Exception(u'Unable to update freeleech: not enough space on disk.')
+    download_location = choice(download_locations)
+
+    instance = master.get_preferred_instance()
+    try:
+        m_torrent = manage_torrent.add_torrent(request, instance, download_location, what_id, True)
+        m_torrent.what_torrent.tags = 'seed'
+        m_torrent.what_torrent.added_by = request.user
+        m_torrent.what_torrent.save()
+        LogEntry.add(request.user, u'action',
+                     u'Added freeleech {0} to {1} - {2}'.format(
+                         m_torrent, m_torrent.instance, download_location.path))
+    except TorrentAlreadyAddedException:
+        pass
+    except Exception as ex:
+        LogEntry.add(request.user, u'error', u'Error adding freeleech torrent {0}'.format(what_id))
+        if retry > 0:
+            time.sleep(3)
+            freeleech_add_torrent(request, master, what_id, retry - 1)
+        else:
+            raise ex
+
+
 @login_required
 @user_passes_test(lambda u: u.is_superuser is True)
 @json_return_method
@@ -235,30 +263,8 @@ def update_freeleech(request):
             total_bytes += what_torrent['size']
             total_torrents += 1
             if not WhatTorrent.is_downloaded(request, what_id=what_id):
-                download_locations = DownloadLocation.objects.filter(zone=ReplicaSet.ZONE_WHAT)
-                download_locations = [l for l in download_locations if
-                                      l.free_space_percent >= MIN_FREE_DISK_SPACE]
-                if len(download_locations) == 0:
-                    LogEntry.add(request.user, u'error',
-                                 u'Unable to update freeleech: not enough space on disk.')
-                    return {
-                        'success': False,
-                        'error': u'Not enough free space on disk.'
-                    }
-                download_location = choice(download_locations)
-
-                instance = master.get_preferred_instance()
-                m_torrent = manage_torrent.add_torrent(request, instance, download_location,
-                                                       what_id, True)
-                m_torrent.what_torrent.tags = 'seed'
-                m_torrent.what_torrent.added_by = request.user
-                m_torrent.what_torrent.save()
+                freeleech_add_torrent(request, master, what_id)
                 added += 1
-
-                LogEntry.add(request.user, u'action',
-                             u'Added freeleech {0} to {1} - {2}'.format(m_torrent,
-                                                                        m_torrent.instance,
-                                                                        download_location.path))
 
         log_type = u'action' if added > 0 else u'info'
 
@@ -275,7 +281,6 @@ def update_freeleech(request):
         LogEntry.add(request.user, u'error',
                      u'Error updating freeleech: {0}({1})'.format(type(ex).__name__, unicode(ex)),
                      tb)
-
     return {
         'success': True,
         'added': added

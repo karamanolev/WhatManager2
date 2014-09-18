@@ -12,7 +12,7 @@
     </div>
     <div class="container-fluid">
         {% if perms.queue.view_queueitem %}
-            <div class="row">
+            <div class="row row-flex wrap">
                 {% include 'queue/part/queue_stats.html' %}
                 {% include 'home/part/location_stats.html' %}
                 {% include 'queue/part/queue_pop.html' %}
@@ -22,7 +22,7 @@
 
             {% include 'home/part/recently_downloaded.html' %}
         {% else %}
-            <div class="row">
+            <div class="row row-flex">
                 <div class="col-md-12">
                     <div class="widget-box">
                         <div class="widget-title">
