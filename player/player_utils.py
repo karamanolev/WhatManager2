@@ -4,7 +4,7 @@ import os
 from django.http.response import HttpResponse
 import mutagen
 
-from WhatManager2.utils import wm_unicode
+from WhatManager2.utils import wm_str
 
 from home.models import WhatTorrent, DownloadLocation
 
@@ -94,7 +94,7 @@ def file_as_image(path):
 
 
 def get_metadata_dict(path):
-    meta_file = mutagen.File(wm_unicode(path), easy=True)
+    meta_file = mutagen.File(wm_str(path), easy=True)
 
     data = {
         'artist': '',
