@@ -10,7 +10,7 @@ from django.template.defaultfilters import filesizeformat
 from WhatManager2.utils import build_url, get_user_token, auth_username_token
 from bibliotik.models import BibliotikTransTorrent
 from home.models import TransTorrent, ReplicaSet, LogEntry
-from player.player_utils import get_playlist_files, get_metadata_dict
+from player.player_utils import get_metadata_dict_batch, get_playlist_files
 
 
 def download_zip_handler(download_filename, paths):
@@ -103,8 +103,9 @@ def download_bibliotik_zip(request, bibliotik_id):
 def download_pls(request, playlist_path):
     files = []
     playlist_name, playlist_files = get_playlist_files(playlist_path)
+    metadata_dicts = get_metadata_dict_batch(playlist_files)
     for f in playlist_files:
-        file_data = get_metadata_dict(f)
+        file_data = metadata_dicts[f]
         file_data.update({
             'path': request.build_absolute_uri(build_url('player.views.file', get={
                 'path': f,

@@ -10,7 +10,7 @@ import mutagen
 from WhatManager2.utils import json_return_method, auth_username_token
 from home.info_holder import is_image_file
 from player.player_utils import is_allowed_file, apply_range, get_playlist_files, COVER_FILENAMES, \
-    file_as_image, get_metadata_dict
+    file_as_image, get_metadata_dict_batch
 
 
 @login_required
@@ -60,7 +60,7 @@ def metadata(request):
     path = request.GET['path']
     if not is_allowed_file(path):
         return HttpResponse(status=404)
-    return get_metadata_dict(path)
+    return get_metadata_dict_batch([path])[path]
 
 
 @login_required

@@ -11,7 +11,7 @@
         </thead>
         <tbody>
         <tr class="clickable" ng-repeat="item in torrentGroup.playlist"
-            ng-click="playTorrentGroup(torrentGroup.id, $index + 1)">
+            ng-click="playTorrentGroup(torrentGroup, $index + 1)">
             <td class="col-number">
                 <span ng-show="playlist.currentItem.id == item.id">
                     <span class="glyphicon glyphicon-play" ng-show="player.isPlaying"></span>

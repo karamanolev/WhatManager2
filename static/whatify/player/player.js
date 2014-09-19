@@ -208,34 +208,32 @@ angular.
         $scope.seek = function(time) {
             whatPlayer.seek(time);
         };
-        $scope.playTorrentGroup = function(torrentGroupId, index) {
+        $scope.playTorrentGroup = function(torrentGroup, index) {
             if (whatPlaylist.currentItem &&
-                whatPlaylist.currentItem.torrentGroup.id == torrentGroupId) {
+                whatPlaylist.currentItem.torrentGroup.id == torrentGroup.id) {
                 if (index === undefined) {
                     whatPlayer.play();
                     return;
                 }
             }
-            whatMeta.getTorrentGroup(torrentGroupId).success(function(torrentGroup) {
-                var inPlaylist = false;
-                if (index !== undefined) {
-                    $.each(whatPlaylist.items, function(i, item) {
-                        if (item.id == torrentGroup.playlist[index].id) {
-                            whatPlaylist.play(i);
-                            inPlaylist = true;
-                            return false;
-                        }
-                    });
-                }
-                if (!inPlaylist) {
-                    whatPlaylist.clear();
-                    $.each(torrentGroup.playlist, function(i, item) {
-                        item.torrentGroup = torrentGroup;
-                        whatPlaylist.add(item);
-                    });
-                    whatPlaylist.play(index || 1);
-                }
-            });
+            var inPlaylist = false;
+            if (index !== undefined) {
+                $.each(whatPlaylist.items, function(i, item) {
+                    if (item.id == torrentGroup.playlist[index].id) {
+                        whatPlaylist.play(i);
+                        inPlaylist = true;
+                        return false;
+                    }
+                });
+            }
+            if (!inPlaylist) {
+                whatPlaylist.clear();
+                $.each(torrentGroup.playlist, function(i, item) {
+                    item.torrentGroup = torrentGroup;
+                    whatPlaylist.add(item);
+                });
+                whatPlaylist.play(index || 1);
+            }
         };
         $scope.downloadTorrentGroup = function(torrentGroupId) {
             if (confirm('Are you sure you want to download this?')) {

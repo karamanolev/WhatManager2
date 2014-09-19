@@ -146,12 +146,6 @@ class Migration(migrations.Migration):
             },
             bases=(models.Model,),
         ),
-
-        # Add indexes and fix fulltext
-        migrations.RunSQL(
-            'ALTER TABLE `home_logentry` ADD INDEX `datetime_index` (`datetime`)',
-            'ALTER TABLE `home_logentry` DROP INDEX `datetime_index`',
-        ),
         migrations.RunSQL(
             'ALTER TABLE `home_whatfulltext` ENGINE = MYISAM',
             'ALTER TABLE `home_whatfulltext` ENGINE = INNODB',

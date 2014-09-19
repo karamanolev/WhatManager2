@@ -2,11 +2,8 @@ import mimetypes
 import os
 
 from django.http.response import HttpResponse
-import mutagen
 
-from WhatManager2.utils import wm_str
-
-from home.models import WhatTorrent, DownloadLocation
+from home.models import WhatTorrent, DownloadLocation, FileMetadataCache
 
 
 ALLOWED_EXTS = ['.mp3', '.flac']
@@ -93,25 +90,26 @@ def file_as_image(path):
     return response
 
 
-def get_metadata_dict(path):
-    meta_file = mutagen.File(wm_str(path), easy=True)
+def get_metadata_dict_batch(paths):
+    result = {}
+    metadatas = FileMetadataCache.get_metadata_batch(paths)
+    for path, metadata in metadatas.iteritems():
+        data = {
+            'artist': '',
+            'album': '',
+            'title': '',
+            'duration': metadata.info.length,
+        }
+        if 'albumartist' in metadata and metadata['albumartist'] and metadata['albumartist'][0]:
+            data['artist'] = metadata['albumartist'][0]
+        if 'artist' in metadata and metadata['artist'] and metadata['artist'][0]:
+            data['artist'] = metadata['artist'][0]
+        if 'performer' in metadata and metadata['performer'] and metadata['performer'][0]:
+            data['artist'] = metadata['performer'][0]
 
-    data = {
-        'artist': '',
-        'album': '',
-        'title': '',
-        'duration': meta_file.info.length,
-    }
-    if 'albumartist' in meta_file and meta_file['albumartist'] and meta_file['albumartist'][0]:
-        data['artist'] = meta_file['albumartist'][0]
-    if 'artist' in meta_file and meta_file['artist'] and meta_file['artist'][0]:
-        data['artist'] = meta_file['artist'][0]
-    if 'performer' in meta_file and meta_file['performer'] and meta_file['performer'][0]:
-        data['artist'] = meta_file['performer'][0]
-
-    if 'album' in meta_file and meta_file['album']:
-        data['album'] = meta_file['album'][0]
-    if 'title' in meta_file and meta_file['title']:
-        data['title'] = meta_file['title'][0]
-
-    return data
+        if 'album' in metadata and metadata['album']:
+            data['album'] = metadata['album'][0]
+        if 'title' in metadata and metadata['title']:
+            data['title'] = metadata['title'][0]
+        result[path] = data
+    return result

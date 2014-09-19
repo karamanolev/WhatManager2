@@ -12,7 +12,7 @@ class WhatUserSnapshot(models.Model):
         )
 
     user_id = models.IntegerField()
-    datetime = models.DateTimeField(auto_now_add=True)
+    datetime = models.DateTimeField(auto_now_add=True, db_index=True)
     uploaded = models.BigIntegerField()
     downloaded = models.BigIntegerField()
     info = models.TextField()

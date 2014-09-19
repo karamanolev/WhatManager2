@@ -6,7 +6,7 @@ from django.utils.http import urlquote
 from WhatManager2.utils import get_artists, get_artists_list
 from home import info_holder
 from home.models import WhatTorrent, TransTorrent, ReplicaSet
-from player.player_utils import get_metadata_dict, get_what_playlist_files
+from player.player_utils import get_metadata_dict_batch, get_what_playlist_files
 from what_transcode.utils import html_unescape
 from whatify.filtering import sort_filter_torrents
 from whatify.utils import extended_artists_to_music_info
@@ -120,16 +120,17 @@ def get_torrent_group_have(what_trans_torrents, sync_torrents=False):
     if torrent:
         trans_torrent = trans_torrents[torrent.id]
         if trans_torrent.torrent_done == 1:
+            _, playlist_files = get_what_playlist_files(torrent, trans_torrent)
+            metadata_dicts = get_metadata_dict_batch(playlist_files)
             return {
                 'have': True,
                 'playlist': [
                     {
                         'id': 'what/' + str(torrent.id) + '#' + str(i),
                         'url': reverse('player.views.get_file') + '?path=' + urlquote(path, ''),
-                        'metadata': get_metadata_dict(path)
+                        'metadata': metadata_dicts[path]
                     }
-                    for i, path in enumerate(get_what_playlist_files(
-                        torrent, trans_torrent)[1])
+                    for i, path in enumerate(playlist_files)
                 ]
             }
         else:

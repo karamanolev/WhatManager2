@@ -1,11 +1,12 @@
 import base64
+import hashlib
 from itertools import count
-import json
 import os
 import pickle
 import re
 import socket
 from time import sleep
+import ujson
 
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -13,6 +14,7 @@ from django.db import models, transaction
 from django.db.models.aggregates import Sum
 from django.utils import timezone
 from django.utils.functional import cached_property
+import mutagen
 import requests
 import transmissionrpc
 
@@ -206,7 +208,7 @@ class WhatFulltext(models.Model):
     more_info = models.TextField()
 
     def get_info(self, what_torrent):
-        info = json.loads(what_torrent.info)
+        info = ujson.loads(what_torrent.info)
 
         info_text = []
         info_text.append(unicode(info['group']['id']))
@@ -256,7 +258,7 @@ class WhatTorrent(models.Model, InfoHolder):
     info_hash = models.CharField(max_length=40, db_index=True)
     torrent_file = models.TextField()
     torrent_file_name = models.TextField()
-    retrieved = models.DateTimeField()
+    retrieved = models.DateTimeField(db_index=True)
     info = models.TextField()
     tags = models.TextField()
     added_by = models.ForeignKey(User, null=True)
@@ -305,7 +307,7 @@ class WhatTorrent(models.Model, InfoHolder):
 
     @cached_property
     def info_loads(self):
-        return json.loads(self.info)
+        return ujson.loads(self.info)
 
     @staticmethod
     def get_or_none(request, info_hash=None, what_id=None):
@@ -357,7 +359,7 @@ class WhatTorrent(models.Model, InfoHolder):
                 torrent_file=base64.b64encode(torrent),
                 torrent_file_name=filename,
                 retrieved=timezone.now(),
-                info=json.dumps(data)
+                info=ujson.dumps(data)
             )
             w_torrent.save()
             return w_torrent
@@ -451,7 +453,7 @@ class LogEntry(models.Model):
         )
 
     user = models.ForeignKey(User, null=True, related_name='wm_logentry')
-    datetime = models.DateTimeField(auto_now_add=True)
+    datetime = models.DateTimeField(auto_now_add=True, db_index=True)
     type = models.TextField()
     message = models.TextField()
     traceback = models.TextField(null=True)
@@ -460,6 +462,48 @@ class LogEntry(models.Model):
     def add(user, log_type, message, traceback=None):
         entry = LogEntry(user=user, type=log_type, message=message, traceback=traceback)
         entry.save()
+
+
+class FileMetadataCache(models.Model):
+    filename_sha256 = models.CharField(max_length=64, primary_key=True)
+    filename = models.TextField()
+    file_mtime = models.IntegerField()
+    metadata_pickle = models.BinaryField()
+
+    @cached_property
+    def metadata(self):
+        return pickle.loads(self.metadata_json)
+
+    @classmethod
+    def get_metadata_batch(cls, filenames):
+        filename_hash = {f: hashlib.sha256(f).hexdigest() for f in filenames}
+        cache_lines = FileMetadataCache.objects.in_bulk(filename_hash.values())
+        dirty_cache_lines = []
+        result = {}
+        for filename, filename_hash in filename_hash.iteritems():
+            file_mtime = os.path.getmtime(filename)
+            cache = cache_lines.get(filename_hash)
+            if cache is None:
+                cache = FileMetadataCache(
+                    filename_sha256=filename_hash,
+                    filename=filename,
+                    file_mtime=0
+                )
+            if file_mtime == cache.file_mtime:
+                result[filename] = cache.metadata
+                print 'Reading from cache'
+                continue
+            metadata = dict(mutagen.File(wm_str(filename), easy=True))
+            cache.file_mtime = file_mtime
+            cache.metadata_json = pickle.dumps(metadata)
+            dirty_cache_lines.append(cache)
+            result[filename] = metadata
+        if dirty_cache_lines:
+            with transaction.atomic():
+                for cache_line in dirty_cache_lines:
+                    print 'Saving new cache entry'
+                    cache_line.save()
+        return result
 
 
 class WhatLoginCache(models.Model):
