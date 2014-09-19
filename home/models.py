@@ -527,8 +527,9 @@ class WhatFileMetadataCache(models.Model):
 
         abs_rel_filenames = []
         for dirpath, dirnames, filenames in os.walk(torrent_path):
-            for filename in filenames:
-                if os.path.splitext(filename)[1].lower() in ['.flac', '.mp3']:
+            unicode_filenames = [wm_unicode(f) for f in filenames]
+            for filename in unicode_filenames:
+                if os.path.splitext(filename)[1].lower() in [u'.flac', u'.mp3']:
                     abs_path = os.path.join(dirpath, filename)
                     rel_path = os.path.relpath(abs_path, torrent_path)
                     abs_rel_filenames.append((abs_path, rel_path))
@@ -545,22 +546,25 @@ class WhatFileMetadataCache(models.Model):
 
         result = []
         for abs_path, rel_path in abs_rel_filenames:
-            file_mtime = os.path.getmtime(wm_str(abs_path))
-            cache = cache_lines.get(filename_hashes[abs_path])
-            if cache is None:
-                cache = WhatFileMetadataCache(
-                    what_torrent=what_torrent,
-                    filename_sha256=filename_hashes[abs_path],
-                    filename=rel_path[:500],
-                    file_mtime=0
-                )
-            cache.path = abs_path
-            if file_mtime == cache.file_mtime:
+            try:
+                file_mtime = os.path.getmtime(wm_str(abs_path))
+                cache = cache_lines.get(filename_hashes[abs_path])
+                if cache is None:
+                    cache = WhatFileMetadataCache(
+                        what_torrent=what_torrent,
+                        filename_sha256=filename_hashes[abs_path],
+                        filename=rel_path[:400],
+                        file_mtime=0
+                    )
+                cache.path = abs_path
+                if file_mtime == cache.file_mtime:
+                    result.append(cache)
+                    continue
+                cache.fill(abs_path, file_mtime)
+                dirty_cache_lines.append(cache)
                 result.append(cache)
-                continue
-            cache.fill(abs_path, file_mtime)
-            dirty_cache_lines.append(cache)
-            result.append(cache)
+            except Exception as ex:
+                print 'Failed:', abs_path, ex
         if old_cache_lines or dirty_cache_lines:
             with transaction.atomic():
                 for cache_line in old_cache_lines:
