@@ -40,20 +40,20 @@ angular.
         $location.path('/torrentGroups/' + $routeParams.id);
     }).
     controller('TorrentGroupController', function($scope, $interval, $routeParams, whatMeta, whatifyNoty) {
-        var refreshInterval = null,
-            subscribe = function() {
-                if (refreshInterval === null) {
-                    refreshInterval = $interval(function() {
-                        $scope.reloadTorrentGroup(false, true);
-                    }, 3000);
-                }
-            },
-            unsubscribe = function() {
-                if (refreshInterval !== null) {
-                    $interval.cancel(refreshInterval);
-                    refreshInterval = null;
-                }
-            };
+        var refreshInterval = null;
+        $scope.subscribe = function() {
+            if (refreshInterval === null) {
+                refreshInterval = $interval(function() {
+                    $scope.reloadTorrentGroup(false, true);
+                }, 3000);
+            }
+        };
+        $scope.unsubscribe = function() {
+            if (refreshInterval !== null) {
+                $interval.cancel(refreshInterval);
+                refreshInterval = null;
+            }
+        };
         $scope.reloadTorrentGroup = function(initial, defeatCache, loadFromWhat) {
             if (initial) {
                 $scope.torrentGroup = null;
@@ -63,15 +63,15 @@ angular.
                 .success(function(torrentGroup) {
                     $scope.torrentGroup = torrentGroup;
                     if (angular.isNumber($scope.torrentGroup.have)) {
-                        subscribe();
+                        $scope.subscribe();
                     } else if ($scope.torrentGroup.have === true) {
-                        unsubscribe();
+                        $scope.unsubscribe();
                     }
                     $scope.mainSpinner.visible = false;
                 });
         };
         $scope.$on('$destroy', function() {
-            unsubscribe();
+            $scope.unsubscribe();
         });
         $scope.reloadTorrentGroup(true);
     }).
@@ -91,20 +91,14 @@ angular.
         return {
             templateUrl: templateRoot + '/home/albumInfo.html',
             scope: {
-                torrentGroup: '='
+                torrentGroup: '=',
+                size: '='
             },
             controller: 'WhatPlayerController',
             link: function(scope, element, attrs) {
-                var cover = element.find('.cover'),
-                    size = attrs.size || 250;
-                cover.css('width', size);
-                cover.css('height', size);
                 if (attrs.linkTitle !== undefined) {
                     scope.linkTitle = true;
                 }
-                scope.$watch('torrentGroup.wiki_image', function(newValue) {
-                    cover.css('background-image', "url('" + newValue + "')");
-                });
             }
         }
     }).
@@ -112,16 +106,8 @@ angular.
         return {
             templateUrl: templateRoot + '/home/artistInfo.html',
             scope: {
-                artist: '='
-            },
-            link: function(scope, element, attrs) {
-                var cover = element.find('.cover'),
-                    size = attrs.size || 250;
-                cover.css('width', size);
-                cover.css('height', size);
-                scope.$watch('artist.image', function(newValue) {
-                    cover.css('background-image', "url('" + newValue + "')");
-                });
+                artist: '=',
+                size: '='
             }
         }
     }).
@@ -131,6 +117,26 @@ angular.
             controller: 'WhatPlayerController',
             scope: {
                 torrentGroup: '='
+            }
+        }
+    }).
+    directive('squareImage', function() {
+        return {
+            template: '<div class="square-cover"><div class="cover-image"></div></div>',
+            scope: {
+                src: '='
+            },
+            replace: true,
+            link: function(scope, element, attrs) {
+                var cover = element.find('.cover-image');
+                attrs.$observe('size', function() {
+                    var size = attrs.size || '';
+                    cover.css('width', size);
+                    cover.css('height', size);
+                });
+                scope.$watch('src', function(newValue) {
+                    cover.css('background-image', "url('" + newValue + "')");
+                });
             }
         }
     })

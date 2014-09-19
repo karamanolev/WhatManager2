@@ -1,5 +1,6 @@
 <div class="info-pane">
-    <div class="cover"></div>
+    <div square-image src="torrentGroup.wiki_image" size="{{ size }}"></div>
+
     <div class="details">
         <div class="name">
             <a ng-href="#/torrentGroups/{{ torrentGroup.id }}"
@@ -28,7 +29,7 @@
                 </span>
             </span>
             <span class="btn btn-whatify btn-download"
-                  ng-click="downloadTorrentGroup(torrentGroup.id)"
+                  ng-click="downloadTorrentGroup(torrentGroup.id, subscribe)"
                   ng-if="torrentGroup.have === false">
                 <span class="glyphicon glyphicon-download"></span>
                 Download

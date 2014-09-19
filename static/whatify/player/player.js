@@ -235,14 +235,14 @@ angular.
                 whatPlaylist.play(index || 1);
             }
         };
-        $scope.downloadTorrentGroup = function(torrentGroupId) {
+        $scope.downloadTorrentGroup = function(torrentGroupId, success) {
             if (confirm('Are you sure you want to download this?')) {
                 whatMeta.downloadTorrentGroup($scope.torrentGroup.id).success(function(resp) {
                     if (resp.success) {
                         whatifyNoty.success('Downloading ' + $scope.torrentGroup.name);
+                        success();
                     }
                 });
-                subscribe();
             }
         };
     }).

@@ -65,7 +65,7 @@ h1 {
     background: @sidePanelBackground;
     //    border: @sidePanelBorder;
     max-height: calc(~"100% - 140px");
-    width: 600px;
+    width: 700px;
     overflow: auto;
 
     > ul {
@@ -75,17 +75,31 @@ h1 {
       padding: 8px;
 
       > li {
-        padding: 6px 16px;
         margin-bottom: 2px;
-        .inactive {
+        &.inactive {
           cursor: default;
-          color: darken(@textColor, 20%);
+          color: darken(@textColor, 40%);
+          letter-spacing: 2px;
+          text-transform: uppercase;
         }
         &:not(.inactive) {
           cursor: pointer;
           background: lighten(@sidePanelBackground, 10%);
           &:hover {
             background: lighten(@sidePanelBackground, 20%);
+          }
+        }
+        > a {
+          padding: 6px;
+          display: flex;
+          align-items: center;
+          > div.info {
+            margin-left: 8px;
+            flex: 1;
+            .artist {
+              font-weight: lighter;
+              letter-spacing: 1px;
+            }
           }
         }
       }
@@ -184,13 +198,25 @@ h1 {
   }
 }
 
+.square-cover {
+  display: inline-block;
+  background: url('../img/empty-cover.png');
+  background-size: cover;
+  .cover-image {
+    width: 250px;
+    height: 250px;
+    background-size: cover;
+  }
+}
+
 .info-pane {
   display: flex;
   padding: 18px 22px;
-  .cover {
-    background-size: cover;
+  .square-cover {
+    align-self: flex-start;
   }
   .details {
+    flex: 1;
     display: flex;
     flex-direction: column;
     padding: 0 0 0 16px;
@@ -331,6 +357,7 @@ h1 {
   p.album {
     font-weight: lighter;
     font-style: italic;
+    letter-spacing: 1px;
   }
   p.artists {
     font-weight: lighter;

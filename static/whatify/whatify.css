@@ -49,7 +49,7 @@ h1 {
   top: 50px;
   background: #202124;
   max-height: calc(100% - 140px);
-  width: 600px;
+  width: 700px;
   overflow: auto;
 }
 .whatify-header-bar .search-results > ul {
@@ -59,12 +59,13 @@ h1 {
   padding: 8px;
 }
 .whatify-header-bar .search-results > ul > li {
-  padding: 6px 16px;
   margin-bottom: 2px;
 }
-.whatify-header-bar .search-results > ul > li .inactive {
+.whatify-header-bar .search-results > ul > li.inactive {
   cursor: default;
-  color: #bbbbbb;
+  color: #888888;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 .whatify-header-bar .search-results > ul > li:not(.inactive) {
   cursor: pointer;
@@ -72,6 +73,19 @@ h1 {
 }
 .whatify-header-bar .search-results > ul > li:not(.inactive):hover {
   background: #50535a;
+}
+.whatify-header-bar .search-results > ul > li > a {
+  padding: 6px;
+  display: flex;
+  align-items: center;
+}
+.whatify-header-bar .search-results > ul > li > a > div.info {
+  margin-left: 8px;
+  flex: 1;
+}
+.whatify-header-bar .search-results > ul > li > a > div.info .artist {
+  font-weight: lighter;
+  letter-spacing: 1px;
 }
 .whatify-main-flex {
   flex: 1;
@@ -157,14 +171,25 @@ h1 {
   display: inline-block;
   flex: 1;
 }
+.square-cover {
+  display: inline-block;
+  background: url('../img/empty-cover.png');
+  background-size: cover;
+}
+.square-cover .cover-image {
+  width: 250px;
+  height: 250px;
+  background-size: cover;
+}
 .info-pane {
   display: flex;
   padding: 18px 22px;
 }
-.info-pane .cover {
-  background-size: cover;
+.info-pane .square-cover {
+  align-self: flex-start;
 }
 .info-pane .details {
+  flex: 1;
   display: flex;
   flex-direction: column;
   padding: 0 0 0 16px;
@@ -300,6 +325,7 @@ h1 {
 .whatify-current-item-sidebar p.album {
   font-weight: lighter;
   font-style: italic;
+  letter-spacing: 1px;
 }
 .whatify-current-item-sidebar p.artists {
   font-weight: lighter;
