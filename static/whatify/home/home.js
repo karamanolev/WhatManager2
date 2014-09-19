@@ -128,6 +128,7 @@ angular.
     directive('albumPlaylist', function() {
         return {
             templateUrl: templateRoot + '/home/albumPlaylist.html',
+            controller: 'WhatPlayerController',
             scope: {
                 torrentGroup: '='
             }
