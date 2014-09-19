@@ -467,12 +467,12 @@ class LogEntry(models.Model):
 class WhatFileMetadataCache(models.Model):
     what_torrent = models.ForeignKey(WhatTorrent)
     filename_sha256 = models.CharField(max_length=64, primary_key=True)
-    filename = models.TextField()
+    filename = models.CharField(max_length=500)
     file_mtime = models.IntegerField()
     metadata_pickle = models.BinaryField()
-    artists = models.TextField()
-    album = models.TextField()
-    title = models.TextField()
+    artists = models.CharField(max_length=200)
+    album = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, db_index=True)
     duration = models.FloatField()
 
     @cached_property
@@ -509,9 +509,9 @@ class WhatFileMetadataCache(models.Model):
                 metadata.tags._EasyID3__id3.delall('APIC')
         self.file_mtime = file_mtime
         self.metadata_pickle = pickle.dumps(metadata)
-        self.artists = self.easy['artist']
-        self.album = self.easy['album']
-        self.title = self.easy['title']
+        self.artists = self.easy['artist'][:200]
+        self.album = self.easy['album'][:200]
+        self.title = self.easy['title'][:200]
         self.duration = self.easy['duration']
 
     @classmethod
@@ -551,7 +551,7 @@ class WhatFileMetadataCache(models.Model):
                 cache = WhatFileMetadataCache(
                     what_torrent=what_torrent,
                     filename_sha256=filename_hashes[abs_path],
-                    filename=rel_path,
+                    filename=rel_path[:500],
                     file_mtime=0
                 )
             cache.path = abs_path
