@@ -476,12 +476,12 @@ class FileMetadataCache(models.Model):
 
     @classmethod
     def get_metadata_batch(cls, filenames):
-        filename_hash = {f: hashlib.sha256(f).hexdigest() for f in filenames}
+        filename_hash = {f: hashlib.sha256(wm_str(f)).hexdigest() for f in filenames}
         cache_lines = FileMetadataCache.objects.in_bulk(filename_hash.values())
         dirty_cache_lines = []
         result = {}
         for filename, filename_hash in filename_hash.iteritems():
-            file_mtime = os.path.getmtime(filename)
+            file_mtime = os.path.getmtime(wm_str(filename))
             cache = cache_lines.get(filename_hash)
             if cache is None:
                 cache = FileMetadataCache(
