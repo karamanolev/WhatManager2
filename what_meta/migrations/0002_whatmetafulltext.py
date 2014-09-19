@@ -14,11 +14,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='WhatMetaFulltext',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(
+                    verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('info', models.TextField()),
                 ('more_info', models.TextField()),
                 ('artist', models.ForeignKey(null=True, to='what_meta.WhatArtist', unique=True)),
-                ('torrent_group', models.ForeignKey(null=True, to='what_meta.WhatTorrentGroup', unique=True)),
+                ('torrent_group', models.ForeignKey(
+                    null=True, to='what_meta.WhatTorrentGroup', unique=True)),
             ],
             options={
             },
