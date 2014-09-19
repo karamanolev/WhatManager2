@@ -1,11 +1,14 @@
+from collections import defaultdict
+
 from django.core.urlresolvers import reverse
 from django.utils.http import urlquote
 
-from WhatManager2.utils import get_artists_list, get_artists, html_unescape
+from WhatManager2.utils import get_artists, get_artists_list
 from home import info_holder
 from home.models import WhatTorrent, TransTorrent, ReplicaSet
-from player.player_utils import get_metadata_dict, get_playlist_files
-from what_meta.filtering import sort_filter_torrents
+from player.player_utils import get_metadata_dict, get_what_playlist_files
+from what_transcode.utils import html_unescape
+from whatify.filtering import sort_filter_torrents
 from whatify.utils import extended_artists_to_music_info
 
 
@@ -30,41 +33,27 @@ def get_artist_dict(artist, include_all=False):
     }
     if include_all:
         assert not artist.is_shell, 'Can not get torrents for a shell artist'
-        data['tags'] = sorted(artist.info['tags'], key=lambda tag: tag['count'], reverse=True)
-        torrent_groups_by_id = {t['groupId']: t for t in artist.info['torrentgroup']}
-        torrent_groups = list(torrent_groups_by_id.values())
-        group_ids = list(torrent_groups_by_id.keys())
-        torrent_ids = WhatTorrent.objects.filter(
-            torrent_group_id__in=group_ids).values_list('id', flat=True)
-        torrents_done = {
-            t.what_torrent_id: t.torrent_done for t in
-            TransTorrent.objects.filter(what_torrent_id__in=torrent_ids)
-        }
+        torrent_group_ids = [t['groupId'] for t in artist.info['torrentgroup']]
+        torrent_groups_have = get_torrent_groups_have(torrent_group_ids, True)
 
-        data.update({
-            'torrent_groups': {
-                releaseTypeName: [
-                    get_artist_group_dict(torrents_done, t)
-                    for t in sorted(torrent_groups, key=lambda g: g['groupYear'], reverse=True)
-                    if t['releaseType'] == releaseTypeId
-                ]
-                for releaseTypeId, releaseTypeName in info_holder.WHAT_RELEASE_TYPES
-            } if not artist.is_shell else None,
-        })
+        torrent_groups_data = {}
+        for releaseTypeId, releaseTypeName in info_holder.WHAT_RELEASE_TYPES:
+            items_list = []
+            for t in artist.info['torrentgroup']:
+                if t['releaseType'] != releaseTypeId:
+                    continue
+                item_data = get_artist_group_dict(t)
+                item_data.update(torrent_groups_have[t['groupId']])
+                items_list.append(item_data)
+            torrent_groups_data[releaseTypeName] = items_list
+        data['torrent_groups'] = torrent_groups_data
+        data['tags'] = sorted(artist.info['tags'], key=lambda tag: tag['count'], reverse=True)
     return data
 
 
-def get_artist_group_dict(torrents_done, torrent_group):
-    have = False
-    for torrent in sort_filter_torrents(torrent_group['torrent']):
-        if torrent['id'] in torrents_done:
-            done = torrents_done[torrent['id']]
-            if done == 1:
-                have = True
-            elif have is not True:
-                have = max(have, done)
+def get_artist_group_dict(torrent_group):
     music_info = extended_artists_to_music_info(torrent_group['extendedArtists'])
-    data = {
+    return {
         'id': torrent_group['groupId'],
         'joined_artists': get_artists(music_info),
         'artists': get_artists_list(music_info),
@@ -72,9 +61,6 @@ def get_artist_group_dict(torrents_done, torrent_group):
         'year': torrent_group['groupYear'],
         'wiki_image': get_image_cache_url(torrent_group['wikiImage']),
     }
-    if have is not False:
-        data['have'] = have
-    return data
 
 
 def get_torrent_group_dict(torrent_group):
@@ -89,13 +75,30 @@ def get_torrent_group_dict(torrent_group):
     }
 
 
-def get_torrent_group_playlist_or_have(torrent_group, sync_torrents=False):
-    torrents = sort_filter_torrents(torrent_group.whattorrent_set.all())
+def get_torrent_groups_have(torrent_group_ids, sync_torrents=False):
     masters = ReplicaSet.get_what_master().transinstance_set.all()
-    trans_torrents = {
-        t.what_torrent_id: t for t in
-        TransTorrent.objects.filter(what_torrent__in=torrents, instance__in=masters)
+    what_torrents = {
+        w_t.id: w_t for w_t in
+        WhatTorrent.objects.filter(torrent_group_id__in=torrent_group_ids)
     }
+    trans_torrents = TransTorrent.objects.filter(what_torrent__in=what_torrents,
+                                                 instance__in=masters)
+    trans_torrents_by_group = defaultdict(list)
+    for t_t in trans_torrents:
+        w_t = what_torrents[t_t.what_torrent_id]
+        trans_torrents_by_group[w_t.torrent_group_id].append((w_t, t_t))
+    return {
+        torrent_group_id: get_torrent_group_have(
+            trans_torrents_by_group[torrent_group_id], sync_torrents) for
+        torrent_group_id in torrent_group_ids
+    }
+
+
+def get_torrent_group_have(what_trans_torrents, sync_torrents=False):
+    what_torrents = [w_t[0] for w_t in what_trans_torrents]
+    trans_torrents = {w_t[0].id: w_t[1] for w_t in what_trans_torrents}
+
+    torrents = sort_filter_torrents(what_torrents)
     torrent = None
     for candidate in torrents:
         trans_torrent = trans_torrents.get(candidate.id)
@@ -118,17 +121,21 @@ def get_torrent_group_playlist_or_have(torrent_group, sync_torrents=False):
         trans_torrent = trans_torrents[torrent.id]
         if trans_torrent.torrent_done == 1:
             return {
+                'have': True,
                 'playlist': [
                     {
                         'id': 'what/' + str(torrent.id) + '#' + str(i),
                         'url': reverse('player.views.get_file') + '?path=' + urlquote(path, ''),
                         'metadata': get_metadata_dict(path)
                     }
-                    for i, path in enumerate(get_playlist_files('what/' + str(torrent.id))[1])
+                    for i, path in enumerate(get_what_playlist_files(
+                        torrent, trans_torrent)[1])
                 ]
             }
         else:
             return {
                 'have': trans_torrent.torrent_done
             }
-    return dict()
+    return {
+        'have': False
+    }

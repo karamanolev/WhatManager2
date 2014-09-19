@@ -13,7 +13,7 @@
         <div class="year">{{ torrentGroup.year }}</div>
         <div class="spacer"></div>
         <div class="buttons">
-            <span ng-if="torrentGroup.playlist || torrentGroup.have === true">
+            <span ng-if="torrentGroup.have === true">
                 <span class="btn btn-success btn-playpause"
                       ng-click="playTorrentGroup(torrentGroup.id)"
                       ng-if="!player.isPlaying || torrentGroup.id != playlist.currentItem.torrentGroup.id">
@@ -29,7 +29,7 @@
             </span>
             <span class="btn btn-whatify btn-download"
                   ng-click="downloadTorrentGroup(torrentGroup.id)"
-                  ng-if="torrentGroup.playlist === undefined && torrentGroup.have === undefined">
+                  ng-if="torrentGroup.have === false">
                 <span class="glyphicon glyphicon-download"></span>
                 Download
             </span>

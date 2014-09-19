@@ -1,11 +1,10 @@
 from django.shortcuts import render
 
 from WhatManager2.manage_torrent import add_torrent
-
 from WhatManager2.utils import json_return_method
 from home.models import get_what_client, ReplicaSet, DownloadLocation
 from what_meta.models import WhatTorrentGroup, WhatArtist, WhatMetaFulltext
-from what_meta.utils import get_torrent_group_dict, get_torrent_group_playlist_or_have, \
+from whatify.response_gen import get_torrent_group_dict, get_torrent_groups_have, \
     get_artist_dict, get_artist_alias_dict
 from whatify.utils import get_ids_to_download
 
@@ -52,7 +51,7 @@ def get_torrent_group(request, group_id):
         what_client = get_what_client(request)
         torrent_group = WhatTorrentGroup.update_from_what(what_client, group_id)
     data = get_torrent_group_dict(torrent_group)
-    data.update(get_torrent_group_playlist_or_have(torrent_group, True))
+    data.update(get_torrent_groups_have([torrent_group.id], True)[torrent_group.id])
     return data
 
 

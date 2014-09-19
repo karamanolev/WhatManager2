@@ -4,6 +4,8 @@ import os
 from django.http.response import HttpResponse
 import mutagen
 
+from WhatManager2.utils import wm_unicode
+
 from home.models import WhatTorrent, DownloadLocation
 
 
@@ -65,17 +67,22 @@ def apply_range(request, response, file):
     return yield_file(file, 0, file_length)
 
 
+def get_what_playlist_files(what_torrent, trans_torrent):
+    path = trans_torrent.path
+    files = []
+    for dirpath, dirnames, filenames in os.walk(path.encode('utf-8')):
+        files += [os.path.join(dirpath, f) for f in filenames if is_allowed_ext(f)]
+    files.sort()
+    playlist_name = what_torrent.joined_artists + ' - ' + what_torrent.info_title
+    return playlist_name, files
+
+
 def get_playlist_files(playlist):
     if playlist.startswith('what/'):
         what_id = int(playlist[len('what/'):])
         what_torrent = WhatTorrent.objects.get(id=what_id)
-        path = what_torrent.master_trans_torrent.path
-        files = []
-        for dirpath, dirnames, filenames in os.walk(path.encode('utf-8')):
-            files += [os.path.join(dirpath, f) for f in filenames if is_allowed_ext(f)]
-        files.sort()
-        playlist_name = what_torrent.joined_artists + ' - ' + what_torrent.info_title
-        return playlist_name, files
+        trans_torrent = what_torrent.master_trans_torrent
+        return get_what_playlist_files(what_torrent, trans_torrent)
 
 
 def file_as_image(path):
@@ -87,27 +94,24 @@ def file_as_image(path):
 
 
 def get_metadata_dict(path):
-    if type(path) is str:
-        path = path.decode('utf-8')
-
-    file = mutagen.File(path.encode('utf-8'), easy=True)
+    meta_file = mutagen.File(wm_unicode(path), easy=True)
 
     data = {
         'artist': '',
         'album': '',
         'title': '',
-        'duration': file.info.length,
+        'duration': meta_file.info.length,
     }
-    if 'albumartist' in file and file['albumartist'] and file['albumartist'][0]:
-        data['artist'] = file['albumartist'][0]
-    if 'artist' in file and file['artist'] and file['artist'][0]:
-        data['artist'] = file['artist'][0]
-    if 'performer' in file and file['performer'] and file['performer'][0]:
-        data['artist'] = file['performer'][0]
+    if 'albumartist' in meta_file and meta_file['albumartist'] and meta_file['albumartist'][0]:
+        data['artist'] = meta_file['albumartist'][0]
+    if 'artist' in meta_file and meta_file['artist'] and meta_file['artist'][0]:
+        data['artist'] = meta_file['artist'][0]
+    if 'performer' in meta_file and meta_file['performer'] and meta_file['performer'][0]:
+        data['artist'] = meta_file['performer'][0]
 
-    if 'album' in file and file['album']:
-        data['album'] = file['album'][0]
-    if 'title' in file and file['title']:
-        data['title'] = file['title'][0]
+    if 'album' in meta_file and meta_file['album']:
+        data['album'] = meta_file['album'][0]
+    if 'title' in meta_file and meta_file['title']:
+        data['title'] = meta_file['title'][0]
 
     return data
