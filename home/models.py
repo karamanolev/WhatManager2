@@ -541,7 +541,7 @@ class WhatFileMetadataCache(models.Model):
         hash_set = set(filename_hashes.values())
         old_cache_lines = []
         for cache_line in cache_lines.itervalues():
-            if not cache_line.filename_sha256 in hash_set:
+            if cache_line.filename_sha256 not in hash_set:
                 old_cache_lines.append(cache_line)
         dirty_cache_lines = []
 
