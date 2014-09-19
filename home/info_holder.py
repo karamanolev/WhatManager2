@@ -2,6 +2,7 @@ import os
 
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
+
 from WhatManager2.utils import html_unescape
 
 
@@ -62,6 +63,11 @@ IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.tiff', '.bmp', '.gif', '.tif']
 def is_image_file(file):
     ext = os.path.splitext(file)[1]
     return any(e == ext for e in IMAGE_EXTS)
+
+
+def parse_file_list(file_list):
+    files = file_list.split('|||')
+    return sorted([parse_file(f) for f in files], key=lambda i: i['name'])
 
 
 class InfoHolder(object):
@@ -141,8 +147,7 @@ class InfoHolder(object):
 
     @cached_property
     def info_files(self):
-        files = self.info_loads['torrent']['fileList'].split('|||')
-        return [parse_file(f) for f in files]
+        return parse_file_list(self.info_loads['torrent']['fileList'])
 
     @cached_property
     def info_image_files(self):

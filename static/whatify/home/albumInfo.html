@@ -15,7 +15,7 @@
         <div class="buttons">
             <span ng-if="torrentGroup.have === true">
                 <span class="btn btn-success btn-playpause"
-                      ng-click="playTorrentGroup(torrentGroup.id)"
+                      ng-click="playTorrentGroup(torrentGroup)"
                       ng-if="!player.isPlaying || torrentGroup.id != playlist.currentItem.torrentGroup.id">
                     <span class="glyphicon glyphicon-play"></span>
                     Play

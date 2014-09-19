@@ -124,5 +124,13 @@ angular.
                 });
             }
         }
-    });
+    }).
+    directive('albumPlaylist', function() {
+        return {
+            templateUrl: templateRoot + '/home/albumPlaylist.html',
+            scope: {
+                torrentGroup: '='
+            }
+        }
+    })
 ;

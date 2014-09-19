@@ -1,36 +1,9 @@
 <div class="torrent-group-details-page">
     <div class="torrent-group-info" album-info torrent-group="torrentGroup"></div>
 
-    <table class="clearfix table playlist" ng-if="torrentGroup.playlist">
-        <thead>
-        <tr>
-            <td class="col-number"></td>
-            <td>Track</td>
-            <td class="col-duration"><span class="glyphicon glyphicon-time"></span></td>
-        </tr>
-        </thead>
-        <tbody>
-        <tr class="clickable" ng-repeat="item in torrentGroup.playlist"
-            ng-click="playTorrentGroup(torrentGroup, $index + 1)">
-            <td class="col-number">
-                <span ng-show="playlist.currentItem.id == item.id">
-                    <span class="glyphicon glyphicon-play" ng-show="player.isPlaying"></span>
-                    <span class="glyphicon glyphicon-pause" ng-show="!player.isPlaying"></span>
-                </span>
-                {{ $index + 1 }}
-            </td>
-            <td>
-                {{ item.metadata.title }}
-            </td>
-            <td class="col-duration">
-                {{ item.metadata.duration | asTime }}
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div album-playlist torrent-group="torrentGroup" ng-if="torrentGroup.have === true"></div>
 
-    <p ng-bind-html="torrentGroup.wiki_body | trustAsHtml">
-    </p>
+    <p ng-bind-html="torrentGroup.wiki_body | trustAsHtml"></p>
 
     <p>
         <a class="btn btn-whatify" target="_blank"
