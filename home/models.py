@@ -472,7 +472,7 @@ class FileMetadataCache(models.Model):
 
     @cached_property
     def metadata(self):
-        return pickle.loads(self.metadata_json)
+        return pickle.loads(self.metadata_pickle)
 
     @classmethod
     def get_metadata_batch(cls, filenames):
@@ -491,17 +491,21 @@ class FileMetadataCache(models.Model):
                 )
             if file_mtime == cache.file_mtime:
                 result[filename] = cache.metadata
-                print 'Reading from cache'
                 continue
-            metadata = dict(mutagen.File(wm_str(filename), easy=True))
+            metadata = mutagen.File(wm_str(filename), easy=True)
+            if hasattr(metadata, 'pictures'):
+                for p in metadata.pictures:
+                    p.data = None
+            if hasattr(metadata, 'tags'):
+                if hasattr(metadata.tags, '_EasyID3__id3'):
+                    metadata.tags._EasyID3__id3.delall('APIC')
             cache.file_mtime = file_mtime
-            cache.metadata_json = pickle.dumps(metadata)
+            cache.metadata_pickle = pickle.dumps(metadata)
             dirty_cache_lines.append(cache)
             result[filename] = metadata
         if dirty_cache_lines:
             with transaction.atomic():
                 for cache_line in dirty_cache_lines:
-                    print 'Saving new cache entry'
                     cache_line.save()
         return result
 
