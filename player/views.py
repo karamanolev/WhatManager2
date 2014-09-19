@@ -9,8 +9,9 @@ import mutagen
 
 from WhatManager2.utils import json_return_method, auth_username_token
 from home.info_holder import is_image_file
+from home.models import WhatFileMetadataCache
 from player.player_utils import is_allowed_file, apply_range, get_playlist_files, COVER_FILENAMES, \
-    file_as_image, get_metadata_dict_batch
+    file_as_image
 
 
 @login_required
@@ -18,7 +19,8 @@ from player.player_utils import is_allowed_file, apply_range, get_playlist_files
 def index(request):
     playlist_files = None
     if 'playlist' in request.GET:
-        playlist_name, playlist_files = get_playlist_files(request.GET['playlist'])
+        playlist_name, cache_entries = get_playlist_files(request.GET['playlist'])
+        playlist_files = [i.path for i in cache_entries]
     data = {
         'playlist': playlist_files
     }
@@ -60,7 +62,9 @@ def metadata(request):
     path = request.GET['path']
     if not is_allowed_file(path):
         return HttpResponse(status=404)
-    return get_metadata_dict_batch([path])[path]
+    c = WhatFileMetadataCache()
+    c.fill(path, 0)
+    return c.easy
 
 
 @login_required

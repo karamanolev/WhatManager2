@@ -20,13 +20,18 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(drop_datetime_index),
         migrations.CreateModel(
-            name='FileMetadataCache',
+            name='WhatFileMetadataCache',
             fields=[
-                ('filename_sha256', models.CharField(max_length=64, serialize=False,
-                                                     primary_key=True)),
+                ('filename_sha256',
+                 models.CharField(max_length=64, serialize=False, primary_key=True)),
                 ('filename', models.TextField()),
                 ('file_mtime', models.IntegerField()),
                 ('metadata_pickle', models.BinaryField()),
+                ('artists', models.TextField()),
+                ('album', models.TextField()),
+                ('title', models.TextField()),
+                ('duration', models.FloatField()),
+                ('what_torrent', models.ForeignKey(to='home.WhatTorrent')),
             ],
             options={
             },
@@ -41,5 +46,20 @@ class Migration(migrations.Migration):
             model_name='whattorrent',
             name='retrieved',
             field=models.DateTimeField(db_index=True),
+        ),
+
+        # Add indexes and fix fulltext
+        migrations.RunSQL(
+            'ALTER TABLE `home_whatfilemetadatacache` ENGINE = MYISAM',
+            'ALTER TABLE `home_whatfilemetadatacache` ENGINE = INNODB',
+            ),
+        migrations.RunSQL(
+            'ALTER TABLE `home_whatfilemetadatacache` ADD FULLTEXT `title_fts` (`title`)',
+            'ALTER TABLE `home_whatfilemetadatacache` DROP INDEX `title_fts`',
+            ),
+        migrations.RunSQL(
+            'ALTER TABLE `home_whatfilemetadatacache` ADD ' +
+            'FULLTEXT `all_fts` (`artists`,`album`, `title`)',
+            'ALTER TABLE `home_whatfilemetadatacache` DROP INDEX `all_fts`'
         ),
     ]

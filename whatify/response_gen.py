@@ -5,8 +5,7 @@ from django.utils.http import urlquote
 
 from WhatManager2.utils import get_artists, get_artists_list
 from home import info_holder
-from home.models import WhatTorrent, TransTorrent, ReplicaSet
-from player.player_utils import get_metadata_dict_batch, get_what_playlist_files
+from home.models import WhatTorrent, TransTorrent, ReplicaSet, WhatFileMetadataCache
 from what_transcode.utils import html_unescape
 from whatify.filtering import sort_filter_torrents
 from whatify.utils import extended_artists_to_music_info
@@ -33,13 +32,13 @@ def get_artist_dict(artist, include_all=False):
     }
     if include_all:
         assert not artist.is_shell, 'Can not get torrents for a shell artist'
-        torrent_group_ids = [t['groupId'] for t in artist.info['torrentgroup']]
-        torrent_groups_have = get_torrent_groups_have(torrent_group_ids, True)
+        torrent_groups = {t['groupId']: t for t in artist.info['torrentgroup']}
+        torrent_groups_have = get_torrent_groups_have(torrent_groups.keys(), True)
 
         torrent_groups_data = {}
         for releaseTypeId, releaseTypeName in info_holder.WHAT_RELEASE_TYPES:
             items_list = []
-            for t in artist.info['torrentgroup']:
+            for t in torrent_groups.values():
                 if t['releaseType'] != releaseTypeId:
                     continue
                 item_data = get_artist_group_dict(t)
@@ -81,8 +80,8 @@ def get_torrent_groups_have(torrent_group_ids, sync_torrents=False):
         w_t.id: w_t for w_t in
         WhatTorrent.objects.filter(torrent_group_id__in=torrent_group_ids)
     }
-    trans_torrents = TransTorrent.objects.filter(what_torrent__in=what_torrents,
-                                                 instance__in=masters)
+    trans_torrents = TransTorrent.objects.filter(
+        what_torrent__in=what_torrents, instance__in=masters).prefetch_related('location')
     trans_torrents_by_group = defaultdict(list)
     for t_t in trans_torrents:
         w_t = what_torrents[t_t.what_torrent_id]
@@ -120,17 +119,17 @@ def get_torrent_group_have(what_trans_torrents, sync_torrents=False):
     if torrent:
         trans_torrent = trans_torrents[torrent.id]
         if trans_torrent.torrent_done == 1:
-            _, playlist_files = get_what_playlist_files(torrent, trans_torrent)
-            metadata_dicts = get_metadata_dict_batch(playlist_files)
+            cache_entries = WhatFileMetadataCache.get_metadata_batch(torrent, trans_torrent, False)
             return {
                 'have': True,
                 'playlist': [
                     {
                         'id': 'what/' + str(torrent.id) + '#' + str(i),
-                        'url': reverse('player.views.get_file') + '?path=' + urlquote(path, ''),
-                        'metadata': metadata_dicts[path]
+                        'url': reverse('player.views.get_file') + '?path=' + urlquote(
+                            entry.path, ''),
+                        'metadata': entry.easy
                     }
-                    for i, path in enumerate(playlist_files)
+                    for i, entry in enumerate(cache_entries)
                 ]
             }
         else:

@@ -3,7 +3,7 @@ import os
 
 from django.http.response import HttpResponse
 
-from home.models import WhatTorrent, DownloadLocation, FileMetadataCache
+from home.models import WhatTorrent, DownloadLocation, WhatFileMetadataCache
 
 
 ALLOWED_EXTS = ['.mp3', '.flac']
@@ -64,22 +64,14 @@ def apply_range(request, response, file):
     return yield_file(file, 0, file_length)
 
 
-def get_what_playlist_files(what_torrent, trans_torrent):
-    path = trans_torrent.path
-    files = []
-    for dirpath, dirnames, filenames in os.walk(path.encode('utf-8')):
-        files += [os.path.join(dirpath, f) for f in filenames if is_allowed_ext(f)]
-    files.sort()
-    playlist_name = what_torrent.joined_artists + ' - ' + what_torrent.info_title
-    return playlist_name, files
-
-
 def get_playlist_files(playlist):
     if playlist.startswith('what/'):
         what_id = int(playlist[len('what/'):])
         what_torrent = WhatTorrent.objects.get(id=what_id)
         trans_torrent = what_torrent.master_trans_torrent
-        return get_what_playlist_files(what_torrent, trans_torrent)
+        items = WhatFileMetadataCache.get_metadata_batch(what_torrent, trans_torrent, False)
+        playlist_name = what_torrent.joined_artists + ' - ' + what_torrent.info_title
+        return playlist_name, items
 
 
 def file_as_image(path):
@@ -88,28 +80,3 @@ def file_as_image(path):
         response.content = cover_file.read()
         response['Content-Length'] = len(response.content)
     return response
-
-
-def get_metadata_dict_batch(paths):
-    result = {}
-    metadatas = FileMetadataCache.get_metadata_batch(paths)
-    for path, metadata in metadatas.iteritems():
-        data = {
-            'artist': '',
-            'album': '',
-            'title': '',
-            'duration': metadata.info.length,
-        }
-        if 'albumartist' in metadata and metadata['albumartist'] and metadata['albumartist'][0]:
-            data['artist'] = metadata['albumartist'][0]
-        if 'artist' in metadata and metadata['artist'] and metadata['artist'][0]:
-            data['artist'] = metadata['artist'][0]
-        if 'performer' in metadata and metadata['performer'] and metadata['performer'][0]:
-            data['artist'] = metadata['performer'][0]
-
-        if 'album' in metadata and metadata['album']:
-            data['album'] = metadata['album'][0]
-        if 'title' in metadata and metadata['title']:
-            data['title'] = metadata['title'][0]
-        result[path] = data
-    return result

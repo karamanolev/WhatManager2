@@ -464,47 +464,107 @@ class LogEntry(models.Model):
         entry.save()
 
 
-class FileMetadataCache(models.Model):
+class WhatFileMetadataCache(models.Model):
+    what_torrent = models.ForeignKey(WhatTorrent)
     filename_sha256 = models.CharField(max_length=64, primary_key=True)
     filename = models.TextField()
     file_mtime = models.IntegerField()
     metadata_pickle = models.BinaryField()
+    artists = models.TextField()
+    album = models.TextField()
+    title = models.TextField()
+    duration = models.FloatField()
 
     @cached_property
     def metadata(self):
         return pickle.loads(self.metadata_pickle)
 
+    @cached_property
+    def easy(self):
+        data = {
+            'artist': '',
+            'album': '',
+            'title': '',
+            'duration': self.metadata.info.length,
+        }
+        if self.metadata.get('albumartist') and self.metadata['albumartist'][0]:
+            data['artist'] = ', '.join(self.metadata['albumartist'])
+        if self.metadata.get('artist') and self.metadata['artist'][0]:
+            data['artist'] = ', '.join(self.metadata['artist'])
+        if self.metadata.get('performer') and self.metadata['performer'][0]:
+            data['artist'] = ', '.join(self.metadata['performer'])
+        if 'album' in self.metadata and self.metadata['album']:
+            data['album'] = ', '.join(self.metadata['album'])
+        if 'title' in self.metadata and self.metadata['title']:
+            data['title'] = ', '.join(self.metadata['title'])
+        return data
+
+    def fill(self, filename, file_mtime):
+        metadata = mutagen.File(wm_str(filename), easy=True)
+        if hasattr(metadata, 'pictures'):
+            for p in metadata.pictures:
+                p.data = None
+        if hasattr(metadata, 'tags'):
+            if hasattr(metadata.tags, '_EasyID3__id3'):
+                metadata.tags._EasyID3__id3.delall('APIC')
+        self.file_mtime = file_mtime
+        self.metadata_pickle = pickle.dumps(metadata)
+        self.artists = self.easy['artist']
+        self.album = self.easy['album']
+        self.title = self.easy['title']
+        self.duration = self.easy['duration']
+
     @classmethod
-    def get_metadata_batch(cls, filenames):
-        filename_hash = {f: hashlib.sha256(wm_str(f)).hexdigest() for f in filenames}
-        cache_lines = FileMetadataCache.objects.in_bulk(filename_hash.values())
+    def get_metadata_batch(cls, what_torrent, trans_torrent, force_update):
+        torrent_path = trans_torrent.path
+        cache_lines = list(what_torrent.whatfilemetadatacache_set.all())
+        if len(cache_lines) and not force_update:
+            for cache_line in cache_lines:
+                cache_line.path = os.path.join(torrent_path, cache_line.filename)
+            return sorted(cache_lines, key=lambda c: c.path)
+
+        cache_lines = {c.filename_sha256: c for c in cache_lines}
+
+        abs_rel_filenames = []
+        for dirpath, dirnames, filenames in os.walk(torrent_path):
+            for filename in filenames:
+                if os.path.splitext(filename)[1].lower() in ['.flac', '.mp3']:
+                    abs_path = os.path.join(dirpath, filename)
+                    rel_path = os.path.relpath(abs_path, torrent_path)
+                    abs_rel_filenames.append((abs_path, rel_path))
+        abs_rel_filenames.sort(key=lambda f: f[1])
+
+        filename_hashes = {f[0]: hashlib.sha256(wm_str(f[1])).hexdigest() for f in
+                           abs_rel_filenames}
+        hash_set = set(filename_hashes.values())
+        old_cache_lines = []
+        for cache_line in cache_lines.itervalues():
+            if not cache_line.filename_sha256 in hash_set:
+                old_cache_lines.append(cache_line)
         dirty_cache_lines = []
-        result = {}
-        for filename, filename_hash in filename_hash.iteritems():
-            file_mtime = os.path.getmtime(wm_str(filename))
-            cache = cache_lines.get(filename_hash)
+
+        result = []
+        for abs_path, rel_path in abs_rel_filenames:
+            file_mtime = os.path.getmtime(wm_str(abs_path))
+            cache = cache_lines.get(filename_hashes[abs_path])
             if cache is None:
-                cache = FileMetadataCache(
-                    filename_sha256=filename_hash,
-                    filename=filename,
+                cache = WhatFileMetadataCache(
+                    what_torrent=what_torrent,
+                    filename_sha256=filename_hashes[abs_path],
+                    filename=rel_path,
                     file_mtime=0
                 )
+            cache.path = abs_path
             if file_mtime == cache.file_mtime:
-                result[filename] = cache.metadata
+                result.append(cache)
                 continue
-            metadata = mutagen.File(wm_str(filename), easy=True)
-            if hasattr(metadata, 'pictures'):
-                for p in metadata.pictures:
-                    p.data = None
-            if hasattr(metadata, 'tags'):
-                if hasattr(metadata.tags, '_EasyID3__id3'):
-                    metadata.tags._EasyID3__id3.delall('APIC')
-            cache.file_mtime = file_mtime
-            cache.metadata_pickle = pickle.dumps(metadata)
+            cache.fill(abs_path, file_mtime)
             dirty_cache_lines.append(cache)
-            result[filename] = metadata
-        if dirty_cache_lines:
+            result.append(cache)
+        if old_cache_lines or dirty_cache_lines:
             with transaction.atomic():
+                for cache_line in old_cache_lines:
+                    cache_line.delete()
                 for cache_line in dirty_cache_lines:
                     cache_line.save()
         return result

@@ -10,7 +10,7 @@ from django.template.defaultfilters import filesizeformat
 from WhatManager2.utils import build_url, get_user_token, auth_username_token
 from bibliotik.models import BibliotikTransTorrent
 from home.models import TransTorrent, ReplicaSet, LogEntry
-from player.player_utils import get_metadata_dict_batch, get_playlist_files
+from player.player_utils import get_playlist_files
 
 
 def download_zip_handler(download_filename, paths):
@@ -46,13 +46,13 @@ def download_zip(request, what_id):
     if len(torrent_file) == 1:
         torrent_file = os.path.splitext(torrent_file[0])[0]
     else:
-        return HttpResponse('Not one .torrent in dir: ' + t_torrent.downloadDir)
+        return HttpResponse('Not one .torrent in dir: ' + t_torrent.path)
 
-    dir = os.path.join(t_torrent.path, t_torrent.torrent_name).encode('utf-8')
+    target_dir = os.path.join(t_torrent.path, t_torrent.torrent_name).encode('utf-8')
     torrent_files = []
-    for root, rel_path, files in os.walk(dir):
+    for root, rel_path, files in os.walk(target_dir):
         for file in files:
-            rel_path = root.replace(dir, '')
+            rel_path = root.replace(target_dir, '')
             if rel_path.startswith('/') or rel_path.startswith('\\'):
                 rel_path = rel_path[1:]
             rel_path = os.path.join(rel_path.encode('utf-8'), file)
@@ -102,17 +102,14 @@ def download_bibliotik_zip(request, bibliotik_id):
 @permission_required('home.download_whattorrent', raise_exception=True)
 def download_pls(request, playlist_path):
     files = []
-    playlist_name, playlist_files = get_playlist_files(playlist_path)
-    metadata_dicts = get_metadata_dict_batch(playlist_files)
-    for f in playlist_files:
-        file_data = metadata_dicts[f]
-        file_data.update({
-            'path': request.build_absolute_uri(build_url('player.views.file', get={
-                'path': f,
-                'username': request.user.username,
-                'token': get_user_token(request.user),
-            }))
-        })
+    playlist_name, cache_entries = get_playlist_files(playlist_path)
+    for f in cache_entries:
+        file_data = f.easy
+        file_data['path'] = request.build_absolute_uri(build_url('player.views.get_file', get={
+            'path': f.path,
+            'username': request.user.username,
+            'token': get_user_token(request.user),
+        }))
         files.append(file_data)
 
     data = {

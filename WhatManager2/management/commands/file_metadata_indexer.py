@@ -1,35 +1,28 @@
-import os
-import os.path
-
 from django.core.management.base import BaseCommand
 
-from home.models import DownloadLocation, ReplicaSet, FileMetadataCache
+from home.models import ReplicaSet, WhatTorrent, \
+    TransTorrent, WhatFileMetadataCache
 
 
 class Command(BaseCommand):
     help = u'Cache all .flac and .mp3 metadata in download locations.'
 
     def handle(self, *args, **options):
-        what_locations = DownloadLocation.objects.filter(zone=ReplicaSet.ZONE_WHAT)
-        for what_location in what_locations:
-            print u'Indexing download location', what_location.path
-            for dirpath, dirnames, filenames in os.walk(what_location.path):
-                relevant_files = [
-                    os.path.join(dirpath, f) for f in filenames if
-                    os.path.splitext(f)[1].lower() in ['.flac', '.mp3']
-                ]
-                if relevant_files:
-                    print u'Indexing', dirpath
-                    self.index_files(relevant_files)
-
-    def index_files(self, relevant_files):
-        try:
-            FileMetadataCache.get_metadata_batch(relevant_files)
-        except Exception as ex:
-            print 'Error indexing in batch', ex
-            print 'Indexing one by one'
-            for filename in relevant_files:
-                try:
-                    FileMetadataCache.get_metadata_batch([filename])
-                except Exception as ex:
-                    print 'Error indexing', filename, '-', ex
+        masters = ReplicaSet.get_what_master().transinstance_set.all()
+        what_torrent_ids = WhatTorrent.objects.all().values_list('id', flat=True)
+        start = 0
+        page_size = 128
+        while start < len(what_torrent_ids):
+            print 'Updating objects {0}-{1}/{2}'.format(start, start + page_size,
+                                                        len(what_torrent_ids))
+            bulk = WhatTorrent.objects.defer('torrent_file').in_bulk(
+                what_torrent_ids[start:start + page_size])
+            start += page_size
+            trans_torrents = {
+                t.what_torrent_id: t for t in
+                TransTorrent.objects.filter(instance__in=masters, what_torrent__in=bulk.values())
+            }
+            for what_torrent in bulk.itervalues():
+                trans_torrent = trans_torrents.get(what_torrent.id)
+                if trans_torrent is not None:
+                    WhatFileMetadataCache.get_metadata_batch(what_torrent, trans_torrent, True)
