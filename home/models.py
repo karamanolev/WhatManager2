@@ -526,11 +526,12 @@ class WhatFileMetadataCache(models.Model):
         cache_lines = {c.filename_sha256: c for c in cache_lines}
 
         abs_rel_filenames = []
-        for dirpath, dirnames, filenames in os.walk(torrent_path):
+        for dirpath, dirnames, filenames in os.walk(wm_str(torrent_path)):
+            unicode_dirpath = wm_unicode(dirpath)
             unicode_filenames = [wm_unicode(f) for f in filenames]
             for filename in unicode_filenames:
                 if os.path.splitext(filename)[1].lower() in [u'.flac', u'.mp3']:
-                    abs_path = os.path.join(dirpath, filename)
+                    abs_path = os.path.join(unicode_dirpath, filename)
                     rel_path = os.path.relpath(abs_path, torrent_path)
                     abs_rel_filenames.append((abs_path, rel_path))
         abs_rel_filenames.sort(key=lambda f: f[1])
