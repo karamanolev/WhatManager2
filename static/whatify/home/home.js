@@ -62,9 +62,9 @@ angular.
             whatMeta.getTorrentGroup($routeParams.id, defeatCache, loadFromWhat)
                 .success(function(torrentGroup) {
                     $scope.torrentGroup = torrentGroup;
-                    if ($scope.torrentGroup.have !== undefined) {
+                    if (angular.isNumber($scope.torrentGroup.have)) {
                         subscribe();
-                    } else if ($scope.torrentGroup.have === undefined) {
+                    } else if ($scope.torrentGroup.have === true) {
                         unsubscribe();
                     }
                     $scope.mainSpinner.visible = false;
