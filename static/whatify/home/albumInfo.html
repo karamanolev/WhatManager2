@@ -29,13 +29,13 @@
                 </span>
             </span>
             <span class="btn btn-whatify btn-download"
-                  ng-click="downloadTorrentGroup(torrentGroup.id, subscribe)"
+                  ng-click="downloadTorrentGroup(torrentGroup.id)"
                   ng-if="torrentGroup.have === false">
                 <span class="glyphicon glyphicon-download"></span>
                 Download
             </span>
 
-            <div style="width: 300px;" ng-if="angular.isNumber(torrentGroup.have)">
+            <div style="width: 300px;" ng-if="torrentGroup.have | isNumber">
                 <div percentage-progress-bar value="torrentGroup.have * 100"></div>
             </div>
         </div>

@@ -93,6 +93,11 @@ angular.
             return minutes + ':' + (seconds < 10 ? '0' + seconds : seconds);
         }
     }).
+    filter('isNumber', function() {
+        return function(value) {
+            return angular.isNumber(value);
+        }
+    }).
     directive('mainPaneSpinner', function($rootScope) {
         $rootScope.mainSpinner = {
             visible: true

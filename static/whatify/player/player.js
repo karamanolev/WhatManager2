@@ -197,7 +197,7 @@ angular.
         };
         return s;
     }).
-    controller('WhatPlayerController', function($scope, whatMeta, whatPlayer, whatPlaylist) {
+    controller('WhatPlayerController', function($scope, whatMeta, whatPlayer, whatPlaylist, whatifyNoty) {
         console.log('Create WhatPlayerController');
         $scope.player = whatPlayer;
         $scope.playlist = whatPlaylist;
@@ -235,12 +235,12 @@ angular.
                 whatPlaylist.play(index || 1);
             }
         };
-        $scope.downloadTorrentGroup = function(torrentGroupId, success) {
+        $scope.downloadTorrentGroup = function(torrentGroupId) {
             if (confirm('Are you sure you want to download this?')) {
                 whatMeta.downloadTorrentGroup($scope.torrentGroup.id).success(function(resp) {
                     if (resp.success) {
                         whatifyNoty.success('Downloading ' + $scope.torrentGroup.name);
-                        success();
+                        $scope.$emit('torrentDownloading');
                     }
                 });
             }

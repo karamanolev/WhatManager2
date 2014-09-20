@@ -54,6 +54,7 @@ angular.
                 refreshInterval = null;
             }
         };
+        $scope.$on('torrentDownloading', $scope.subscribe);
         $scope.reloadTorrentGroup = function(initial, defeatCache, loadFromWhat) {
             if (initial) {
                 $scope.torrentGroup = null;
@@ -75,17 +76,89 @@ angular.
         });
         $scope.reloadTorrentGroup(true);
     }).
-    controller('ArtistController', function($scope, whatMeta, $routeParams) {
-        $scope.reloadArtist = function(defeatCache, loadFromWhat) {
-            $scope.artist = null;
-            $scope.mainSpinner.visible = true;
-            whatMeta.getArtist($routeParams.id, defeatCache, loadFromWhat)
-                .success(function(artist) {
-                    $scope.artist = artist;
-                    $scope.mainSpinner.visible = false;
+    controller('ArtistController', function($scope, $interval, whatMeta, $routeParams) {
+        var refreshInterval = null;
+        var showArtist = function(artist) {
+            var hasInProgress;
+            $.each(artist.torrent_groups, function(i, section) {
+                $.each(section, function(j, torrentGroup) {
+                    if (angular.isNumber(torrentGroup.have)) {
+                        hasInProgress = true;
+                        return false;
+                    }
                 });
+                if (hasInProgress) {
+                    return false;
+                }
+            });
+            if (hasInProgress) {
+                $scope.subscribe();
+            } else {
+                $scope.unsubscribe();
+            }
+            $scope.artist = artist;
+            $scope.mainSpinner.visible = false;
         };
-        $scope.reloadArtist();
+        $scope.subscribe = function() {
+            console.log('subscribe');
+            if (refreshInterval === null) {
+                refreshInterval = $interval(function() {
+                    $scope.updateProgress(false, true);
+                }, 3000);
+            }
+        };
+        $scope.unsubscribe = function() {
+            if (refreshInterval !== null) {
+                $interval.cancel(refreshInterval);
+                refreshInterval = null;
+            }
+        };
+        $scope.$on('torrentDownloading', $scope.subscribe);
+        $scope.updateProgress = function() {
+            var groupById = {};
+            $.each($scope.artist.torrent_groups, function(i, section) {
+                $.each(section, function(j, torrentGroup) {
+                    groupById[torrentGroup.id] = torrentGroup;
+                });
+            });
+            whatMeta.getArtist($routeParams.id, true, false).success(function(artist) {
+                var needsShow = false;
+                $.each(artist.torrent_groups, function(i, section) {
+                    $.each(section, function(j, newGroup) {
+                        var oldGroup = groupById[newGroup.id];
+                        if (oldGroup === undefined) {
+                            needsShow = true;
+                            return false;
+                        }
+                        if (angular.isNumber(oldGroup.have) && angular.isNumber(newGroup.have)) {
+                            oldGroup.have = newGroup.have;
+                        } else if (oldGroup.have !== newGroup.have) {
+                            needsShow = true;
+                            return false;
+                        }
+                    });
+                    if (needsShow) {
+                        return false;
+                    }
+                });
+                if (needsShow) {
+                    showArtist(artist);
+                }
+            });
+        };
+        $scope.reloadArtist = function(initial, defeatCache, loadFromWhat) {
+            if (initial) {
+                $scope.artist = null;
+                $scope.mainSpinner.visible = true;
+            }
+            whatMeta.getArtist($routeParams.id, defeatCache, loadFromWhat).success(function(artist) {
+                showArtist(artist);
+            });
+        };
+        $scope.reloadArtist(true);
+        $scope.$on('$destroy', function() {
+            $scope.unsubscribe();
+        });
     }).
     directive('albumInfo', function() {
         return {
@@ -94,6 +167,7 @@ angular.
                 torrentGroup: '=',
                 size: '='
             },
+            transclude: true,
             controller: 'WhatPlayerController',
             link: function(scope, element, attrs) {
                 if (attrs.linkTitle !== undefined) {
