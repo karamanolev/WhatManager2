@@ -35,9 +35,11 @@ angular.
     controller('PlaylistController', function($scope) {
         $scope.mainSpinner.visible = false;
     }).
-    controller('PlayTorrentGroupController', function($scope, $location, $routeParams) {
-        $scope.playTorrentGroup($routeParams.id, $routeParams.index);
-        $location.path('/torrentGroups/' + $routeParams.id);
+    controller('PlayTorrentGroupController', function($scope, $location, $routeParams, whatMeta) {
+        whatMeta.getTorrentGroup($routeParams.id, false, false).success(function(torrentGroup) {
+            $scope.playTorrentGroup(torrentGroup, $routeParams.index);
+            $location.path('/torrentGroups/' + $routeParams.id);
+        });
     }).
     controller('TorrentGroupController', function($scope, $interval, $routeParams, whatMeta, whatifyNoty) {
         var refreshInterval = null;
