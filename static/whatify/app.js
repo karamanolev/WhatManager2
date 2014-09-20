@@ -71,6 +71,13 @@ angular.
                 timeout: 30000
             });
         };
+        s.info = function(text, timeout) {
+            noty({
+                text: text,
+                type: 'alert',
+                timeout: timeout || 3000
+            });
+        };
         return s;
     }).
     filter('trustAsHtml', function($sce) {
@@ -133,6 +140,34 @@ angular.
                         duration: 1000
                     });
                 });
+            }
+        }
+    }).
+    directive('copyLinkModal', function() {
+        return {
+            template: '<div class="modal modal-dark fade" tabindex="-1" role="dialog" aria-hidden="true">' +
+                '<div class="modal-dialog"><div class="modal-content"><div class="modal-header">' +
+                '<h4 class="modal-title" id="myModalLabel">Modal title</h4></div><div class="modal-body">' +
+                '<input type="text" class="form-control"></span></div><div class="modal-footer">' +
+                '<button type="button" class="btn btn-whatify" data-dismiss="modal">Close</button>' +
+                '</div></div></div></div>',
+            controller: function($scope, $rootScope) {
+                var removeHandler = $rootScope.$on('showCopyLinkModal', function(event, params) {
+                    $scope.showModal(params);
+                });
+                $scope.$on('$destroy', function() {
+                    removeHandler();
+                });
+            },
+            replace: true,
+            link: function(scope, element, attrs) {
+                scope.showModal = function(params) {
+                    var inputField = element.find('.form-control');
+                    element.find('.modal-title').text(params.title);
+                    inputField.val(params.url);
+                    element.modal({
+                    });
+                };
             }
         }
     }).

@@ -37,7 +37,9 @@ angular.
     }).
     controller('PlayTorrentGroupController', function($scope, $location, $routeParams, whatMeta) {
         whatMeta.getTorrentGroup($routeParams.id, false, false).success(function(torrentGroup) {
-            $scope.playTorrentGroup(torrentGroup, $routeParams.index);
+            if (torrentGroup.playlist !== undefined) {
+                $scope.playTorrentGroup(torrentGroup, $routeParams.index);
+            }
             $location.path('/torrentGroups/' + $routeParams.id);
         });
     }).

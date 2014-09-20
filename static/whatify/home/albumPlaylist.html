@@ -3,6 +3,7 @@
     <tr>
         <td class="col-number"></td>
         <td>Track</td>
+        <td></td>
         <td class="col-duration"><span class="glyphicon glyphicon-time"></span></td>
     </tr>
     </thead>
@@ -18,6 +19,11 @@
         </td>
         <td>
             {{ item.metadata.title }}
+        </td>
+        <td class="col-actions">
+            <button class="btn btn-xs btn-whatify"
+                    ng-click="copyTorrentGroupUrl($event, torrentGroup, $index)">Copy URL
+            </button>
         </td>
         <td class="col-duration">
             {{ item.metadata.duration | asTime }}

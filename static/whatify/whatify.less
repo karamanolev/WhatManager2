@@ -42,6 +42,7 @@ h2 {
 }
 
 .btn.btn-whatify {
+  color: @textColor;
   background: none;
   border: 1px solid #aaaaaa;
   border-radius: 20px;
@@ -294,31 +295,43 @@ h2 {
   a:hover {
     text-decoration: underline;
   }
-  tr {
+  > tbody > tr {
     cursor: default;
-  }
-  tr.clickable {
-    cursor: pointer;
-  }
-  td {
-    border-top-color: #333333;
-  }
-  tbody tr:hover {
-    background-color: #222222;
-  }
-  td.col-number {
-    span {
-      float: left;
-      margin-top: 1px;
+    &.clickable {
+      cursor: pointer;
     }
-    width: 60px;
-    text-align: right;
-  }
-  td.col-duration {
-    width: 70px;
-  }
-  tr.selected {
-    background: #1f1f1f;
+    &:hover {
+      background-color: #222222;
+
+      > td.col-actions {
+        > * {
+          visibility: visible;
+        }
+      }
+    }
+    &.selected {
+      background: #1f1f1f;
+    }
+    > td {
+      border-top-color: #333333;
+      &.col-number {
+        span {
+          float: left;
+          margin-top: 1px;
+        }
+        width: 60px;
+        text-align: right;
+      }
+      &.col-actions {
+        width: 60px;
+        > * {
+          visibility: hidden;
+        }
+      }
+      &.col-duration {
+        width: 70px;
+      }
+    }
   }
 }
 
@@ -382,5 +395,21 @@ h2 {
     width: 14px;
     z-index: 1;
     background: linear-gradient(to right, fade(@sidePanelBackground, 0), @sidePanelBackground);
+  }
+}
+
+.modal.modal-dark {
+  > .modal-dialog {
+    > .modal-content {
+      background-color: @mainPanelBackground;
+      > .modal-header {
+        background-color: @sidePanelBackground;
+        border-bottom: @sidePanelBorder;
+      }
+      > .modal-footer {
+        background-color: @sidePanelBackground;
+        border-top: @sidePanelBorder;
+      }
+    }
   }
 }

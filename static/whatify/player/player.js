@@ -48,7 +48,6 @@ angular.
             });
         });
         $(audio).on('timeupdate', function() {
-            console.log('<audio>: timeupdate');
             $rootScope.$apply(function() {
                 s.currentTime = audio.currentTime;
             });
@@ -197,7 +196,7 @@ angular.
         };
         return s;
     }).
-    controller('WhatPlayerController', function($scope, whatMeta, whatPlayer, whatPlaylist, whatifyNoty) {
+    controller('WhatPlayerController', function($scope, $rootScope, whatMeta, whatPlayer, whatPlaylist, whatifyNoty) {
         console.log('Create WhatPlayerController');
         $scope.player = whatPlayer;
         $scope.playlist = whatPlaylist;
@@ -245,6 +244,24 @@ angular.
                 });
             }
         };
+        $scope.copyTorrentGroupUrl = function(event, torrentGroup, index) {
+            var item,
+                objectName,
+                url = window.location.href.replace(window.location.hash,
+                        '#/torrentGroups/' + torrentGroup.id) + '/play';
+            if (index === undefined) {
+                objectName = torrentGroup.name
+            } else {
+                item = torrentGroup.playlist[index];
+                objectName = item.metadata.title;
+                url += '/' + (index + 1);
+            }
+            event.stopPropagation();
+            $rootScope.$emit('showCopyLinkModal', {
+                title: 'Play link for ' + objectName,
+                url: url
+            });
+        }
     }).
     directive('wmPlayerSm', function() {
         return {

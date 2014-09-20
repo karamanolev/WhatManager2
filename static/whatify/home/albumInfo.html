@@ -38,6 +38,10 @@
             <div style="width: 300px;" ng-if="torrentGroup.have | isNumber">
                 <div percentage-progress-bar value="torrentGroup.have * 100"></div>
             </div>
+
+            <button class="btn btn-whatify"
+                    ng-click="copyTorrentGroupUrl($event, torrentGroup)">Copy URL
+            </button>
         </div>
     </div>
 </div>
