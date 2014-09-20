@@ -27,7 +27,7 @@ def call_rsync(path):
 
 
 def get_torrent(torrent_id):
-    return requests.get('{0}/books/bibliotik/json/get_torrent_file/{0}'.format(
+    return requests.get('{0}/books/bibliotik/json/get_torrent_file/{1}'.format(
         FILES_SYNC_WM_ROOT, torrent_id), params={'auth': 'http'}, auth=wm_auth).content
 
 
