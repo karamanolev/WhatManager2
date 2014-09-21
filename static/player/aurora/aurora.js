@@ -3233,12 +3233,12 @@ WebAudioDevice = (function(_super) {
     this.refill = __bind(this.refill, this);
     this.context = sharedContext != null ? sharedContext : sharedContext = new AudioContext;
     this.deviceSampleRate = this.context.sampleRate;
-    this.bufferSize = Math.ceil(4096 / (this.deviceSampleRate / this.sampleRate) * this.channels);
+    this.bufferSize = Math.ceil(8192 / (this.deviceSampleRate / this.sampleRate) * this.channels);
     this.bufferSize += this.bufferSize % this.channels;
     if (this.deviceSampleRate !== this.sampleRate) {
-      this.resampler = new Resampler(this.sampleRate, this.deviceSampleRate, this.channels, 4096 * this.channels);
+      this.resampler = new Resampler(this.sampleRate, this.deviceSampleRate, this.channels, 8192 * this.channels);
     }
-    this.node = this.context[createProcessor](4096, this.channels, this.channels);
+    this.node = this.context[createProcessor](8192, this.channels, this.channels);
     this.node.onaudioprocess = this.refill;
     this.node.connect(this.context.destination);
   }

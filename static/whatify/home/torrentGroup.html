@@ -1,0 +1,18 @@
+<div class="torrent-group-page">
+    <div class="torrent-group-info" album-info torrent-group="torrentGroup" size="250"></div>
+
+    <div class="unindent" album-playlist torrent-group="torrentGroup"
+         ng-if="torrentGroup.have === true"></div>
+
+    <p ng-bind-html="torrentGroup.wiki_body | trustAsHtml"></p>
+
+    <p>
+        <a class="btn btn-whatify" target="_blank"
+           ng-href="https://what.cd/torrents.php?id={{ torrentGroup.id }}">
+            View on What.CD
+        </a>
+        <a class="btn btn-whatify" href ng-click="reloadTorrentGroup(true, true, true)">
+            Refresh Data
+        </a>
+    </p>
+</div>

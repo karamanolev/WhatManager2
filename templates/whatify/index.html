@@ -1,0 +1,63 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html ng-app="whatify">
+<head>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-slider.css' %}">
+    <link rel="stylesheet" href="{% static 'whatify/whatify.css' %}">
+    <script src="{% static 'js/jquery-2.1.1.min.js' %}"></script>
+    <script src="{% static 'js/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'js/jquery.multisortable.js' %}"></script>
+    <script src="{% static 'js/bootstrap.js' %}"></script>
+    <script src="{% static 'js/angular.min.js' %}"></script>
+    <script src="{% static 'js/angular-route.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap-slider.min.js' %}"></script>
+    <script src="{% static 'js/spin.min.js' %}"></script>
+    <script src="{% static 'js/number-pb.js' %}"></script>
+    <script src="{% static 'js/jquery.noty.packaged.min.js' %}"></script>
+    <script src="{% static 'player/aurora/aurora.js' %}"></script>
+    <script src="{% static 'player/aurora/flac.js' %}"></script>
+
+    <script type="text/javascript">
+        var templateRoot = '{% static "whatify" %}';
+    </script>
+    <script src="{% static 'whatify/app.js' %}"></script>
+    <script src="{% static 'whatify/home/home.js' %}"></script>
+    <script src="{% static 'whatify/player/player.js' %}"></script>
+    <script src="{% static 'whatify/searchBar/searchBar.js' %}"></script>
+</head>
+<body ng-controller="WhatPlayerController">
+
+<div class="whatify-header-bar" ng-wm-search-bar></div>
+
+<div class="whatify-main-flex">
+    <div class="whatify-left-bar">
+        <ul class="menu">
+            <li>
+                <a href="#/">
+                    <span class="glyphicon glyphicon-home"></span>
+                    Home
+                </a>
+            </li>
+            <li>
+                <a href="#/playlist">
+                    <span class="glyphicon glyphicon-list"></span>
+                    Playlist
+                </a>
+            </li>
+        </ul>
+
+        <div current-item-sidebar item="playlist.currentItem"></div>
+    </div>
+    <div class="whatify-main-pane">
+        <div ng-view></div>
+        <div pane-spinner visible="$root.mainSpinnerVisible"></div>
+    </div>
+</div>
+
+<div class="whatify-player-bar" wm-player-sm></div>
+
+<div copy-link-modal></div>
+
+</body>
+</html>

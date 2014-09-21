@@ -192,17 +192,18 @@ WSGI_APPLICATION = 'WhatManager2.wsgi.application'
 TEMPLATE_DIRS = (os.path.join(os.path.dirname(__file__), '..', 'templates').replace('\\', '/'),)
 
 INSTALLED_APPS = (
+    # Django apps
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'djcelery',
-    # Uncomment the next line to enable the admin:
     'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
+    # Library apps
+    'djcelery',
+    'bootstrapform',
+    # WhatManager2 apps
     'WhatManager2',
     'login',
     'home',
@@ -214,7 +215,8 @@ INSTALLED_APPS = (
     'books',
     'bibliotik',
     'bibliotik_json',
-    'bootstrapform',
+    'what_meta',
+    'whatify',
 )
 
 # A sample logging configuration. The only tangible logging

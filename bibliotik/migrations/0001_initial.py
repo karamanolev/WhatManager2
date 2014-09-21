@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True,
                                         primary_key=True)),
-                ('info_hash', models.TextField()),
+                ('info_hash', models.CharField(max_length=40, db_index=True)),
                 ('retrieved', models.DateTimeField()),
                 ('category', models.CharField(max_length=32)),
                 ('format', models.CharField(max_length=16)),
@@ -54,7 +54,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True,
                                         primary_key=True)),
-                ('info_hash', models.TextField()),
+                ('info_hash', models.CharField(max_length=40)),
                 ('torrent_id', models.IntegerField(null=True)),
                 ('torrent_name', models.TextField(null=True)),
                 ('torrent_size', models.BigIntegerField(null=True)),
@@ -86,10 +86,5 @@ class Migration(migrations.Migration):
             'ALTER TABLE `bibliotik_bibliotikfulltext` ADD ' +
             'FULLTEXT `info_more_info_fts` (`info`,`more_info`)',
             'ALTER TABLE `bibliotik_bibliotikfulltext` DROP INDEX `info_more_info_fts`'
-        ),
-        migrations.RunSQL(
-            'ALTER TABLE `bibliotik_bibliotiktorrent` ADD ' +
-            'INDEX `info_hash_index` (`info_hash` (40))',
-            'ALTER TABLE `bibliotik_bibliotiktorrent` DROP INDEX `info_hash_index`'
         ),
     ]

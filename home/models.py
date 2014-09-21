@@ -1,18 +1,20 @@
 import base64
+import hashlib
 from itertools import count
-import json
 import os
 import pickle
 import re
 import socket
 from time import sleep
+import ujson
 
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.db import models
+from django.db import models, transaction
 from django.db.models.aggregates import Sum
 from django.utils import timezone
 from django.utils.functional import cached_property
+import mutagen
 import requests
 import transmissionrpc
 
@@ -22,6 +24,7 @@ from WhatManager2.settings import FREELEECH_EMAIL_TO, WHAT_CD_DOMAIN, FREELEECH_
 from WhatManager2.utils import match_properties, copy_properties, norm_t_torrent, html_unescape, \
     wm_str, get_artists, wm_unicode
 from home.info_holder import InfoHolder
+from what_meta.models import WhatTorrentGroup
 
 
 class TorrentAlreadyAddedException(Exception):
@@ -205,7 +208,7 @@ class WhatFulltext(models.Model):
     more_info = models.TextField()
 
     def get_info(self, what_torrent):
-        info = json.loads(what_torrent.info)
+        info = ujson.loads(what_torrent.info)
 
         info_text = []
         info_text.append(unicode(info['group']['id']))
@@ -252,20 +255,20 @@ class WhatTorrent(models.Model, InfoHolder):
             ('download_whattorrent', 'Can download and play torrents.'),
         )
 
-    info_hash = models.TextField()
+    info_hash = models.CharField(max_length=40, db_index=True)
     torrent_file = models.TextField()
     torrent_file_name = models.TextField()
-    retrieved = models.DateTimeField()
+    retrieved = models.DateTimeField(db_index=True)
     info = models.TextField()
     tags = models.TextField()
     added_by = models.ForeignKey(User, null=True)
-    what_group_id = models.IntegerField()
+    torrent_group = models.ForeignKey('what_meta.WhatTorrentGroup', null=True)
 
     def save(self, *args, **kwargs):
-        if self.what_group_id != self.info_loads['group']['id']:
-            self.what_group_id = self.info_loads['group']['id']
-
-        super(WhatTorrent, self).save(*args, **kwargs)
+        with transaction.atomic():
+            self.torrent_group = WhatTorrentGroup.update_if_newer(
+                self.info_loads['group']['id'], self.retrieved, self.info_loads['group'])
+            super(WhatTorrent, self).save(*args, **kwargs)
         try:
             what_fulltext = WhatFulltext.objects.get(id=self.id)
             if not what_fulltext.match(self):
@@ -304,7 +307,7 @@ class WhatTorrent(models.Model, InfoHolder):
 
     @cached_property
     def info_loads(self):
-        return json.loads(self.info)
+        return ujson.loads(self.info)
 
     @staticmethod
     def get_or_none(request, info_hash=None, what_id=None):
@@ -356,7 +359,7 @@ class WhatTorrent(models.Model, InfoHolder):
                 torrent_file=base64.b64encode(torrent),
                 torrent_file_name=filename,
                 retrieved=timezone.now(),
-                info=json.dumps(data)
+                info=ujson.dumps(data)
             )
             w_torrent.save()
             return w_torrent
@@ -384,7 +387,7 @@ class TransTorrentBase(models.Model):
     instance = models.ForeignKey(TransInstance)
     location = models.ForeignKey(DownloadLocation)
 
-    info_hash = models.TextField()
+    info_hash = models.CharField(max_length=40)
     torrent_id = models.IntegerField(null=True)
     torrent_name = models.TextField(null=True)
     torrent_size = models.BigIntegerField(null=True)
@@ -450,7 +453,7 @@ class LogEntry(models.Model):
         )
 
     user = models.ForeignKey(User, null=True, related_name='wm_logentry')
-    datetime = models.DateTimeField(auto_now_add=True)
+    datetime = models.DateTimeField(auto_now_add=True, db_index=True)
     type = models.TextField()
     message = models.TextField()
     traceback = models.TextField(null=True)
@@ -459,6 +462,117 @@ class LogEntry(models.Model):
     def add(user, log_type, message, traceback=None):
         entry = LogEntry(user=user, type=log_type, message=message, traceback=traceback)
         entry.save()
+
+
+class WhatFileMetadataCache(models.Model):
+    what_torrent = models.ForeignKey(WhatTorrent)
+    filename_sha256 = models.CharField(max_length=64, primary_key=True)
+    filename = models.CharField(max_length=500)
+    file_mtime = models.IntegerField()
+    metadata_pickle = models.BinaryField()
+    artists = models.CharField(max_length=200)
+    album = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, db_index=True)
+    duration = models.FloatField()
+
+    @cached_property
+    def metadata(self):
+        return pickle.loads(self.metadata_pickle)
+
+    @cached_property
+    def easy(self):
+        data = {
+            'artist': '',
+            'album': '',
+            'title': '',
+            'duration': self.metadata.info.length,
+        }
+        if self.metadata.get('albumartist') and self.metadata['albumartist'][0]:
+            data['artist'] = ', '.join(self.metadata['albumartist'])
+        if self.metadata.get('artist') and self.metadata['artist'][0]:
+            data['artist'] = ', '.join(self.metadata['artist'])
+        if self.metadata.get('performer') and self.metadata['performer'][0]:
+            data['artist'] = ', '.join(self.metadata['performer'])
+        if 'album' in self.metadata and self.metadata['album']:
+            data['album'] = ', '.join(self.metadata['album'])
+        if 'title' in self.metadata and self.metadata['title']:
+            data['title'] = ', '.join(self.metadata['title'])
+        return data
+
+    def fill(self, filename, file_mtime):
+        metadata = mutagen.File(wm_str(filename), easy=True)
+        if hasattr(metadata, 'pictures'):
+            for p in metadata.pictures:
+                p.data = None
+        if hasattr(metadata, 'tags'):
+            if hasattr(metadata.tags, '_EasyID3__id3'):
+                metadata.tags._EasyID3__id3.delall('APIC')
+        self.file_mtime = file_mtime
+        self.metadata_pickle = pickle.dumps(metadata)
+        self.artists = self.easy['artist'][:200]
+        self.album = self.easy['album'][:200]
+        self.title = self.easy['title'][:200]
+        self.duration = self.easy['duration']
+
+    @classmethod
+    def get_metadata_batch(cls, what_torrent, trans_torrent, force_update):
+        torrent_path = trans_torrent.path
+        cache_lines = list(what_torrent.whatfilemetadatacache_set.all())
+        if len(cache_lines) and not force_update:
+            for cache_line in cache_lines:
+                cache_line.path = os.path.join(torrent_path, cache_line.filename)
+            return sorted(cache_lines, key=lambda c: c.path)
+
+        cache_lines = {c.filename_sha256: c for c in cache_lines}
+
+        abs_rel_filenames = []
+        for dirpath, dirnames, filenames in os.walk(wm_str(torrent_path)):
+            unicode_dirpath = wm_unicode(dirpath)
+            unicode_filenames = [wm_unicode(f) for f in filenames]
+            for filename in unicode_filenames:
+                if os.path.splitext(filename)[1].lower() in [u'.flac', u'.mp3']:
+                    abs_path = os.path.join(unicode_dirpath, filename)
+                    rel_path = os.path.relpath(abs_path, torrent_path)
+                    abs_rel_filenames.append((abs_path, rel_path))
+        abs_rel_filenames.sort(key=lambda f: f[1])
+
+        filename_hashes = {f[0]: hashlib.sha256(wm_str(f[1])).hexdigest() for f in
+                           abs_rel_filenames}
+        hash_set = set(filename_hashes.values())
+        old_cache_lines = []
+        for cache_line in cache_lines.itervalues():
+            if cache_line.filename_sha256 not in hash_set:
+                old_cache_lines.append(cache_line)
+        dirty_cache_lines = []
+
+        result = []
+        for abs_path, rel_path in abs_rel_filenames:
+            try:
+                file_mtime = os.path.getmtime(wm_str(abs_path))
+                cache = cache_lines.get(filename_hashes[abs_path])
+                if cache is None:
+                    cache = WhatFileMetadataCache(
+                        what_torrent=what_torrent,
+                        filename_sha256=filename_hashes[abs_path],
+                        filename=rel_path[:400],
+                        file_mtime=0
+                    )
+                cache.path = abs_path
+                if file_mtime == cache.file_mtime:
+                    result.append(cache)
+                    continue
+                cache.fill(abs_path, file_mtime)
+                dirty_cache_lines.append(cache)
+                result.append(cache)
+            except Exception as ex:
+                print 'Failed:', abs_path, ex
+        if old_cache_lines or dirty_cache_lines:
+            with transaction.atomic():
+                for cache_line in old_cache_lines:
+                    cache_line.delete()
+                for cache_line in dirty_cache_lines:
+                    cache_line.save()
+        return result
 
 
 class WhatLoginCache(models.Model):
@@ -482,6 +596,16 @@ class RequestException(Exception):
     def __init__(self, message=None, response=None):
         super(Exception, self).__init__(message)
         self.response = response
+
+
+class BadIdException(RequestException):
+    def __init__(self, response=None):
+        super(BadIdException, self).__init__('Bad ID Parameter.', response)
+
+
+class RateLimitExceededException(RequestException):
+    def __init__(self, response=None):
+        super(RateLimitExceededException, self).__init__('Rate limit exceeded.', response)
 
 
 def send_freeleech_email(message):
@@ -542,7 +666,13 @@ class CustomWhatAPI:
         try:
             json_response = r.json()
             if json_response["status"] != "success":
-                raise RequestException(response=json_response)
+                if json_response['error'] == 'bad id parameter':
+                    raise BadIdException(json_response)
+                elif json_response['error'] == 'rate limit exceeded':
+                    raise RateLimitExceededException(json_response)
+                raise RequestException(
+                    message=json_response['error'] if 'error' in json_response else json_response,
+                    response=json_response)
             return json_response
         except ValueError:
             raise RequestException()

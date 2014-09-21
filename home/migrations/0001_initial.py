@@ -106,7 +106,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True,
                                         primary_key=True)),
-                ('info_hash', models.TextField()),
+                ('info_hash', models.CharField(max_length=40, db_index=True)),
                 ('torrent_file', models.TextField()),
                 ('torrent_file_name', models.TextField()),
                 ('retrieved', models.DateTimeField()),
@@ -128,7 +128,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True,
                                         primary_key=True)),
-                ('info_hash', models.TextField()),
+                ('info_hash', models.CharField(max_length=40)),
                 ('torrent_id', models.IntegerField(null=True)),
                 ('torrent_name', models.TextField(null=True)),
                 ('torrent_size', models.BigIntegerField(null=True)),
@@ -146,12 +146,6 @@ class Migration(migrations.Migration):
             },
             bases=(models.Model,),
         ),
-
-        # Add indexes and fix fulltext
-        migrations.RunSQL(
-            'ALTER TABLE `home_logentry` ADD INDEX `datetime_index` (`datetime`)',
-            'ALTER TABLE `home_logentry` DROP INDEX `datetime_index`',
-        ),
         migrations.RunSQL(
             'ALTER TABLE `home_whatfulltext` ENGINE = MYISAM',
             'ALTER TABLE `home_whatfulltext` ENGINE = INNODB',
@@ -159,9 +153,5 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             'ALTER TABLE `home_whatfulltext` ADD FULLTEXT `info_fts` (`info`)',
             'ALTER TABLE `home_whatfulltext` DROP INDEX `info_fts`',
-        ),
-        migrations.RunSQL(
-            'ALTER TABLE `home_whattorrent` ADD INDEX `info_hash_index` (`info_hash` (40))',
-            'ALTER TABLE `home_whattorrent` DROP INDEX `info_hash_index`',
         ),
     ]

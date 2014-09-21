@@ -1,0 +1,33 @@
+<table class="clearfix table playlist">
+    <thead>
+    <tr>
+        <td class="col-number"></td>
+        <td>Track</td>
+        <td></td>
+        <td class="col-duration"><span class="glyphicon glyphicon-time"></span></td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="clickable" ng-repeat="item in torrentGroup.playlist"
+        ng-click="playTorrentGroup(torrentGroup, $index + 1)">
+        <td class="col-number">
+                <span ng-show="playlist.currentItem.id == item.id">
+                    <span class="glyphicon glyphicon-play" ng-show="player.isPlaying"></span>
+                    <span class="glyphicon glyphicon-pause" ng-show="!player.isPlaying"></span>
+                </span>
+            {{ $index + 1 }}
+        </td>
+        <td>
+            {{ item.metadata.title }}
+        </td>
+        <td class="col-actions">
+            <button class="btn btn-xs btn-whatify"
+                    ng-click="copyTorrentGroupUrl($event, torrentGroup, $index)">Copy URL
+            </button>
+        </td>
+        <td class="col-duration">
+            {{ item.metadata.duration | asTime }}
+        </td>
+    </tr>
+    </tbody>
+</table>

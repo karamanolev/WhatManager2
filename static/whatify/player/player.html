@@ -1,0 +1,33 @@
+<button class="btn btn-default" ng-disabled="!playlist.canBackward"
+        ng-click="playlist.backward()">
+    <span class="glyphicon glyphicon-backward"></span>
+</button>
+
+<!-- Play/Pause buttons -->
+<button class="btn btn-success btn-lg" ng-show="!player.isPlaying"
+        ng-click="player.play()" ng-disabled="playlist.currentItem === null">
+    <span class="glyphicon glyphicon-play"></span>
+</button>
+
+<button class="btn btn-success btn-lg" ng-show="player.isPlaying"
+        ng-click="player.pause()">
+    <span class="glyphicon glyphicon-pause"></span>
+</button>
+<!-- End Play/Pause buttons -->
+
+<button class="btn btn-default" ng-disabled="!playlist.canForward"
+        ng-click="playlist.forward()">
+    <span class="glyphicon glyphicon-forward"></span>
+</button>
+
+<span class="volume-slider" volume-slider ng-model="volume"></span>
+
+<span class="time elapsed">{{ player.currentTime | asTime }}</span>
+
+<span class="seek-slider" seek-slider ng-model="player.currentTime"
+      duration="{{ player.duration }}">
+</span>
+
+<span class="time total">{{ player.duration | asTime }}</span>
+
+<span playing-format-display item="playlist.currentItem"></span>

@@ -1,0 +1,51 @@
+<div class="info-pane">
+    <div square-image src="torrentGroup.wiki_image" size="{{ size }}"></div>
+
+    <div class="details">
+        <div class="name">
+            <a ng-href="#/torrentGroups/{{ torrentGroup.id }}"
+               ng-if="linkTitle">{{ torrentGroup.name }}</a>
+            <span ng-if="!linkTitle">{{ torrentGroup.name }}</span>
+        </div>
+        <div class="artists">
+            <span class="by">by</span>
+            <span artist-list artists="torrentGroup.artists"></span>
+        </div>
+        <div class="year">{{ torrentGroup.year }}</div>
+        <div class="duration" ng-show="torrentGroup.duration">
+            <span class="glyphicon glyphicon-time"></span>
+            {{ torrentGroup.duration | asTime }}
+        </div>
+        <div class="spacer"></div>
+        <div class="buttons">
+            <span ng-if="torrentGroup.have === true">
+                <span class="btn btn-success btn-playpause"
+                      ng-click="playTorrentGroup(torrentGroup)"
+                      ng-if="!player.isPlaying || torrentGroup.id != playlist.currentItem.torrentGroup.id">
+                    <span class="glyphicon glyphicon-play"></span>
+                    Play
+                </span>
+                <span class="btn btn-success btn-playpause"
+                      ng-click="player.pause()"
+                      ng-if="player.isPlaying && torrentGroup.id == playlist.currentItem.torrentGroup.id">
+                    <span class="glyphicon glyphicon-pause"></span>
+                    Pause
+                </span>
+            </span>
+            <span class="btn btn-whatify btn-download"
+                  ng-click="downloadTorrentGroup(torrentGroup.id)"
+                  ng-if="torrentGroup.have === false">
+                <span class="glyphicon glyphicon-download"></span>
+                Download
+            </span>
+
+            <div class="pb-holder" ng-if="torrentGroup.have | isNumber">
+                <div percentage-progress-bar value="torrentGroup.have * 100"></div>
+            </div>
+
+            <button class="btn btn-whatify"
+                    ng-click="copyTorrentGroupUrl($event, torrentGroup)">Copy URL
+            </button>
+        </div>
+    </div>
+</div>

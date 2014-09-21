@@ -18,4 +18,6 @@ urlpatterns = patterns(
     url(r'^books/', include('bibliotik.urls')),
     url(r'^books/bibliotik/json/', include('bibliotik_json.urls')),
     url(r'^userscript/', include('userscript.urls')),
+    url(r'^what_meta/', include('what_meta.urls')),
+    url(r'^whatify/', include('whatify.urls')),
 )

@@ -2,9 +2,8 @@ import mimetypes
 import os
 
 from django.http.response import HttpResponse
-import mutagen
 
-from home.models import WhatTorrent, DownloadLocation
+from home.models import WhatTorrent, DownloadLocation, WhatFileMetadataCache
 
 
 ALLOWED_EXTS = ['.mp3', '.flac']
@@ -69,13 +68,10 @@ def get_playlist_files(playlist):
     if playlist.startswith('what/'):
         what_id = int(playlist[len('what/'):])
         what_torrent = WhatTorrent.objects.get(id=what_id)
-        path = what_torrent.master_trans_torrent.path
-        files = []
-        for dirpath, dirnames, filenames in os.walk(path.encode('utf-8')):
-            files += [os.path.join(dirpath, f) for f in filenames if is_allowed_ext(f)]
-        files.sort()
+        trans_torrent = what_torrent.master_trans_torrent
+        items = WhatFileMetadataCache.get_metadata_batch(what_torrent, trans_torrent, False)
         playlist_name = what_torrent.joined_artists + ' - ' + what_torrent.info_title
-        return playlist_name, files
+        return playlist_name, items
 
 
 def file_as_image(path):
@@ -84,30 +80,3 @@ def file_as_image(path):
         response.content = cover_file.read()
         response['Content-Length'] = len(response.content)
     return response
-
-
-def get_metadata_dict(path):
-    if type(path) is str:
-        path = path.decode('utf-8')
-
-    file = mutagen.File(path.encode('utf-8'), easy=True)
-
-    data = {
-        'artist': '',
-        'album': '',
-        'title': '',
-        'duration': file.info.length,
-    }
-    if 'albumartist' in file and file['albumartist'] and file['albumartist'][0]:
-        data['artist'] = file['albumartist'][0]
-    if 'artist' in file and file['artist'] and file['artist'][0]:
-        data['artist'] = file['artist'][0]
-    if 'performer' in file and file['performer'] and file['performer'][0]:
-        data['artist'] = file['performer'][0]
-
-    if 'album' in file and file['album']:
-        data['album'] = file['album'][0]
-    if 'title' in file and file['title']:
-        data['title'] = file['title'][0]
-
-    return data
