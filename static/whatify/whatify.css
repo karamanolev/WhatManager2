@@ -24,7 +24,7 @@ h2 {
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 2px;
-  margin: 0 22px -10px 22px;
+  margin: 8px 22px -10px 22px;
 }
 .btn.btn-whatify {
   color: #eeeeee;
@@ -180,19 +180,9 @@ h2 {
   display: inline-block;
   flex: 1;
 }
-.square-cover {
-  display: inline-block;
-  background: url('../img/empty-cover.png');
-  background-size: cover;
-}
-.square-cover .cover-image {
-  width: 250px;
-  height: 250px;
-  background-size: cover;
-}
 .info-pane {
   display: flex;
-  padding: 18px 22px;
+  padding: 18px 22px 6px 22px;
 }
 .info-pane .square-cover {
   align-self: flex-start;
@@ -351,7 +341,7 @@ h2 {
 .whatify-current-item-sidebar p:last-of-type {
   margin-bottom: 6px;
 }
-.whatify-current-item-sidebar .right-fade {
+.right-fade {
   position: absolute;
   top: 0;
   right: 0;
@@ -370,4 +360,58 @@ h2 {
 .modal.modal-dark > .modal-dialog > .modal-content > .modal-footer {
   background-color: #202124;
   border-top: 1px solid #393b40;
+}
+.square-cover {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+.square-cover .push {
+  content: '';
+  display: block;
+  margin-top: 100%;
+}
+.square-cover .cover-empty {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('../img/empty-cover.png');
+  background-size: cover;
+}
+.square-cover .cover-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+}
+.cover-grid {
+  margin: 22px 6px 0 22px;
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+.cover-grid a:hover {
+  text-decoration: inherit;
+}
+.cover-grid > .cover-grid-item {
+  flex: 1;
+  min-width: 180px;
+  margin: 0 16px 16px 0;
+  cursor: pointer;
+  background: #202124;
+}
+.cover-grid > .cover-grid-item:hover {
+  background: #2c2d32;
+}
+.cover-grid > .cover-grid-item .title,
+.cover-grid > .cover-grid-item .artist {
+  padding: 2px 10px;
+}
+.cover-grid > .cover-grid-item .artist {
+  color: #6f6f6f;
+  padding-bottom: 6px;
 }

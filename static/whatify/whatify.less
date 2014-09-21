@@ -38,7 +38,7 @@ h2 {
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 2px;
-  margin: 0 22px -10px 22px;
+  margin: 8px 22px -10px 22px;
 }
 
 .btn.btn-whatify {
@@ -208,20 +208,9 @@ h2 {
   }
 }
 
-.square-cover {
-  display: inline-block;
-  background: url('../img/empty-cover.png');
-  background-size: cover;
-  .cover-image {
-    width: 250px;
-    height: 250px;
-    background-size: cover;
-  }
-}
-
 .info-pane {
   display: flex;
-  padding: 18px 22px;
+  padding: 18px 22px 6px 22px;
   .square-cover {
     align-self: flex-start;
   }
@@ -387,15 +376,16 @@ h2 {
   p:last-of-type {
     margin-bottom: 6px;
   }
-  .right-fade {
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 100%;
-    width: 14px;
-    z-index: 1;
-    background: linear-gradient(to right, fade(@sidePanelBackground, 0), @sidePanelBackground);
-  }
+}
+
+.right-fade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 14px;
+  z-index: 1;
+  background: linear-gradient(to right, fade(@sidePanelBackground, 0), @sidePanelBackground);
 }
 
 .modal.modal-dark {
@@ -410,6 +400,59 @@ h2 {
         background-color: @sidePanelBackground;
         border-top: @sidePanelBorder;
       }
+    }
+  }
+}
+
+.square-cover {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  .push {
+    content: '';
+    display: block;
+    margin-top: 100%;
+  }
+  .cover-empty {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('../img/empty-cover.png');
+    background-size: cover;
+  }
+  .cover-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+  }
+}
+
+.cover-grid {
+  margin: 22px 6px 0 22px;
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  .a-no-underline;
+  > .cover-grid-item {
+    flex: 1;
+    min-width: 180px;
+    margin: 0 16px 16px 0;
+    cursor: pointer;
+    background: @sidePanelBackground;
+    &:hover {
+      background: lighten(@sidePanelBackground, 5%);
+    }
+    .title, .artist {
+      padding: 2px 10px;
+    }
+    .artist {
+      color: darken(@textColor, 50%);
+      padding-bottom: 6px;
     }
   }
 }

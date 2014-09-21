@@ -5,7 +5,7 @@ from WhatManager2.utils import json_return_method
 from home.models import get_what_client, ReplicaSet, DownloadLocation
 from what_meta.models import WhatTorrentGroup, WhatArtist, WhatMetaFulltext
 from whatify.response_gen import get_torrent_group_dict, get_torrent_groups_have, \
-    get_artist_dict, get_artist_alias_dict
+    get_artist_dict, get_artist_alias_dict, get_image_cache_url
 from whatify.utils import get_ids_to_download
 
 
@@ -96,3 +96,39 @@ def get_artist(request, artist_id):
     except WhatArtist.DoesNotExist:
         artist = WhatArtist.update_from_what(get_what_client(request), artist_id)
     return get_artist_dict(artist, True)
+
+
+@json_return_method
+def random_torrent_groups(request):
+    count = request.GET.get('count', 10)
+    torrent_group_ids = list(WhatTorrentGroup.objects.extra(select={
+        'rand': 'RAND()'
+    }, order_by=['rand']).values_list('id', flat=True)[:count])
+    torrent_groups = WhatTorrentGroup.objects.in_bulk(torrent_group_ids)
+    return [get_torrent_group_dict(g) for g in torrent_groups.itervalues()]
+
+
+@json_return_method
+def top10_torrent_groups(request):
+    count = request.GET.get('count', 10)
+    what_client = get_what_client(request)
+    top10 = what_client.request('top10', limit=100)['response']
+    group_set = set()
+    results = []
+    for torrent in top10[0]['results']:
+        if torrent['groupId'] in group_set:
+            continue
+        group_set.add(torrent['groupId'])
+        results.append({
+            'id': torrent['groupId'],
+            'joined_artists': torrent['artist'],
+            'name': torrent['groupName'],
+            'year': torrent['groupYear'],
+            'wiki_image': get_image_cache_url(torrent['wikiImage']),
+        })
+        if len(results) == count:
+            break
+    torrents_have = get_torrent_groups_have(t['id'] for t in results)
+    for result in results:
+        result.update(torrents_have[result['id']])
+    return results

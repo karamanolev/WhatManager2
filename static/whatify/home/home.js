@@ -29,8 +29,11 @@ angular.
                 controller: 'PlaylistController'
             })
     }).
-    controller('HomeController', function($scope) {
+    controller('HomeController', function($scope, whatMeta) {
         $scope.mainSpinner.visible = false;
+        whatMeta.getRandomTorrentGroups().success(function(response) {
+            $scope.random = response;
+        });
     }).
     controller('PlaylistController', function($scope) {
         $scope.mainSpinner.visible = false;
@@ -200,7 +203,8 @@ angular.
     }).
     directive('squareImage', function() {
         return {
-            template: '<div class="square-cover"><div class="cover-image"></div></div>',
+            template: '<div class="square-cover"><div class="push"></div><div class="cover-empty"></div>' +
+                '<div class="cover-image"></div></div>',
             scope: {
                 src: '='
             },
@@ -208,13 +212,25 @@ angular.
             link: function(scope, element, attrs) {
                 var cover = element.find('.cover-image');
                 attrs.$observe('size', function() {
-                    var size = attrs.size || '';
-                    cover.css('width', size);
-                    cover.css('height', size);
+                    var size = attrs.size || '100%';
+                    element.css('width', size);
+                    element.css('height', size);
                 });
                 scope.$watch('src', function(newValue) {
                     cover.css('background-image', "url('" + newValue + "')");
                 });
+            }
+        }
+    }).
+    directive('coverGrid', function() {
+        return {
+            template: '<div class="cover-grid"><a class="cover-grid-item" ' +
+                'ng-repeat="item in torrentGroups"><div square-image src="item.wiki_image">' +
+                '</div><div class="title">{{ item.name }}</div><div class="artist">' +
+                '{{ item.joined_artists }}</div></div></a></div>',
+            replace: true,
+            scope: {
+                torrentGroups: '='
             }
         }
     })

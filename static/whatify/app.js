@@ -10,6 +10,16 @@ angular.
     factory('whatMeta', function($q, $http, $cacheFactory) {
         var $httpDefaultCache = $cacheFactory.get('$http');
         return new function() {
+            this.getRandomTorrentGroups = function() {
+                return $http.get('torrent_groups/random', {
+                    cache: true
+                });
+            };
+            this.getTop10TorrentGroups = function() {
+                return $http.get('torrent_groups/top10', {
+                    cache: true
+                });
+            };
             this.getTorrentGroup = function(id, defeatCache, loadFromWhat) {
                 var torrentGroupUrl = 'torrent_groups/' + id,
                     options = {

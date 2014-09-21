@@ -75,6 +75,7 @@ def get_torrent_group_dict(torrent_group):
 
 
 def get_torrent_groups_have(torrent_group_ids, sync_torrents=False):
+    torrent_group_ids = list(torrent_group_ids)
     masters = ReplicaSet.get_what_master().transinstance_set.all()
     what_torrents = {
         w_t.id: w_t for w_t in
