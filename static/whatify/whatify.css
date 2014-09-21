@@ -414,7 +414,8 @@ blockquote {
 }
 .cover-grid > .cover-grid-item:empty {
   visibility: hidden;
-  margin: 0;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 .cover-grid > .cover-grid-item:hover {
   background: #313237;
