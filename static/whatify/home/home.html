@@ -1,6 +1,17 @@
-<h2>Top 10</h2>
-<div>
+<div class="home-page">
+    <h2>Top 10</h2>
+
+    <div class="home-spinner" ng-if="!top10">
+        <div pane-spinner></div>
+    </div>
+
     <div cover-grid torrent-groups="top10"></div>
+
+    <h2>Random Albums</h2>
+
+    <div class="home-spinner" ng-if="!random">
+        <div pane-spinner></div>
+    </div>
+
+    <div cover-grid torrent-groups="random"></div>
 </div>
-<h2>Random Albums</h2>
-<div cover-grid torrent-groups="random"></div>

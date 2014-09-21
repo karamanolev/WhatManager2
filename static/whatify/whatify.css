@@ -24,7 +24,10 @@ h2 {
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 2px;
-  margin: 8px 22px -10px 22px;
+  margin: 0 22px 6px 22px;
+}
+blockquote {
+  border-left: 5px solid #383a3f;
 }
 .btn.btn-whatify {
   color: #eeeeee;
@@ -138,8 +141,9 @@ h2 {
   flex: 1;
   overflow: auto;
   position: relative;
+  padding-top: 20px;
 }
-#main-pane-spinner {
+.pane-spinner {
   position: absolute;
   top: 0;
   left: 0;
@@ -182,7 +186,7 @@ h2 {
 }
 .info-pane {
   display: flex;
-  padding: 18px 22px 6px 22px;
+  padding: 0 22px 22px 22px;
 }
 .info-pane .square-cover {
   align-self: flex-start;
@@ -242,7 +246,7 @@ h2 {
 }
 .torrent-group-details-page > p,
 .artist-details-page > p {
-  margin: 10px 22px;
+  margin: 0 22px 22px 22px;
   padding: 16px;
   background: #202124;
 }
@@ -250,8 +254,12 @@ h2 {
 .artist-details-page .table.playlist {
   cursor: pointer;
 }
+.home-page .home-spinner {
+  position: relative;
+  height: 240px;
+}
 .playlist-page > h1 {
-  margin: 20px 20px 10px 20px;
+  margin: 0 20px 10px 20px;
 }
 .table.playlist a:hover {
   text-decoration: underline;
@@ -389,7 +397,7 @@ h2 {
   background-size: cover;
 }
 .cover-grid {
-  margin: 22px 6px 0 22px;
+  margin: 0 6px 6px 22px;
   display: flex;
   align-items: stretch;
   flex-wrap: wrap;
@@ -404,8 +412,12 @@ h2 {
   cursor: pointer;
   background: #202124;
 }
+.cover-grid > .cover-grid-item:empty {
+  visibility: hidden;
+  margin: 0;
+}
 .cover-grid > .cover-grid-item:hover {
-  background: #2c2d32;
+  background: #313237;
 }
 .cover-grid > .cover-grid-item .title,
 .cover-grid > .cover-grid-item .artist {

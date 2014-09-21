@@ -115,13 +115,13 @@ angular.
             return angular.isNumber(value);
         }
     }).
-    directive('mainPaneSpinner', function($rootScope) {
-        $rootScope.mainSpinner = {
-            visible: true
-        };
+    directive('paneSpinner', function($rootScope) {
         return {
-            template: '<div id="main-pane-spinner" ng-show="mainSpinner.visible"></div>',
+            template: '<div class="pane-spinner" ng-show="visible === undefined || visible"></div>',
             replace: true,
+            scope: {
+                'visible': '='
+            },
             link: function(scope, element, attrs) {
                 var spinner = new Spinner({
                     color: '#ffffff'

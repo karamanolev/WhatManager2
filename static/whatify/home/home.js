@@ -29,14 +29,17 @@ angular.
                 controller: 'PlaylistController'
             })
     }).
-    controller('HomeController', function($scope, whatMeta) {
-        $scope.mainSpinner.visible = false;
+    controller('HomeController', function($scope, $rootScope, whatMeta) {
+        $rootScope.mainSpinnerVisible = false;
+        whatMeta.getTop10TorrentGroups().success(function(response) {
+            $scope.top10 = response;
+        });
         whatMeta.getRandomTorrentGroups().success(function(response) {
             $scope.random = response;
         });
     }).
-    controller('PlaylistController', function($scope) {
-        $scope.mainSpinner.visible = false;
+    controller('PlaylistController', function($scope, $rootScope) {
+        $rootScope.mainSpinnerVisible = false;
     }).
     controller('PlayTorrentGroupController', function($scope, $location, $routeParams, whatMeta) {
         whatMeta.getTorrentGroup($routeParams.id, false, false).success(function(torrentGroup) {
@@ -46,7 +49,7 @@ angular.
             $location.path('/torrentGroups/' + $routeParams.id);
         });
     }).
-    controller('TorrentGroupController', function($scope, $interval, $routeParams, whatMeta, whatifyNoty) {
+    controller('TorrentGroupController', function($scope, $rootScope, $interval, $routeParams, whatMeta, whatifyNoty) {
         var refreshInterval = null;
         $scope.subscribe = function() {
             if (refreshInterval === null) {
@@ -65,7 +68,7 @@ angular.
         $scope.reloadTorrentGroup = function(initial, defeatCache, loadFromWhat) {
             if (initial) {
                 $scope.torrentGroup = null;
-                $scope.mainSpinner.visible = true;
+                $rootScope.mainSpinnerVisible = true;
             }
             whatMeta.getTorrentGroup($routeParams.id, defeatCache, loadFromWhat)
                 .success(function(torrentGroup) {
@@ -75,7 +78,7 @@ angular.
                     } else if ($scope.torrentGroup.have === true) {
                         $scope.unsubscribe();
                     }
-                    $scope.mainSpinner.visible = false;
+                    $rootScope.mainSpinnerVisible = false;
                 });
         };
         $scope.$on('$destroy', function() {
@@ -83,7 +86,7 @@ angular.
         });
         $scope.reloadTorrentGroup(true);
     }).
-    controller('ArtistController', function($scope, $interval, whatMeta, $routeParams) {
+    controller('ArtistController', function($scope, $rootScope, $interval, whatMeta, $routeParams) {
         var refreshInterval = null;
         var showArtist = function(artist) {
             var hasInProgress;
@@ -104,7 +107,7 @@ angular.
                 $scope.unsubscribe();
             }
             $scope.artist = artist;
-            $scope.mainSpinner.visible = false;
+            $rootScope.mainSpinnerVisible = false;
         };
         $scope.subscribe = function() {
             console.log('subscribe');
@@ -156,7 +159,7 @@ angular.
         $scope.reloadArtist = function(initial, defeatCache, loadFromWhat) {
             if (initial) {
                 $scope.artist = null;
-                $scope.mainSpinner.visible = true;
+                $rootScope.mainSpinnerVisible = true;
             }
             whatMeta.getArtist($routeParams.id, defeatCache, loadFromWhat).success(function(artist) {
                 showArtist(artist);
@@ -225,9 +228,12 @@ angular.
     directive('coverGrid', function() {
         return {
             template: '<div class="cover-grid"><a class="cover-grid-item" ' +
+                'ng-href="#/torrentGroups/{{ item.id }}" '+
                 'ng-repeat="item in torrentGroups"><div square-image src="item.wiki_image">' +
                 '</div><div class="title">{{ item.name }}</div><div class="artist">' +
-                '{{ item.joined_artists }}</div></div></a></div>',
+                '{{ item.joined_artists }}</div></a><a class="cover-grid-item"></a>' +
+                '<a class="cover-grid-item"></a><a class="cover-grid-item"></a>' +
+                '<a class="cover-grid-item"></a><a class="cover-grid-item"></a></div>',
             replace: true,
             scope: {
                 torrentGroups: '='
