@@ -24,5 +24,8 @@ class Command(BaseCommand):
             }
             for what_torrent in bulk.itervalues():
                 trans_torrent = trans_torrents.get(what_torrent.id)
-                if trans_torrent is not None:
-                    WhatFileMetadataCache.get_metadata_batch(what_torrent, trans_torrent, True)
+                if trans_torrent is not None and trans_torrent.torrent_done == 1:
+                    try:
+                        WhatFileMetadataCache.get_metadata_batch(what_torrent, trans_torrent, True)
+                    except Exception as ex:
+                        print 'Failed updating torrent {0}: {1}'.format(what_torrent.id, ex)
