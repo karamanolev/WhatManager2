@@ -240,6 +240,12 @@ angular.
                     if (resp.success) {
                         whatifyNoty.success('Downloading ' + $scope.torrentGroup.name);
                         $scope.$emit('torrentDownloading');
+                    } else {
+                        if (resp.error) {
+                            whatifyNoty.error('Download failed: ' + resp.error);
+                        } else {
+                            whatifyNoty.error('Download failed without specified error');
+                        }
                     }
                 });
             }

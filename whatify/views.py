@@ -1,3 +1,5 @@
+import traceback
+
 from django.shortcuts import render
 
 from WhatManager2.manage_torrent import add_torrent
@@ -78,6 +80,7 @@ def download_torrent_group(request, group_id):
         return {
             'success': False,
             'error': unicode(ex),
+            'traceback': traceback.format_exc(),
         }
     return {
         'success': True,
