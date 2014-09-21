@@ -253,6 +253,12 @@ blockquote {
   float: left;
   margin-top: 1px;
 }
+.info-pane .details .buttons .pb-holder {
+  width: 300px;
+  display: inline-block;
+  margin-right: 42px;
+  vertical-align: middle;
+}
 .page {
   padding: 22px 22px 0 22px;
 }
