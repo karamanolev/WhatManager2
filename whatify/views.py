@@ -1,5 +1,7 @@
 import traceback
 
+from django.contrib.auth.decorators import login_required
+
 from django.shortcuts import render
 
 from WhatManager2.manage_torrent import add_torrent
@@ -11,10 +13,12 @@ from whatify.response_gen import get_torrent_group_dict, get_torrent_groups_have
 from whatify.utils import get_ids_to_download
 
 
+@login_required
 def index(request):
     return render(request, 'whatify/index.html')
 
 
+@login_required
 @json_return_method
 def search(request, query):
     meta_fulltext = WhatMetaFulltext.objects.only('id', 'artist', 'torrent_group')
@@ -43,6 +47,7 @@ def search(request, query):
     return results
 
 
+@login_required
 @json_return_method
 def get_torrent_group(request, group_id):
     try:
@@ -57,6 +62,7 @@ def get_torrent_group(request, group_id):
     return data
 
 
+@login_required
 @json_return_method
 def download_torrent_group(request, group_id):
     if not request.user.has_perm('home.add_whattorrent'):
@@ -88,6 +94,7 @@ def download_torrent_group(request, group_id):
     }
 
 
+@login_required
 @json_return_method
 def get_artist(request, artist_id):
     try:
@@ -101,6 +108,7 @@ def get_artist(request, artist_id):
     return get_artist_dict(artist, True)
 
 
+@login_required
 @json_return_method
 def random_torrent_groups(request):
     count = request.GET.get('count', 10)
@@ -111,6 +119,7 @@ def random_torrent_groups(request):
     return [get_torrent_group_dict(g) for g in torrent_groups.itervalues()]
 
 
+@login_required
 @json_return_method
 def top10_torrent_groups(request):
     count = request.GET.get('count', 10)

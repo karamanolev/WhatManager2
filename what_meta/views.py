@@ -4,6 +4,7 @@ import urllib
 import datetime
 import time
 
+from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse, HttpResponseNotFound
 from django.utils import timezone
 from django.utils.http import parse_http_date_safe, http_date
@@ -30,6 +31,7 @@ def get_image_last_modified(request):
         return None
 
 
+@login_required
 @last_modified(get_image_last_modified)
 def image(request):
     url = request.GET.get('url')
