@@ -22,9 +22,13 @@
                     <td>
                         <a href="{{ t.id|what_cd_torrent_link }}" target="_blank">w: {{ t.id }}</a>
                         {% if t.transtorrent_set.all.0.torrent_done == 1 %}
-                            <a href="{% url 'download.views.download_pls' t.playlist_name %}?username={{ request.user.username }}&token={{ token }}">pls</a>
+                            {% if t.what_torrent.info_loads.group.categoryName == "Music" or t.info_loads.group.categoryName == "Audiobooks" %}
+                                <a href="{% url 'download.views.download_pls' t.playlist_name %}?username={{ request.user.username }}&token={{ token }}">pls</a>
+                            {% endif %}
                             <a href="{% url 'download.views.download_zip' t.id %}">download</a>
-                            <a href="javascript: playWhat({{ t.id }}); void(0);">play</a>
+                            {% if t.what_torrent.info_loads.group.categoryName == "Music" or t.info_loads.group.categoryName == "Audiobooks" %}
+                                <a href="javascript: playWhat({{ t.id }}); void(0);">play</a>
+                            {% endif %}
                         {% else %}
                             downloading
                         {% endif %}
