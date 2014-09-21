@@ -11,7 +11,7 @@ from home.models import WhatTorrent, TransTorrent, TorrentAlreadyAddedException,
 def add_torrent(request, instance, download_location, what_id, add_to_client=True):
     w_torrent = WhatTorrent.get_or_create(request, what_id=what_id)
 
-    masters = ReplicaSet.get_what_master().transinstance_set.all()
+    masters = list(ReplicaSet.get_what_master().transinstance_set.all())
     with LockModelTables(TransTorrent, LogEntry):
         try:
             TransTorrent.objects.get(instance__in=masters, info_hash=w_torrent.info_hash)
