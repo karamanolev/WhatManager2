@@ -9,6 +9,9 @@
         {% elif what_torrent.info_loads.group.categoryName == "E-Books" %}
             [E-Books]
             {{ what_torrent.info_title }}
+        {% elif what_torrent.info_loads.group.categoryName == "Applications" %}
+            [Applications]
+            {{ what_torrent.info_title }}
         {% else %}
             [Unknown Type] {{ what_torrent.info_title }}
         {% endif %}

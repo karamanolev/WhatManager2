@@ -266,8 +266,9 @@ class WhatTorrent(models.Model, InfoHolder):
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
-            self.torrent_group = WhatTorrentGroup.update_if_newer(
-                self.info_loads['group']['id'], self.retrieved, self.info_loads['group'])
+            if self.info_loads['group']['categoryName'] == 'Music':
+                self.torrent_group = WhatTorrentGroup.update_if_newer(
+                    self.info_loads['group']['id'], self.retrieved, self.info_loads['group'])
             super(WhatTorrent, self).save(*args, **kwargs)
         try:
             what_fulltext = WhatFulltext.objects.get(id=self.id)

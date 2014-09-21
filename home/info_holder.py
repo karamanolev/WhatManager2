@@ -74,6 +74,8 @@ class InfoHolder(object):
     @cached_property
     @safe_return
     def info_artist(self):
+        if  self.info_loads['group']['categoryName'] == 'Applications': 
+            return ''
         artists = self.info_loads['group']['musicInfo']['artists']
         if len(artists) == 0:
             composers = self.info_loads['group']['musicInfo']['composers']
