@@ -4,8 +4,9 @@
     <h2>Albums</h2>
 
     <div ng-repeat="torrentGroup in artist.torrent_groups.Album">
-        <div album-info torrent-group="torrentGroup" size="160" link-title></div>
-        <div album-playlist torrent-group="torrentGroup" ng-if="torrentGroup.have === true"></div>
+        <div album-info torrent-group="torrentGroup" size="176" link-title></div>
+        <div class="unindent" album-playlist torrent-group="torrentGroup"
+             ng-if="torrentGroup.have === true"></div>
     </div>
 
     <p>

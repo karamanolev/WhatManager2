@@ -121,8 +121,10 @@ def get_torrent_group_have(what_trans_torrents, sync_torrents=False):
         trans_torrent = trans_torrents[torrent.id]
         if trans_torrent.torrent_done == 1:
             cache_entries = WhatFileMetadataCache.get_metadata_batch(torrent, trans_torrent, False)
+            duration = sum(c.duration for c in cache_entries)
             return {
                 'have': True,
+                'duration': duration,
                 'playlist': [
                     {
                         'id': 'what/' + str(torrent.id) + '#' + str(i),
@@ -131,7 +133,7 @@ def get_torrent_group_have(what_trans_torrents, sync_torrents=False):
                         'metadata': entry.easy
                     }
                     for i, entry in enumerate(cache_entries)
-                ]
+                ],
             }
         else:
             return {

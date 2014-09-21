@@ -12,6 +12,10 @@
             <span artist-list artists="torrentGroup.artists"></span>
         </div>
         <div class="year">{{ torrentGroup.year }}</div>
+        <div class="duration" ng-show="torrentGroup.duration">
+            <span class="glyphicon glyphicon-time"></span>
+            {{ torrentGroup.duration | asTime }}
+        </div>
         <div class="spacer"></div>
         <div class="buttons">
             <span ng-if="torrentGroup.have === true">

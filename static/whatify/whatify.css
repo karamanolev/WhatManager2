@@ -17,6 +17,7 @@ body a:hover {
 h1 {
   font-weight: lighter;
   letter-spacing: 2px;
+  margin-top: 0px;
 }
 h2 {
   font-size: 200%;
@@ -24,7 +25,7 @@ h2 {
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 2px;
-  margin: 0 22px 6px 22px;
+  margin-top: 6px;
 }
 blockquote {
   border-left: 5px solid #383a3f;
@@ -45,7 +46,7 @@ blockquote {
   background: #202124;
   height: 50px;
   z-index: 1;
-  padding-left: 220px;
+  padding-left: 222px;
   display: flex;
   align-items: center;
 }
@@ -141,7 +142,6 @@ blockquote {
   flex: 1;
   overflow: auto;
   position: relative;
-  padding-top: 20px;
 }
 .pane-spinner {
   position: absolute;
@@ -186,7 +186,7 @@ blockquote {
 }
 .info-pane {
   display: flex;
-  padding: 0 22px 22px 22px;
+  margin-bottom: 22px;
 }
 .info-pane .square-cover {
   align-self: flex-start;
@@ -205,21 +205,30 @@ blockquote {
 }
 .info-pane .details .artists {
   font-size: 160%;
+  margin-top: -6px;
 }
 .info-pane .details .artists .by {
   font-weight: lighter;
 }
 .info-pane .details .tags {
   font-weight: lighter;
-  margin: 4px 0 0 0;
+  margin: 2px 0 0 0;
 }
 .info-pane .details .year {
   font-weight: lighter;
   font-size: 120%;
+  margin: 2px 0 0 0;
+}
+.info-pane .details .duration {
   margin: 4px 0 0 0;
+}
+.info-pane .details .duration span.glyphicon {
+  margin-top: -3px;
+  vertical-align: middle;
 }
 .info-pane .details .spacer {
   flex: 1;
+  min-height: 8px;
 }
 .info-pane .details .buttons .btn-with-icon {
   text-align: center;
@@ -244,22 +253,54 @@ blockquote {
   float: left;
   margin-top: 1px;
 }
-.torrent-group-details-page > p,
-.artist-details-page > p {
-  margin: 0 22px 22px 22px;
+.page {
+  padding: 22px 22px 0 22px;
+}
+.page > p {
+  margin-bottom: 22px;
   padding: 16px;
   background: #202124;
 }
-.torrent-group-details-page .table.playlist,
-.artist-details-page .table.playlist {
-  cursor: pointer;
+.page .unindent {
+  position: relative;
+  margin-left: -22px;
+  margin-right: -22px;
+}
+.torrent-group-page,
+.artist-details-page,
+.playlist-page {
+  padding: 22px 22px 0 22px;
+}
+.torrent-group-page > p,
+.artist-details-page > p,
+.playlist-page > p {
+  margin-bottom: 22px;
+  padding: 16px;
+  background: #202124;
+}
+.torrent-group-page .unindent,
+.artist-details-page .unindent,
+.playlist-page .unindent {
+  position: relative;
+  margin-left: -22px;
+  margin-right: -22px;
+}
+.home-page {
+  padding: 22px 22px 0 22px;
+}
+.home-page > p {
+  margin-bottom: 22px;
+  padding: 16px;
+  background: #202124;
+}
+.home-page .unindent {
+  position: relative;
+  margin-left: -22px;
+  margin-right: -22px;
 }
 .home-page .home-spinner {
   position: relative;
   height: 240px;
-}
-.playlist-page > h1 {
-  margin: 0 20px 10px 20px;
 }
 .table.playlist a:hover {
   text-decoration: underline;
@@ -397,7 +438,7 @@ blockquote {
   background-size: cover;
 }
 .cover-grid {
-  margin: 0 6px 6px 22px;
+  margin: 0 -16px 6px 0;
   display: flex;
   align-items: stretch;
   flex-wrap: wrap;

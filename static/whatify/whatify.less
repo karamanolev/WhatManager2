@@ -4,6 +4,7 @@
 @mainPanelBackground: #101112;
 @leftPanelWidth: 200px;
 @baseFontSize: 16px;
+@spacingBase: 22px;
 
 .a-no-underline() {
   a:hover {
@@ -30,6 +31,7 @@ body {
 h1 {
   font-weight: lighter;
   letter-spacing: 2px;
+  margin-top: 0px;
 }
 
 h2 {
@@ -38,7 +40,7 @@ h2 {
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 2px;
-  margin: 0 22px 6px 22px;
+  margin-top: 6px;
 }
 
 blockquote {
@@ -62,7 +64,7 @@ blockquote {
   background: @sidePanelBackground;
   height: 50px;
   z-index: 1;
-  padding-left: @leftPanelWidth + 20px;
+  padding-left: @leftPanelWidth + @spacingBase;
   display: flex;
   align-items: center;
 
@@ -164,7 +166,6 @@ blockquote {
   flex: 1;
   overflow: auto;
   position: relative;
-  padding-top: 20px;
 }
 
 .pane-spinner {
@@ -215,7 +216,7 @@ blockquote {
 
 .info-pane {
   display: flex;
-  padding: 0 22px 22px 22px;
+  margin-bottom: @spacingBase;
   .square-cover {
     align-self: flex-start;
   }
@@ -232,21 +233,30 @@ blockquote {
     }
     .artists {
       font-size: 160%;
+      margin-top: -6px;
       .by {
         font-weight: lighter;
       }
     }
     .tags {
       font-weight: lighter;
-      margin: 4px 0 0 0;
+      margin: 2px 0 0 0;
     }
     .year {
       font-weight: lighter;
       font-size: 120%;
+      margin: 2px 0 0 0;
+    }
+    .duration {
+      span.glyphicon {
+        margin-top: -3px;
+        vertical-align: middle;
+      }
       margin: 4px 0 0 0;
     }
     .spacer {
       flex: 1;
+      min-height: 8px;
     }
     .buttons {
       .btn-with-icon {
@@ -268,27 +278,29 @@ blockquote {
   }
 }
 
-.torrent-group-details-page, .artist-details-page {
+.page {
+  padding: @spacingBase @spacingBase 0 @spacingBase;
   > p {
-    margin: 0 22px 22px 22px;
+    margin-bottom: @spacingBase;
     padding: 16px;
     background: @sidePanelBackground;
   }
-  .table.playlist {
-    cursor: pointer;
+  .unindent {
+    position: relative;
+    margin-left: -@spacingBase;
+    margin-right: -@spacingBase;
   }
+}
+
+.torrent-group-page, .artist-details-page, .playlist-page {
+  .page;
 }
 
 .home-page {
+  .page;
   .home-spinner {
     position: relative;
     height: 240px;
-  }
-}
-
-.playlist-page {
-  > h1 {
-    margin: 0 20px 10px 20px;
   }
 }
 
@@ -445,7 +457,7 @@ blockquote {
 }
 
 .cover-grid {
-  margin: 0 6px 6px 22px;
+  margin: 0 -16px 6px 0;
   display: flex;
   align-items: stretch;
   flex-wrap: wrap;
