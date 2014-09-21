@@ -218,8 +218,8 @@ angular.
             var inPlaylist = false;
             if (index !== undefined) {
                 $.each(whatPlaylist.items, function(i, item) {
-                    if (item.id == torrentGroup.playlist[index].id) {
-                        whatPlaylist.play(i);
+                    if (item.id == torrentGroup.playlist[index - 1].id) {
+                        whatPlaylist.play(i + 1);
                         inPlaylist = true;
                         return false;
                     }
