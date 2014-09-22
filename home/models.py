@@ -558,7 +558,7 @@ class WhatFileMetadataCache(models.Model):
                         file_mtime=0
                     )
                 cache.path = abs_path
-                if file_mtime == cache.file_mtime:
+                if abs(file_mtime - cache.file_mtime) <= 1:
                     result.append(cache)
                     continue
                 cache.fill(abs_path, file_mtime)
