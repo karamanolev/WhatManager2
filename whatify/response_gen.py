@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.utils.http import urlquote
 
 from WhatManager2.utils import get_artists, get_artists_list
-from home import info_holder
+from home.info_holder import WHAT_RELEASE_TYPES
 from home.models import WhatTorrent, TransTorrent, ReplicaSet, WhatFileMetadataCache
 from what_transcode.utils import html_unescape
 from whatify.filtering import sort_filter_torrents
@@ -34,18 +34,23 @@ def get_artist_dict(artist, include_all=False):
         assert not artist.is_shell, 'Can not get torrents for a shell artist'
         torrent_groups = {t['groupId']: t for t in artist.info['torrentgroup']}
         torrent_groups_have = get_torrent_groups_have(torrent_groups.keys(), True)
+        torrent_groups = list(torrent_groups.values())
+        torrent_groups.sort(key=lambda g: g['groupYear'], reverse=True)
 
-        torrent_groups_data = {}
-        for releaseTypeId, releaseTypeName in info_holder.WHAT_RELEASE_TYPES:
-            items_list = []
-            for t in torrent_groups.values():
-                if t['releaseType'] != releaseTypeId:
-                    continue
-                item_data = get_artist_group_dict(t)
-                item_data.update(torrent_groups_have[t['groupId']])
-                items_list.append(item_data)
-            torrent_groups_data[releaseTypeName] = items_list
-        data['torrent_groups'] = torrent_groups_data
+        main_artist_groups = defaultdict(list)
+        for torrent_group in torrent_groups:
+            if any(artist.id == a['id'] for a in torrent_group['artists']):
+                item_data = get_artist_group_dict(torrent_group)
+                item_data.update(torrent_groups_have[torrent_group['groupId']])
+                main_artist_groups[torrent_group['releaseType']].append(item_data)
+        categories = []
+        for release_type in WHAT_RELEASE_TYPES:
+            if main_artist_groups[release_type[0]]:
+                categories.append({
+                    'name': release_type[1],
+                    'torrent_groups': main_artist_groups[release_type[0]],
+                })
+        data['categories'] = categories
         data['tags'] = sorted(artist.info['tags'], key=lambda tag: tag['count'], reverse=True)
     return data
 

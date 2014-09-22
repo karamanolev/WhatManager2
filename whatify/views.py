@@ -8,6 +8,7 @@ from WhatManager2.manage_torrent import add_torrent
 from WhatManager2.utils import json_return_method
 from home.models import get_what_client, ReplicaSet, DownloadLocation
 from what_meta.models import WhatTorrentGroup, WhatArtist, WhatMetaFulltext
+from what_transcode.utils import html_unescape
 from whatify.response_gen import get_torrent_group_dict, get_torrent_groups_have, \
     get_artist_dict, get_artist_alias_dict, get_image_cache_url
 from whatify.utils import get_ids_to_download
@@ -133,8 +134,8 @@ def top10_torrent_groups(request):
         group_set.add(torrent['groupId'])
         results.append({
             'id': torrent['groupId'],
-            'joined_artists': torrent['artist'],
-            'name': torrent['groupName'],
+            'joined_artists': html_unescape(torrent['artist']),
+            'name': html_unescape(torrent['groupName']),
             'year': torrent['groupYear'],
             'wiki_image': get_image_cache_url(torrent['wikiImage']),
         })

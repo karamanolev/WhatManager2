@@ -90,8 +90,8 @@ angular.
         var refreshInterval = null;
         var showArtist = function(artist) {
             var hasInProgress;
-            $.each(artist.torrent_groups, function(i, section) {
-                $.each(section, function(j, torrentGroup) {
+            $.each(artist.categories, function(i, category) {
+                $.each(category.torrent_groups, function(j, torrentGroup) {
                     if (angular.isNumber(torrentGroup.have)) {
                         hasInProgress = true;
                         return false;
@@ -228,7 +228,7 @@ angular.
     directive('coverGrid', function() {
         return {
             template: '<div class="cover-grid"><a class="cover-grid-item" ' +
-                'ng-href="#/torrentGroups/{{ item.id }}" '+
+                'ng-href="#/torrentGroups/{{ item.id }}" ' +
                 'ng-repeat="item in torrentGroups"><div square-image src="item.wiki_image">' +
                 '</div><div class="title">{{ item.name }}</div><div class="artist">' +
                 '{{ item.joined_artists }}</div></a><a class="cover-grid-item"></a>' +

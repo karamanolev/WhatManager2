@@ -20,6 +20,8 @@ WHAT_RELEASE_TYPES = (
     (15, 'Interview'),
     (16, 'Mixtape'),
     (21, 'Unknown'),
+    (22, 'Concert Recording'),
+    (23, 'Demo'),
 )
 
 
