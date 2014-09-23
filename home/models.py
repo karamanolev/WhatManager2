@@ -267,7 +267,7 @@ class WhatTorrent(models.Model, InfoHolder):
     def save(self, *args, **kwargs):
         with transaction.atomic():
             try:
-                if int(self.info_category_id) != 1:
+                if int(self.info_category_id) == 1:
                     self.torrent_group = WhatTorrentGroup.update_if_newer(
                         self.info_loads['group']['id'], self.retrieved, self.info_loads['group'])
             except Exception:
