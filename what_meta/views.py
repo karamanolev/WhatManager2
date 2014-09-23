@@ -54,7 +54,7 @@ def image(request):
         modified = time.mktime(timezone.now().utctimetuple())
     with open(image_path, 'wb') as image_file:
         image_file.write(response.content)
-    os.utime(image_path, (modified, modified))
+    os.utime(image_path, (int(modified), int(modified)))
     response = HttpResponse(response.content, content_type=response.headers['Content-Type'])
     response['Last-Modified'] = http_date(modified)
     return response
