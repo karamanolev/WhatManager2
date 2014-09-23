@@ -187,15 +187,18 @@ def add_torrent(request):
         LogEntry.add(request.user, u'info',
                      u'Tried adding what_id={0}, already added.'.format(what_id))
         what_torrent = WhatTorrent.get_or_none(request, what_id=what_id)
-        return {
+        result = {
             'success': False,
             'error_code': u'already_added',
             'error': u'Already added.',
             'torrent_id': m_torrent.what_torrent_id,
-            'artist': (what_torrent.info_artist if what_torrent
-                       else '<<< Unable to find torrent >>>'),
-            'title': what_torrent.info_title if what_torrent else '<<< Unable to find torrent >>>',
         }
+        if m_torrent.what_torrent.info_category_id == 1:
+            result['artist'] = (what_torrent.info_artist if what_torrent
+                                else '<<< Unable to find torrent >>>')
+            result['title'] = (what_torrent.info_title if what_torrent
+                               else '<<< Unable to find torrent >>>')
+        return result
     except Exception as ex:
         tb = traceback.format_exc()
         LogEntry.add(request.user, u'error',
@@ -213,11 +216,13 @@ def add_torrent(request):
 
     LogEntry.add(request.user, u'action', u'Added {0} to {1}'.format(m_torrent, m_torrent.instance))
 
-    return {
+    result = {
         'success': True,
-        'artist': m_torrent.what_torrent.info_artist,
-        'title': m_torrent.what_torrent.info_title,
     }
+    if m_torrent.what_torrent.info_category_id == 1:
+        result['artist'] = m_torrent.what_torrent.info_artist,
+        result['title'] = m_torrent.what_torrent.info_title,
+    return result
 
 
 def freeleech_add_torrent(request, master, what_id, retry=3):
