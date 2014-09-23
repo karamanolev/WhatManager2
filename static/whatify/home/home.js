@@ -233,6 +233,8 @@ angular.
                 '</div><div class="title">{{ item.name }}</div><div class="artist">' +
                 '{{ item.joined_artists }}</div></a><a class="cover-grid-item"></a>' +
                 '<a class="cover-grid-item"></a><a class="cover-grid-item"></a>' +
+                '<a class="cover-grid-item"></a><a class="cover-grid-item"></a>' +
+                '<a class="cover-grid-item"></a><a class="cover-grid-item"></a>' +
                 '<a class="cover-grid-item"></a><a class="cover-grid-item"></a></div>',
             replace: true,
             scope: {
