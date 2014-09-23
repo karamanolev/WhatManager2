@@ -32,6 +32,7 @@ def sync(request):
         profile_time = time.time() - part_start_time
         part_start_time = time.time()
     except Exception as ex:
+        profile_time = 0
         tb = traceback.format_exc()
         LogEntry.add(request.user, u'error', u'Error syncing profile: {0}'.format(ex), tb)
 

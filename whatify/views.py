@@ -1,7 +1,6 @@
 import traceback
 
 from django.contrib.auth.decorators import login_required
-
 from django.shortcuts import render
 
 from WhatManager2.manage_torrent import add_torrent
@@ -145,3 +144,8 @@ def top10_torrent_groups(request):
     for result in results:
         result.update(torrents_have[result['id']])
     return results
+
+
+@json_return_method
+def search_torrent_groups(request):
+    query = request.GET['query']
