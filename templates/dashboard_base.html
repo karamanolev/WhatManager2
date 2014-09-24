@@ -69,7 +69,7 @@
                 </li>
                 <li {% if request.path == books_uploads_url %}class="active"{% endif %}>
                     <a href="{{ books_uploads_url }}">
-                        <i class="fa fa-book"></i> <span>Books</span>
+                        <i class="fa fa-book"></i> <span>Book Uploads</span>
                     </a>
                 </li>
                 <li {% if request.path == torrents_url %}class="active"{% endif %}>
@@ -114,7 +114,7 @@
         <div id="content">
             {% block content %}{% endblock %}
         </div>
-    
+
         <div class="row">
             <div id="footer" class="col-xs-12">
                 2012 - 2014 &copy; Ivailo Karamanolev
