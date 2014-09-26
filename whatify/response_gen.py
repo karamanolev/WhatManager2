@@ -39,6 +39,8 @@ def get_artist_dict(artist, include_all=False):
 
         main_artist_groups = defaultdict(list)
         for torrent_group in torrent_groups:
+            if torrent_group['artists'] is None:
+                continue
             if any(artist.id == a['id'] for a in torrent_group['artists']):
                 item_data = get_artist_group_dict(torrent_group)
                 item_data.update(torrent_groups_have[torrent_group['groupId']])
