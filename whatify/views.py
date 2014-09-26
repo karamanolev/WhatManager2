@@ -130,6 +130,8 @@ def top10_torrent_groups(request):
     for torrent in top10[0]['results']:
         if torrent['groupId'] in group_set:
             continue
+        if torrent['groupCategory'] != 1:
+            continue
         group_set.add(torrent['groupId'])
         results.append({
             'id': torrent['groupId'],
