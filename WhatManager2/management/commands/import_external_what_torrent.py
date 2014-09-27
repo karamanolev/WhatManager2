@@ -107,6 +107,22 @@ class Command(BaseCommand):
             safe_makedirs(os.path.dirname(f_dest_path))
             shutil.move(f_path, f_dest_path)
 
+    def remove_dirs(self):
+        print u'Removing empty directories...'
+        for root, dirs, files in os.walk(self.data_path, topdown=False):
+            for f_path_dir in dirs:
+                deldir = os.path.join(root, f_path_dir)
+                print deldir
+                try:
+                    os.rmdir(deldir)
+                except:
+                    pass
+                print self.data_path
+        try:
+            os.rmdir(self.data_path)
+        except:
+            pass
+
     def handle(self, *args, **options):
         if not self.check_args(args):
             print u'Pass the torrent data directory as a first argument, ' \
@@ -125,4 +141,5 @@ class Command(BaseCommand):
         print 'Adding torrent to WM...'
         manage_torrent.add_torrent(self.pseudo_request, self.trans_instance,
                                    self.download_location, self.what_torrent.id)
+        self.remove_dirs()
         print 'Done!'
