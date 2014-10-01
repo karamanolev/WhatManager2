@@ -8,7 +8,7 @@ import bencode
 from django.core.management.base import BaseCommand
 
 from WhatManager2 import manage_torrent
-from WhatManager2.utils import wm_unicode
+from WhatManager2.utils import wm_unicode, wm_str
 from home.models import WhatTorrent, DownloadLocation, ReplicaSet
 from what_transcode.utils import get_info_hash
 
@@ -71,15 +71,15 @@ class Command(BaseCommand):
         if 'files' in self.torrent_info['info']:
             for f in self.get_unicode_torrent_files():
                 f_path = os.path.join(self.data_path, *f['path'])
-                print u'Checking {0}'.format(f_path)
-                if not os.path.isfile(f_path):
-                    print u'{0} does not exist. What are you giving me?'.format(f_path)
+                print wm_str(u'Checking {0}'.format(f_path))
+                if not os.path.isfile(wm_str(f_path)):
+                    print wm_str(u'{0} does not exist. What are you giving me?'.format(f_path))
                     return False
         else:
             f_path = os.path.join(self.data_path, self.torrent_info['info']['name'])
-            print u'Checking {0}'.format(f_path)
-            if not os.path.isfile(f_path):
-                print u'{0} does not exist. What are you giving me?'
+            print wm_str(u'Checking {0}'.format(f_path))
+            if not os.path.isfile(wm_str(f_path)):
+                print wm_str(u'{0} does not exist. What are you giving me?')
                 return False
         print u'Creating destination directory...'
         self.dest_path = os.path.join(self.download_location.path, unicode(self.what_torrent.id))
@@ -99,13 +99,13 @@ class Command(BaseCommand):
                 f_path = os.path.join(self.data_path, *f['path'])
                 f_dest_path = os.path.join(self.dest_path, *f['path'])
                 safe_makedirs(os.path.dirname(f_dest_path))
-                shutil.move(f_path, f_dest_path)
+                shutil.move(wm_str(f_path), wm_str(f_dest_path))
         else:
             f_path = os.path.join(self.data_path, wm_unicode(self.torrent_info['info']['name']))
             f_dest_path = os.path.join(self.dest_path, wm_unicode(
                 self.torrent_info['info']['name']))
             safe_makedirs(os.path.dirname(f_dest_path))
-            shutil.move(f_path, f_dest_path)
+            shutil.move(wm_str(f_path), wm_str(f_dest_path))
 
     def handle(self, *args, **options):
         if not self.check_args(args):
