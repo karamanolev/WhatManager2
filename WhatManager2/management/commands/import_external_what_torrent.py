@@ -15,7 +15,7 @@ from what_transcode.utils import get_info_hash
 
 def safe_makedirs(p):
     try:
-        os.makedirs(p)
+        os.makedirs(wm_str(p))
     except OSError as ex:
         if ex.errno != errno.EEXIST:
             raise ex
@@ -83,12 +83,12 @@ class Command(BaseCommand):
                 return False
         print u'Creating destination directory...'
         self.dest_path = os.path.join(self.download_location.path, unicode(self.what_torrent.id))
-        os.makedirs(self.dest_path)
+        os.makedirs(wm_str(self.dest_path))
         os.chmod(self.dest_path, 0777)
         if 'files' in self.torrent_info['info']:
             self.dest_path = os.path.join(self.dest_path, wm_unicode(
                 self.torrent_info['info']['name']))
-            os.makedirs(self.dest_path)
+            os.makedirs(wm_str(self.dest_path))
         print u'All torrent data files exist.'
         return True
 
@@ -113,7 +113,7 @@ class Command(BaseCommand):
                   u'a path to the .torrent file as a second.'
             return
         self.data_path, self.torrent_path = [wm_unicode(i) for i in args]
-        with open(self.torrent_path, 'rb') as f:
+        with open(wm_str(self.torrent_path), 'rb') as f:
             self.torrent_info = bencode.bdecode(f.read())
         if options['base_dir']:
             self.data_path = os.path.join(self.data_path,
