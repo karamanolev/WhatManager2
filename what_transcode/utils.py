@@ -114,12 +114,16 @@ def check_flac_tags(flac_path):
         raise Exception(u'Missing title tag on {0}'.format(flac_path))
 
     track = flac.get('tracknumber') or flac.get('track')
+    if type(track) in [str, unicode] and '/' in track:
+        track = track.split('/')
     if type(track) is list:
         track = track[0]
     if not track:
         raise Exception(u'Missing track tag on {0}'.format(flac_path))
 
     disc = flac.get('discnumber') or flac.get('disc')
+    if type(disc) in [str, unicode] and '/' in disc:
+        disc = disc.split('/')
     if type(disc) is list:
         disc = disc[0]
 
