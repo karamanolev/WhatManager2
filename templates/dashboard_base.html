@@ -62,6 +62,8 @@
                 {% url 'queue.views.index' as queue_url %}
                 {% url 'home.views.stats' as stats_url %}
                 {% url 'home.views.userscripts' as userscripts_url %}
+                {% url 'status.views.index' as status_url %}
+
                 <li {% if request.path == home_url %}class="active"{% endif %}>
                     <a href="{{ home_url }}">
                         <i class="fa fa-home"></i> <span>Dashboard</span>
@@ -105,6 +107,11 @@
                 <li {% if request.path == userscripts_url %}class="active"{% endif %}>
                     <a href="{{ userscripts_url }}">
                         <i class="fa fa-th-large"></i> <span>Userscripts</span>
+                    </a>
+                </li>
+                <li {% if request.path == status_url %}class="active"{% endif %}>
+                    <a href="{{ status_url }}">
+                        <i class="fa fa-th-large"></i> <span>Status</span>
                     </a>
                 </li>
             </ul>

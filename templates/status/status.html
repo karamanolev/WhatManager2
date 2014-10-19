@@ -1,0 +1,159 @@
+{% extends 'dashboard_base.html' %}
+
+{% load staticfiles custom_filters %}
+
+{% block content %}
+    <div id="content-header">
+        <h1>Status</h1>
+    </div>
+    <div id="breadcrumb">
+        <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+
+    </div>
+    <div class="container-fluid">
+        {% if perms.queue.view_queueitem %}
+
+        <div class="row" id="status_environment">
+            <div class="col-md-12">
+                <div class="widget-box">
+                    <div class="widget-title">
+                    <span class="icon"><i class="fa fa-info"></i></span><h5>Environment</h5>
+                    </div>
+                    <div class="widget-content nopadding">
+                        <h4 style="padding-left: 20px;">Loading...</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="status_settings">
+            <div class="col-md-12">
+                <div class="widget-box">
+                    <div class="widget-title">
+                    <span class="icon"><i class="fa fa-cog"></i></span><h5>Settings</h5>
+                    </div>
+                    <div class="widget-content nopadding">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="replica_sets">
+            <div class="col-md-12">
+                <div class="widget-box">
+                    <div class="widget-title">
+                    <span class="icon"><i class="fa fa-cog"></i></span><h5>Replica sets</h5>
+                    </div>
+                    <div class="widget-content nopadding">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                <th>Zone</th>
+                                <th>Name</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for e in replica_sets %}
+                                    {% if e.error == 'error' %}
+                                        <tr class="danger">
+                                            <td>{{ e.name }}</td>
+                                            <td>{{ e.errorMsg}}</td>
+                                        </tr>
+
+                                    {% else %}
+                                         <tr class="info">
+                                            <td>{{ e.name }}</td>
+                                            <td class="
+                                                {% if e.error == 'success' %}success
+                                                {% elif e.error == 'error' %}danger
+                                                {% elif e.error == 'info' %}info
+                                                {% endif %}
+                                            ">{{ e.status }}</td>
+                                        </tr>
+                                    {% endif %}
+                               
+                                {% endfor %}
+                        
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="replica_download_locations">
+            <div class="col-md-12">
+                <div class="widget-box">
+                    <div class="widget-title">
+                    <span class="icon"><i class="fa fa-download"></i></span><h5>Download locations</h5>
+                    </div>
+                    <div class="widget-content nopadding">
+                        <h4 style="padding-left: 20px;">Loading...</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="check_trans_row">
+            <div class="col-md-12">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <span class="icon"><i class="fa fa-download"></i></span><h5>Transmission instances</h5>
+                    </div>
+                    <div class="widget-content nopadding">
+                        <h4 style="padding-left: 20px;">Loading...</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <span class="icon"><i class="fa fa-info-circle"></i></span>
+                            <h5>No permission</h5>
+                        </div>
+                        <div class="widget-content">
+                            You don't have permission to view the queue.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    {% include 'dashboard_search_redirect.html' %}
+    {% if perms.home.run_checks %}
+        <script>
+            var transRow = $('#check_trans_row');
+            function loadTransStatus() {
+                transRow.find('.widget-content').load('{% url 'status.views.check_trans' %}');
+            }
+            loadTransStatus();
+
+            var statusEnvRow = $('#status_environment');
+            function loadEnvStatus() {
+                statusEnvRow.find('.widget-content').load('{% url 'status.views.status_environment' %}');
+            }
+            loadEnvStatus();
+
+            var settingsRow = $('#status_settings');
+            function loadStatusSetting() {
+                settingsRow.find('.widget-content').load('{% url 'status.views.status_settings' %}');
+            }
+            loadStatusSetting();
+
+            var statusDownload = $('#replica_download_locations');
+            function loadDownloadLocations() {
+                statusDownload.find('.widget-content').load('{% url 'status.views.status_downloadpath' %}');
+            }
+            loadDownloadLocations();
+        </script>
+    {% endif %}
+{% endblock %}

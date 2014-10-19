@@ -1,0 +1,22 @@
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th style="width: 220px;">Name</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for e in status_environment %}
+        <tr class="info">
+        <td>{{ e.name }}</td>
+        <td class="
+            {% if e.error == 'success' %}success
+            {% elif e.error == 'error' %}danger
+            {% elif e.error == 'info' %}info
+            {% endif %}
+            ">{{ e.status|linebreaksbr }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
