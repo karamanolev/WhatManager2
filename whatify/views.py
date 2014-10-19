@@ -150,4 +150,4 @@ def top10_torrent_groups(request):
 
 @json_return_method
 def search_torrent_groups(request):
-    # query = request.GET['query']
+    request.GET['query']
