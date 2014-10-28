@@ -67,6 +67,15 @@ FILES_SYNC_HTTP_PASSWORD = 'password'
 FILES_SYNC_SSH = 'user@host.com'
 FILES_SYNC_WM_ROOT = 'https://host.com/'
 
+# You only need to set these if you want to scrobble to last.fm
+# You have to have your own unique two values for API_KEY and API_SECRET
+# Obtain yours from http://www.last.fm/api/account for Last.fm
+LASTFM_API_KEY = '' # Create your own api key
+LASTFM_API_SECRET = '' 
+LASTFM_USERNAME = '' # Your lastfm username
+LASTFM_PASSWORD = '' # Your lastfm password
+
+
 # Used permissions
 # home_view_logentry - Viewing logs
 # home_add_whattorrent - Adding torrents
