@@ -7,8 +7,9 @@ from WhatManager2.settings import LASTFM_API_KEY, LASTFM_API_SECRET, \
     LASTFM_USERNAME, LASTFM_PASSWORD
 
 if "" not in (LASTFM_API_KEY, LASTFM_API_SECRET, LASTFM_USERNAME, LASTFM_PASSWORD):
-    lastfm_network = pylast.LastFMNetwork(api_key=LASTFM_API_KEY, api_secret=
-                                          LASTFM_API_SECRET, username=LASTFM_USERNAME,
+    lastfm_network = pylast.LastFMNetwork(api_key=LASTFM_API_KEY,
+                                          api_secret=LASTFM_API_SECRET,
+                                          username=LASTFM_USERNAME,
                                           password_hash=pylast.md5(LASTFM_PASSWORD))
 else:
     lastfm_network = None
