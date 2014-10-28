@@ -162,7 +162,11 @@ angular.
             s.index = index;
             update();
             whatPlayer.load(s.currentItem.url);
+            console.log('HERE WE GOT');
             whatPlayer.play();
+                            url = window.location.href.replace(window.location.hash,
+                        '#/torrentGroups/' + torrentGroup.id) + '/play';
+            $.post( "/lastfm/scrobble", JSON.stringify({ "artist": s.currentItem.metadata.artist, "title" : s.currentItem.metadata.title, "album" : s.currentItem.metadata.album }) );
         };
         s.add = function(item) {
             s.items.push(item);
