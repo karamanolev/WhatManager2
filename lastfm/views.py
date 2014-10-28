@@ -16,12 +16,12 @@ else:
 
 @csrf_protect
 def scrobble(request):
-    if request.method == 'POST' and not lastfm_network:
+    if request.method == 'POST' and lastfm_network is not None:
             received_json_data = json.loads(request.body)
             artist = received_json_data['artist']
             song = received_json_data['title']
             lastfm_network.scrobble(artist=artist,
                                     title=song,
                                     timestamp=int(time.time()))
-            return StreamingHttpResponse('it was post request: '+str(received_json_data))
-    return StreamingHttpResponse('it was GET request')
+            return StreamingHttpResponse('Scrobbled')
+    return StreamingHttpResponse('Did not scrobble. It was GET request or no last.fm setup')
