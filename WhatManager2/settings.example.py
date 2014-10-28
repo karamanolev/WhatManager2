@@ -70,10 +70,10 @@ FILES_SYNC_WM_ROOT = 'https://host.com/'
 # You only need to set these if you want to scrobble to last.fm
 # You have to have your own unique two values for API_KEY and API_SECRET
 # Obtain yours from http://www.last.fm/api/account for Last.fm
-LASTFM_API_KEY = '' # Create your own api key
-LASTFM_API_SECRET = '' 
-LASTFM_USERNAME = '' # Your lastfm username
-LASTFM_PASSWORD = '' # Your lastfm password
+LASTFM_API_KEY = ''  # Create your own api key
+LASTFM_API_SECRET = ''
+LASTFM_USERNAME = ''  # Your lastfm username
+LASTFM_PASSWORD = ''  # Your lastfm password
 
 
 # Used permissions
