@@ -6,7 +6,7 @@ import time
 from WhatManager2.settings import LASTFM_API_KEY, LASTFM_API_SECRET, \
     LASTFM_USERNAME, LASTFM_PASSWORD
 
-if "" not in (LASTFM_API_KEY, LASTFM_API_SECRET, LASTFM_USERNAME, LASTFM_PASSWORD):
+if all(LASTFM_API_KEY, LASTFM_API_SECRET, LASTFM_USERNAME, LASTFM_PASSWORD):
     lastfm_network = pylast.LastFMNetwork(api_key=LASTFM_API_KEY,
                                           api_secret=LASTFM_API_SECRET,
                                           username=LASTFM_USERNAME,
