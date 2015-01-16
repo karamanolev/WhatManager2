@@ -13,11 +13,12 @@ def add_torrent(request, instance, download_location, what_id, add_to_client=Tru
 
     masters = list(ReplicaSet.get_what_master().transinstance_set.all())
     with LockModelTables(TransTorrent, LogEntry):
-        try:
-            TransTorrent.objects.get(instance__in=masters, info_hash=w_torrent.info_hash)
-            raise TorrentAlreadyAddedException(u'Already added.')
-        except TransTorrent.DoesNotExist:
-            pass
+        if add_to_client:
+            try:
+                TransTorrent.objects.get(instance__in=masters, info_hash=w_torrent.info_hash)
+                raise TorrentAlreadyAddedException(u'Already added.')
+            except TransTorrent.DoesNotExist:
+                pass
 
         if add_to_client:
             manager = transaction.atomic
