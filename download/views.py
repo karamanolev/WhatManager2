@@ -50,13 +50,16 @@ def download_zip(request, what_id):
 
     target_dir = os.path.join(t_torrent.path, t_torrent.torrent_name).encode('utf-8')
     torrent_files = []
-    for root, rel_path, files in os.walk(target_dir):
-        for file in files:
-            rel_path = root.replace(target_dir, '')
-            if rel_path.startswith('/') or rel_path.startswith('\\'):
-                rel_path = rel_path[1:]
-            rel_path = os.path.join(rel_path.encode('utf-8'), file)
-            torrent_files.append((rel_path, os.path.join(root, file)))
+    if not os.path.isdir(target_dir):
+        torrent_files.append((t_torrent.torrent_name, target_dir))
+    else:
+        for root, rel_path, files in os.walk(target_dir):
+            for file in files:
+                rel_path = root.replace(target_dir, '')
+                if rel_path.startswith('/') or rel_path.startswith('\\'):
+                    rel_path = rel_path[1:]
+                rel_path = os.path.join(rel_path.encode('utf-8'), file)
+                torrent_files.append((rel_path, os.path.join(root, file)))
 
     download_filename = '[{0}] {1}.zip'.format(what_id, torrent_file)
 
