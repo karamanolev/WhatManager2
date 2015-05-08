@@ -39,10 +39,15 @@ def sync_instance_db(instance):
     with transaction.atomic():
         for c_hash, t_torrent in t_torrents.items():
             if c_hash not in b_torrents:
-                LogEntry.add(None, u'error',
+                torrent_id = int(os.path.basename(t_torrent.downloadDir))
+                w_torrent = BibliotikTorrent.get_or_create(None, torrent_id)
+                d_location = DownloadLocation.get_by_full_path(t_torrent.downloadDir)
+                m_torrent = manage_bibliotik.add_bibliotik_torrent(w_torrent.id, instance,
+                                                                   d_location, None, False)
+                b_torrents[m_torrent.info_hash] = m_torrent
+                LogEntry.add(None, u'action',
                              u'Bibliotik torrent {0} appeared in instance {1}.'
                              .format(t_torrent.name, instance))
-                break
             else:
                 b_torrent = b_torrents[c_hash]
                 b_torrent.sync_t_torrent(t_torrent)
