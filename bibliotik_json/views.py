@@ -3,8 +3,8 @@ import traceback
 import time
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-
 from django.db.models.aggregates import Max
+
 from django.http.response import HttpResponse
 
 from requests.models import json_dumps
@@ -162,6 +162,8 @@ def cache_next(request):
             return {'success': False, 'location': location}
     else:
         return {'success': False, 'status_code': response.status_code}
-    item = BibliotikTorrentPageCache(id=next_id, headers=json_dumps(dict(response.headers)), body=response.text)
+    item = BibliotikTorrentPageCache(id=next_id, status_code=response.status_code,
+                                     headers=json_dumps(dict(response.headers)),
+                                     body=response.text)
     item.save()
     return {'success': True, 'id': next_id}
