@@ -156,7 +156,7 @@ def cache_next(request):
     if response.status_code == 200:
         pass
     elif response.status_code == 302:
-        location = response.headers['Location']
+        location = response.headers['location']
         if location.startswith('http://bibliotik.org/log/'):
             pass
         else:
@@ -167,4 +167,7 @@ def cache_next(request):
                                      headers=json_dumps(dict(response.headers)),
                                      body=response.text)
     item.save()
-    return {'success': True, 'id': item.id, 'status_code': item.status_code, 'body_length': len(item.body)}
+    res = {'success': True, 'id': item.id, 'status_code': item.status_code, 'body_length': len(item.body)}
+    if 'location' in response.headers:
+        res['location'] = response.headers['location']
+    return res
