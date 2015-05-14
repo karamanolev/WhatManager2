@@ -21,6 +21,8 @@ class Command(BaseCommand):
                     continue
                 if t.torrent_size > 2 * 1000 ** 2:
                     continue
+                if t.bibliotiktranstorrent_set.count() > 0:
+                    continue
                 print 'Will download:'
                 print ' {' + str(t.id) + '}', t.title
                 print t.torrent_size
