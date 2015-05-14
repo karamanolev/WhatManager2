@@ -16,6 +16,7 @@ class Command(BaseCommand):
         for item in cache_items:
             t = BibliotikTorrent(id=item.id, html_page=item.body)
             try:
+                print 'Parsing', item.id
                 t.parse_html_page()
                 if t.category != 'Ebooks':
                     continue

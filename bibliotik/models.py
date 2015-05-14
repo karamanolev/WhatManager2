@@ -77,6 +77,7 @@ class BibliotikTorrent(models.Model):
             raise Exception(u'Title should not be empty.')
         self.category = pq('h1#title > img:first-child').attr('title')
         details = pq('p#details_content_info').text().split(', ')
+        assert len(details) and details[0]
         self.format = details[0]
         details = details[1:]
         if self.category == u'Ebooks':
