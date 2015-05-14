@@ -3,6 +3,7 @@ import traceback
 import time
 
 from django.contrib.auth.decorators import login_required, user_passes_test
+
 from django.db.models.aggregates import Max
 
 from django.http.response import HttpResponse
@@ -166,4 +167,4 @@ def cache_next(request):
                                      headers=json_dumps(dict(response.headers)),
                                      body=response.text)
     item.save()
-    return {'success': True, 'id': next_id}
+    return {'success': True, 'id': item.id, 'status_code': item.status_code, 'body_length': len(item.body)}
