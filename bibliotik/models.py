@@ -1,3 +1,4 @@
+import re
 import time
 import os.path
 
@@ -141,6 +142,10 @@ class BibliotikTorrent(models.Model):
                 self.year = int(publisher_year)
             else:
                 self.year = 0
+        file_info = pq('#details_file_info').text()
+        match = re.match(r'(?P<size>\d*,?\d+(\.\d+)?) (?P<quant>B|KB|MB|GB),.*', file_info)
+        self.torrent_size = float(match.group('size').replace(',', '')) * {
+            'B': 1, 'KB': 1000, 'MB': 1000 ** 2, 'GB': 1000 ** 3}[match.group('quant')]
 
     @staticmethod
     def get_or_create(bibliotik_client, torrent_id):
