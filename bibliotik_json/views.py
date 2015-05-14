@@ -157,7 +157,7 @@ def cache_next(request):
         pass
     elif response.status_code == 302:
         location = response.headers['Location']
-        if location.startswith('http://bibliotik.org/log'):
+        if location.startswith('http://bibliotik.org/log/'):
             pass
         else:
             return {'success': False, 'location': location}
