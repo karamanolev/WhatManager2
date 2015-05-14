@@ -8,7 +8,7 @@
 		"*://*.bibliotik.org/"
 	],
 	"externally_connectable": {
-		"matches": ["*://*.lib.overdrive.com/*", "https://*.karamanolev.com/*", "*://*.bibliotik.org/*"]
+		"matches": ["*://*.lib.overdrive.com/*", "https://*.karamanolev.com/*", "*://*.bibliotik.org/*", "*://localhost:*/*"]
 	},
 	"background": {
 		"persistent": false,

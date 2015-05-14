@@ -10,4 +10,5 @@ urlpatterns = patterns(
     # Maintenance views
     url(r'^refresh_oldest_torrent$', 'bibliotik_json.maintenance_views.refresh_oldest_torrent'),
     url(r'^reparse_bibliotik_pages$', 'bibliotik_json.maintenance_views.reparse_bibliotik_pages'),
+    url(r'^cache_next$', 'bibliotik_json.views.cache_next'),
 )

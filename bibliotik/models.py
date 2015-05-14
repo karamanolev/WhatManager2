@@ -207,3 +207,10 @@ class BibliotikFulltext(models.Model):
             self.info = info
             self.more_info = more_info
             self.save()
+
+
+class BibliotikTorrentPageCache(models.Model):
+    id = models.IntegerField(primary_key=True)
+    status_code = models.IntegerField()
+    headers = models.TextField()
+    body = models.TextField()

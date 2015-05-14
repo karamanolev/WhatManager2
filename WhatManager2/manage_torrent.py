@@ -8,12 +8,12 @@ from home.models import WhatTorrent, TransTorrent, TorrentAlreadyAddedException,
     ReplicaSet
 
 
-def add_torrent(request, instance, download_location, what_id, add_to_client=True):
+def add_torrent(request, instance, download_location, what_id, add_to_client=True, moving=False):
     w_torrent = WhatTorrent.get_or_create(request, what_id=what_id)
 
     masters = list(ReplicaSet.get_what_master().transinstance_set.all())
     with LockModelTables(TransTorrent, LogEntry):
-        if add_to_client:
+        if add_to_client and not moving:
             try:
                 TransTorrent.objects.get(instance__in=masters, info_hash=w_torrent.info_hash)
                 raise TorrentAlreadyAddedException(u'Already added.')
@@ -59,6 +59,6 @@ def remove_torrent(m_torrent):
 def move_torrent(m_torrent, new_instance):
     with transaction.atomic():
         new_m_torrent = add_torrent(None, new_instance, m_torrent.location,
-                                    m_torrent.what_torrent.id, True)
+                                    m_torrent.what_torrent.id, True, True)
         remove_torrent(m_torrent)
     return new_m_torrent
