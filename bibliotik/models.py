@@ -48,7 +48,7 @@ class BibliotikTorrent(models.Model):
     cover_url = models.TextField()
     tags = models.TextField()
     publisher = models.TextField()
-    year = models.IntegerField()
+    year = models.IntegerField(null=True)
     author = models.TextField()
     title = models.TextField()
     html_page = models.TextField()

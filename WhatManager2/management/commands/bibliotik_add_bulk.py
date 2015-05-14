@@ -29,6 +29,6 @@ class Command(BaseCommand):
                 print t.torrent_size
                 manage_bibliotik.add_bibliotik_torrent(t.id, bibliotik_client=client)
                 print 'Added'
-                sleep(5)
+                sleep(3)
             except AssertionError:
                 pass
