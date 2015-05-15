@@ -44,7 +44,7 @@
                 refreshLog.append(text + '\n');
                 $('#refresh_log').animate({
                     scrollTop: refreshLog[0].scrollHeight - refreshLog.height()
-                }, 1000);
+                }, 250);
             }
 
             stealBibliotikSessionId(function (sessionId) {
