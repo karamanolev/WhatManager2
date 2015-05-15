@@ -20,7 +20,7 @@ class Command(BaseCommand):
                 t.parse_html_page()
                 if t.category != 'Ebooks':
                     continue
-                if t.torrent_size > 100 * 1000 ** 2:
+                if t.torrent_size > 200 * 1000 ** 2:
                     continue
                 if t.bibliotiktranstorrent_set.count() > 0:
                     continue
