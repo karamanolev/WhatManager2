@@ -52,7 +52,8 @@
                 var consFailure = 0;
                 var refreshItemFail = function () {
                     ++consFailure;
-                    if (consFailure < 5) {
+                    if (consFailure < 8) {
+                        appendLog('Request failed, will retry...');
                         setTimeout(refreshItem, timeout);
                     } else {
                         appendLog('Requests failing. Check bibliotik and refresh.')
@@ -64,6 +65,7 @@
                         if (!resp.success) {
                             refreshItemFail();
                         } else {
+                            consFailure = 0;
                             setTimeout(refreshItem, timeout);
                         }
                     }).fail(function () {
