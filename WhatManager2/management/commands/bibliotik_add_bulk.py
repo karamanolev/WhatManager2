@@ -20,8 +20,8 @@ class Command(BaseCommand):
                 t.parse_html_page()
                 if t.category != 'Ebooks':
                     continue
-                if t.torrent_size > 500 * 1000 ** 2:
-                    continue
+                # if t.torrent_size > 500 * 1000 ** 2:
+                #     continue
                 if t.bibliotiktranstorrent_set.count() > 0:
                     continue
                 print 'Will download:'
