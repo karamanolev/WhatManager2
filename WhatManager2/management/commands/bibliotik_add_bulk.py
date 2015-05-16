@@ -1,3 +1,4 @@
+from optparse import make_option
 from time import sleep
 
 from django.core.management.base import BaseCommand
@@ -8,11 +9,20 @@ from bibliotik.utils import BibliotikClient
 
 
 class Command(BaseCommand):
+    option_list = BaseCommand.option_list + (
+        make_option('--start-index',
+                    action='store',
+                    dest='start_index',
+                    default=1,
+                    help='The torrent index to start with, if all have been completed up to an index.'),
+    )
     help = 'Clears and rebuilds the Biblitoik fulltext table.'
 
     def handle(self, *args, **options):
         client = BibliotikClient(args[0])
-        cache_items = list(BibliotikTorrentPageCache.objects.filter(status_code=200).order_by('id').all())
+        start_index = options['start_index']
+        cache_items = list(BibliotikTorrentPageCache.objects.filter(
+            status_code=200, id__gte=start_index).order_by('id').all())
         for item in cache_items:
             t = BibliotikTorrent(id=item.id, html_page=item.body)
             try:
