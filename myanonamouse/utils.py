@@ -1,7 +1,6 @@
 import re
 import requests
 import pickle
-
 from samba.netcmd import time
 
 from myanonamouse.models import MAMLoginCache
@@ -14,6 +13,17 @@ class MAMException(Exception):
 
 class LoginException(MAMException):
     pass
+
+
+def process_url(url):
+    if url.startswith('http://') or url.startswith('https://'):
+        return url
+    elif url.startswith('//'):
+        return 'http:' + url
+    elif url.startswith('/'):
+        return MAM_ROOT_URL + url
+    else:
+        return MAM_ROOT_URL + '/' + url
 
 
 class MAMClient(object):
@@ -33,7 +43,7 @@ class MAMClient(object):
             'username': self.username,
             'password': self.password,
         }
-        r = self.session.post(MAM_LOGIN_URL, data=data, allow_redirects=False)
+        r = self.session.post(process_url(MAM_LOGIN_URL), data=data, allow_redirects=False)
         if r.status_code != 302:
             raise LoginException()
         if r.headers['location'] != '/index.php':
@@ -58,15 +68,7 @@ class MAMClient(object):
         return resp
 
     def request(self, url):
-        if url.startswith('http://') or url.startswith('https://'):
-            pass
-        elif url.startswith('//'):
-            url = 'http:' + url
-        elif url.startswith('/'):
-            url = MAM_ROOT_URL + url
-        else:
-            url = MAM_ROOT_URL + '/' + url
-        return self._request(url, try_login=True)
+        return self._request(process_url(url), try_login=True)
 
     def download_torrent(self, torrent_url):
         for i in xrange(3):
