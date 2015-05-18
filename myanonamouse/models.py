@@ -36,7 +36,7 @@ class MAMTorrent(models.Model):
     subcategory = models.CharField(max_length=64)
     language = models.CharField(max_length=32)
     isbn = models.CharField(max_length=16)
-    cover_url = models.TextField()
+    cover_url = models.TextField(null=True)
     small_description = models.TextField()
     description = models.TextField()
     html_page = models.TextField()
