@@ -34,6 +34,7 @@ class TorrentAlreadyAddedException(Exception):
 class ReplicaSet(models.Model):
     ZONE_WHAT = 'what.cd'
     ZONE_BIBLIOTIK = 'bibliotik.org'
+    ZONE_MYANONAMOUSE = 'myanonamouse.net'
 
     zone = models.CharField(max_length=16)
     name = models.TextField()
@@ -63,6 +64,10 @@ class ReplicaSet(models.Model):
     @classmethod
     def get_bibliotik_master(cls):
         return cls.objects.get(zone=cls.ZONE_BIBLIOTIK, name='master')
+
+    @classmethod
+    def get_myanonamouse_master(cls):
+        return cls.objects.get(zone=cls.ZONE_MYANONAMOUSE, name='master')
 
 
 class DownloadLocation(models.Model):
@@ -98,6 +103,13 @@ class DownloadLocation(models.Model):
     def get_bibliotik_preferred(cls):
         return DownloadLocation.objects.get(
             zone=ReplicaSet.ZONE_BIBLIOTIK,
+            preferred=True,
+        )
+
+    @classmethod
+    def get_myanonamouse_preferred(cls):
+        return DownloadLocation.objects.get(
+            zone=ReplicaSet.ZONE_MYANONAMOUSE,
             preferred=True,
         )
 
@@ -197,6 +209,16 @@ class TransInstance(models.Model):
         for t in self.bibliotiktranstorrent_set.all():
             existing = torrents.get(t.info_hash)
             if existing and t.bibliotik_torrent_id == existing.bibliotik_torrent_id:
+                t.delete()
+                continue
+            torrents[t.info_hash] = t
+        return torrents
+
+    def get_mam_torrents_by_hash(self):
+        torrents = {}
+        for t in self.mamtranstorrent_set.all():
+            existing = torrents.get(t.info_hash)
+            if existing and t.mam_torrent_id == existing.mam_torrent_id:
                 t.delete()
                 continue
             torrents[t.info_hash] = t
