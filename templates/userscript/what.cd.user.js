@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name What.CD / WM Integrator
 // @namespace https://karamanolev.com
-// @version 1.2.0
+// @version 1.2.1
 // @description Integration between WM and What.CD
 // @match https://what.cd/*
 // @grant GM_xmlhttpRequest
@@ -26,7 +26,7 @@ function formatResponseError(response) {
 
 function submitIds(rows, callback) {
     setTimeout(function () {
-        var ids = []
+        var ids = [];
         for (var i in rows) ids.push(rows[i].whatId);
 
         GM_xmlhttpRequest({
@@ -109,7 +109,37 @@ function getWhatId(link) {
     return result;
 }
 
-var torrentRows = []
+var torrentRows = [];
+
+function downloadTorrent(row) {
+    row.actions.html(loadingImg);
+    row.isAdding = true;
+    addTorrent(row.whatId, function (addResult) {
+        var htmlTitle;
+        row.isAdding = false;
+        if (addResult.success) {
+            htmlTitle = $('<b>').text(addResult.title).prop('outerHTML');
+            noty({
+                text: 'Torrent ' + htmlTitle + ' added successfully!',
+                type: 'success'
+            });
+            row.actions.text('OK');
+        } else if (addResult.error_code == 'already_added') {
+            htmlTitle = $('<b>').text(addResult.title).prop('outerHTML');
+            noty({
+                text: 'Torrent ' + htmlTitle + ' already added!',
+                type: 'warning'
+            });
+            row.actions.text('ERR');
+        } else {
+            noty({
+                text: 'Error adding ' + resp.id + ': ' + addResult.error,
+                type: 'error'
+            });
+            row.actions.text('ERR');
+        }
+    });
+}
 
 function processResult(result) {
     $.each(result, function (i, resp) {
@@ -121,6 +151,7 @@ function processResult(result) {
         }
 
         row.actions.empty();
+        delete row.downloadLink;
         if (resp.status == 'downloaded') {
             // Play
             link = $('<a href="#">▶</a>');
@@ -152,36 +183,12 @@ function processResult(result) {
             link.click(function (e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to download ' + resp.id + '?')) {
-                    row.actions.html(loadingImg);
-                    row.isAdding = true;
-                    addTorrent(resp.id, function (addResult) {
-                        row.isAdding = false;
-                        if (addResult.success) {
-                            var htmlTitle = $('<b>').text(addResult.title).prop('outerHTML');
-                            noty({
-                                text: 'Torrent ' + htmlTitle + ' added successfully!',
-                                type: 'success'
-                            });
-                            row.actions.text('OK');
-                        } else if (addResult.error_code == 'already_added') {
-                            var htmlTitle = $('<b>').text(addResult.title).prop('outerHTML');
-                            noty({
-                                text: 'Torrent ' + htmlTitle + ' already added!',
-                                type: 'warning'
-                            });
-                            row.actions.text('ERR');
-                        } else {
-                            noty({
-                                text: 'Error adding ' + resp.id + ': ' + addResult.error,
-                                type: 'error'
-                            });
-                            row.actions.text('ERR');
-                        }
-                    });
+                    downloadTorrent(row);
                 }
             });
             row.actions.append(' ');
             row.actions.append(link);
+            row.downloadLink = link;
 
             // Transcode request
             link = $('<a href="#">TC</a>');
@@ -241,3 +248,10 @@ if (torrentRows.length) {
     }
 }
 
+unsafeWindow.wmGetAllTorrents = function () {
+    $.each(torrentRows, function (i, row) {
+        if (row.downloadLink) {
+            downloadTorrent(row);
+        }
+    });
+};
