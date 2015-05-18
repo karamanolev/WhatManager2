@@ -67,13 +67,19 @@ class MAMTorrent(models.Model):
                 return row.text()
             return default
 
+        def find_row_html(text, default=''):
+            row = find_row(text)
+            if row:
+                return row.html()
+            return default
+
         self.info_hash = find_row_text('Info hash')
         self.title = pq.find('#mainBody > h1').text()
         self.category, self.subcategory = find_row_text('Type').split(' - ', 1)
         self.language = find_row_text('Language')
         self.cover_url = find_row('Picture:').find('img').attr('src')
-        self.small_description = find_row('Small Description').html()
-        self.description = find_row('Description').html()
+        self.small_description = find_row_html('Small Description')
+        self.description = find_row_html('Description')
         self.torrent_url = find_row('Download').find('a#dlNormal').attr('href')
         size_string = find_row_text('Size')
         match = re.match('.* \((?P<size>\d+(,\d\d\d)*) bytes\)', size_string)
