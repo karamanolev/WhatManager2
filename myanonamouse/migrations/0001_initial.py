@@ -23,6 +23,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('info_hash', models.CharField(max_length=40, db_index=True)),
+                ('title', models.CharField(max_length=256)),
                 ('retrieved', models.DateTimeField()),
                 ('category', models.CharField(max_length=32)),
                 ('subcategory', models.CharField(max_length=64)),
@@ -43,7 +44,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('info_hash', models.CharField(max_length=40)),
-                ('title', models.CharField(max_length=256)),
                 ('torrent_id', models.IntegerField(null=True)),
                 ('torrent_name', models.TextField(null=True)),
                 ('torrent_size', models.BigIntegerField(null=True)),
