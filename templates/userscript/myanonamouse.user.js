@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name MyAnonaMouse / WM Integrator
 // @namespace https://karamanolev.com
-// @version 0.0.2
+// @version 0.1.0
 // @description Integration between WM and MyAnonaMouse.net
 // @match http://*.myanonamouse.net/*
 // @match https://*.myanonamouse.net/*
@@ -27,7 +27,9 @@ function formatResponseError(response) {
 function submitIds(rows, callback) {
     setTimeout(function () {
         var ids = [];
-        $.each(rows, function(k, row) { ids.push(row.whatId); });
+        $.each(rows, function (k, row) {
+            ids.push(row.whatId);
+        });
         var idsString = 'ids=' + encodeURIComponent(ids.join(','));
         GM_xmlhttpRequest({
             method: "GET",
@@ -81,16 +83,17 @@ function downloadTorrent(row) {
     row.actions.html(loadingImg);
     row.isAdding = true;
     addTorrent(row.whatId, function (addResult) {
+        var htmlTitle;
         row.isAdding = false;
         if (addResult.success) {
-            var htmlTitle = $('<b>').text(addResult.title).prop('outerHTML');
+            htmlTitle = $('<b>').text(addResult.title).prop('outerHTML');
             noty({
                 text: 'Torrent ' + htmlTitle + ' added successfully!',
                 type: 'success'
             });
             row.actions.text('OK');
         } else if (addResult.error_code == 'already_added') {
-            var htmlTitle = $('<b>').text(addResult.title).prop('outerHTML');
+            htmlTitle = $('<b>').text(addResult.title).prop('outerHTML');
             noty({
                 text: 'Torrent ' + htmlTitle + ' already added!',
                 type: 'warning'
@@ -106,7 +109,7 @@ function downloadTorrent(row) {
     });
 }
 
-var torrentRows = []
+var torrentRows = [];
 
 function processResult(result) {
     $.each(result, function (i, resp) {
@@ -177,8 +180,8 @@ if (torrentRows.length) {
     }
 }
 
-unsafeWindow.wmGetAllTorrents = function() {
-    $.each(torrentRows, function(i, row) {
+unsafeWindow.wmGetAllTorrents = function () {
+    $.each(torrentRows, function (i, row) {
         if (row.downloadLink) {
             downloadTorrent(row);
         }

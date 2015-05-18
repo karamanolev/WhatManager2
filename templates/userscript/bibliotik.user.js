@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Bibliotik.org / WM Integrator
 // @namespace https://karamanolev.com
-// @version 0.2.0
+// @version 0.2.1
 // @description Integration between WM and Bibliotik.org
 // @match http://bibliotik.org/*
 // @match https://bibliotik.org/*
@@ -26,7 +26,7 @@ function formatResponseError(response) {
 
 function submitIds(rows, callback) {
     setTimeout(function () {
-        var ids = []
+        var ids = [];
         for (var i in rows) ids.push(rows[i].whatId);
         var idsString = 'ids=' + encodeURIComponent(ids.join(','));
         GM_xmlhttpRequest({
@@ -100,7 +100,37 @@ function getId(link) {
     return result;
 }
 
-var torrentRows = []
+var torrentRows = [];
+
+function downloadTorrent(row) {
+    row.actions.html(loadingImg);
+    row.isAdding = true;
+    addTorrent(row.whatId, function (addResult) {
+        var htmlTitle;
+        row.isAdding = false;
+        if (addResult.success) {
+            htmlTitle = $('<b>').text(addResult.title).prop('outerHTML');
+            noty({
+                text: 'Torrent ' + htmlTitle + ' added successfully!',
+                type: 'success'
+            });
+            row.actions.text('OK');
+        } else if (addResult.error_code == 'already_added') {
+            htmlTitle = $('<b>').text(addResult.title).prop('outerHTML');
+            noty({
+                text: 'Torrent ' + htmlTitle + ' already added!',
+                type: 'warning'
+            });
+            row.actions.text('ERR');
+        } else {
+            noty({
+                text: 'Error adding ' + resp.id + ': ' + addResult.error,
+                type: 'error'
+            });
+            row.actions.text('ERR');
+        }
+    });
+}
 
 function processResult(result) {
     $.each(result, function (i, resp) {
@@ -125,32 +155,7 @@ function processResult(result) {
             link.click(function (e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to download ' + resp.id + '?')) {
-                    row.actions.html(loadingImg);
-                    row.isAdding = true;
-                    addTorrent(resp.id, function (addResult) {
-                        row.isAdding = false;
-                        if (addResult.success) {
-                            var htmlTitle = $('<b>').text(addResult.title).prop('outerHTML');
-                            noty({
-                                text: 'Torrent ' + htmlTitle + ' added successfully!',
-                                type: 'success'
-                            });
-                            row.actions.text('OK');
-                        } else if (addResult.error_code == 'already_added') {
-                            var htmlTitle = $('<b>').text(addResult.title).prop('outerHTML');
-                            noty({
-                                text: 'Torrent ' + htmlTitle + ' already added!',
-                                type: 'warning'
-                            });
-                            row.actions.text('ERR');
-                        } else {
-                            noty({
-                                text: 'Error adding ' + resp.id + ': ' + addResult.error,
-                                type: 'error'
-                            });
-                            row.actions.text('ERR');
-                        }
-                    });
+                    downloadTorrent(row);
                 }
             });
             row.actions.append(' ');
@@ -187,7 +192,7 @@ if (window.location.href.replace('https', 'http').indexOf('http://bibliotik.org/
 } else {
     $('tr.torrent').each(processRow);
     $('p#details_links').each(processRow);
-    setTimeout(function() {
+    setTimeout(function () {
         $('p#details_links').css('width', 110);
     }, 10);
 }
@@ -202,3 +207,11 @@ if (torrentRows.length) {
         setInterval(refreshStatuses, 10000);
     }
 }
+
+unsafeWindow.wmGetAllTorrents = function () {
+    $.each(torrentRows, function (i, row) {
+        if (row.downloadLink) {
+            downloadTorrent(row);
+        }
+    });
+};
