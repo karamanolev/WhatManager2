@@ -30,10 +30,13 @@ class Command(BaseCommand):
         else:
             if replica_set.zone == models.ReplicaSet.ZONE_WHAT:
                 zero_port = 9090
-                zero_peer_port = 51412
+                zero_peer_port = 21412
             elif replica_set.zone == models.ReplicaSet.ZONE_BIBLIOTIK:
                 zero_port = 10090
-                zero_peer_port = 52412
+                zero_peer_port = 22412
+            elif replica_set.zone == models.ReplicaSet.ZONE_MYANONAMOUSE:
+                zero_port = 11090
+                zero_peer_port = 23412
             else:
                 raise Exception('Unknown zone')
             old_instance = models.TransInstance(
