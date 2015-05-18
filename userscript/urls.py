@@ -5,4 +5,5 @@ urlpatterns = patterns(
     url(r'^bibliotik.user.js$', 'userscript.views.bibliotik'),
     url(r'^what.cd.user.js$', 'userscript.views.whatcd'),
     url(r'^overdrive.user.js$', 'userscript.views.overdrive'),
+    url(r'^myanonamouse.user.js$', 'userscript.views.myanonamouse'),
 )

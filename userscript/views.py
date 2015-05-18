@@ -22,3 +22,11 @@ def overdrive(request):
         'root': USERSCRIPT_WM_ROOT
     }
     return render(request, 'userscript/overdrive.user.js', data, content_type='text/javascript')
+
+
+def myanonamouse(request):
+    data = {
+        'root': USERSCRIPT_WM_ROOT
+    }
+    return render(request, 'userscript/myanonamouse.user.js', data, content_type='text/javascript')
+
