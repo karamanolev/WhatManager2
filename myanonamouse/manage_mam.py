@@ -17,7 +17,7 @@ def add_mam_torrent(torrent_id, instance=None, location=None, mam_client=None,
     if not instance:
         instance = ReplicaSet.get_myanonamouse_master().get_preferred_instance()
     if not location:
-        location = DownloadLocation.get_mam_preferred()
+        location = DownloadLocation.get_myanonamouse_preferred()
 
     with LockModelTables(MAMTransTorrent):
         try:

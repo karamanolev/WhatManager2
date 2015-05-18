@@ -106,6 +106,13 @@ class DownloadLocation(models.Model):
             preferred=True,
         )
 
+    @classmethod
+    def get_myanonamouse_preferred(cls):
+        return DownloadLocation.objects.get(
+            zone=ReplicaSet.ZONE_MYANONAMOUSE,
+            preferred=True,
+        )
+
     @cached_property
     def torrent_count(self):
         replica_sets = ReplicaSet.objects.filter(name='master')
