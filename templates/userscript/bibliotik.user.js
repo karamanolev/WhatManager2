@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Bibliotik.org / WM Integrator
 // @namespace https://karamanolev.com
-// @version 0.2.1
+// @version 0.2.2
 // @description Integration between WM and Bibliotik.org
 // @match http://bibliotik.org/*
 // @match https://bibliotik.org/*
