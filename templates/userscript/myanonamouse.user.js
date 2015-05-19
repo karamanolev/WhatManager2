@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name MyAnonaMouse / WM Integrator
 // @namespace https://karamanolev.com
-// @version 0.1.0
+// @version 0.1.1
 // @description Integration between WM and MyAnonaMouse.net
 // @match http://*.myanonamouse.net/*
 // @match https://*.myanonamouse.net/*
@@ -101,7 +101,7 @@ function downloadTorrent(row) {
             row.actions.text('ERR');
         } else {
             noty({
-                text: 'Error adding ' + resp.id + ': ' + addResult.error,
+                text: 'Error adding ' + row.whatId + ': ' + addResult.error,
                 type: 'error'
             });
             row.actions.text('ERR');

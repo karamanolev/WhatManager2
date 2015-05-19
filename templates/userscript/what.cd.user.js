@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name What.CD / WM Integrator
 // @namespace https://karamanolev.com
-// @version 1.2.1
+// @version 1.2.2
 // @description Integration between WM and What.CD
 // @match https://what.cd/*
 // @grant GM_xmlhttpRequest
@@ -133,7 +133,7 @@ function downloadTorrent(row) {
             row.actions.text('ERR');
         } else {
             noty({
-                text: 'Error adding ' + resp.id + ': ' + addResult.error,
+                text: 'Error adding ' + row.whatId + ': ' + addResult.error,
                 type: 'error'
             });
             row.actions.text('ERR');
