@@ -2,8 +2,7 @@
 <project version="4">
   <component name="dataSourceStorageLocal">
     <data-source name="Django default" uuid="ceb48461-f26b-460d-92cf-ce578620eff8">
-      <user-name>root</user-name>
-      <user-password>dfe2dfcfdfc7dfcbdfc4df99dfccdf9f</user-password>
+      <secret-storage>memory</secret-storage>
     </data-source>
   </component>
 </project>
