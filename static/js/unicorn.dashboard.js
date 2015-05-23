@@ -68,26 +68,28 @@ $.fn.refreshTooltips = function () {
         html: true
     });
     return this;
-}
+};
 
 $.executeAndRepeat = function (interval, fn) {
-    var inner;
-
     function inner(scheduleNew) {
-        fn();
-        if (scheduleNew !== false) {
-            setTimeout(inner, interval);
-        }
+        var started = new Date().getTime();
+        fn(function () {
+            var delay = new Date().getTime() - started;
+            var nextTimeout = Math.max(0, interval - delay);
+            if (scheduleNew !== false) {
+                setTimeout(inner, nextTimeout);
+            }
+        });
     }
 
     $(function () {
         inner(true);
-    })
+    });
 
     return function () {
         inner(false);
     }
-}
+};
 
 $.fn.timedReload = function (url, interval, readyFn, getDataFn) {
     var $this = this;
@@ -95,24 +97,27 @@ $.fn.timedReload = function (url, interval, readyFn, getDataFn) {
     if (getDataFn === undefined) {
         getDataFn = function () {
             return undefined;
-        }
+        };
     }
 
     if (readyFn === undefined) {
         readyFn = function () {
-        }
+        };
     }
 
-    return $.executeAndRepeat(interval, function () {
-        var data = getDataFn()
+    return $.executeAndRepeat(interval, function (scheduleNext) {
+        var data = getDataFn();
         if (data) {
             data = $.extend({
                 'csrfmiddlewaretoken': csrfToken
             }, data)
         }
-        $this.load(url, data, readyFn)
-    })
-}
+        $this.load(url, data, function (data) {
+            scheduleNext();
+            readyFn(data);
+        });
+    });
+};
 
 
 function stealBibliotikSessionId(callback) {

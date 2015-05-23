@@ -18,7 +18,7 @@
     </div>
 
     <script>
-        $.executeAndRepeat(20000, function () {
+        $.executeAndRepeat(20000, function (scheduleNext) {
             var errorRow = $('#error_torrents_row');
 
             errorRow.find('.widget-content').load('{% url 'home.parts.error_torrents' %}', function () {
@@ -29,6 +29,8 @@
                     errorRow.hide();
                 }
             });
+
+            scheduleNext();
         });
     </script>
 {% endif %}
