@@ -22,7 +22,7 @@
 
 {% if perms.home.view_whattorrent %}
     <script>
-        $.executeAndRepeat(5000, function () {
+        $.executeAndRepeat(5000, function (scheduleNext) {
             var downloadingRow = $('#downloading_torrents_row');
 
             downloadingRow.find('.widget-content').load('{% url 'home.parts.downloading' %}', function () {
@@ -33,6 +33,8 @@
                 }
                 downloadingRow.refreshTooltips();
             });
+
+            scheduleNext();
         });
     </script>
 {% endif %}
