@@ -22,6 +22,7 @@
             var errorRow = $('#error_torrents_row');
 
             errorRow.find('.widget-content').load('{% url 'home.parts.error_torrents' %}', function () {
+                scheduleNext();
                 var count = errorRow.find('.widget-content table').data('torrent-count');
                 if (count) {
                     errorRow.refreshTooltips().show();
@@ -29,8 +30,6 @@
                     errorRow.hide();
                 }
             });
-
-            scheduleNext();
         });
     </script>
 {% endif %}
