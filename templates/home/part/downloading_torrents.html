@@ -26,6 +26,7 @@
             var downloadingRow = $('#downloading_torrents_row');
 
             downloadingRow.find('.widget-content').load('{% url 'home.parts.downloading' %}', function () {
+                scheduleNext();
                 if ($('tbody tr').length) {
                     downloadingRow.show();
                 } else {
@@ -33,8 +34,6 @@
                 }
                 downloadingRow.refreshTooltips();
             });
-
-            scheduleNext();
         });
     </script>
 {% endif %}
