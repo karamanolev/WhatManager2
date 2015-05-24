@@ -9,7 +9,7 @@ RELEASE_PRIORITIES = [
     (get_release_type_id('EP'), 990),
     (get_release_type_id('Soundtrack'), 986),
     # (get_release_type_id('Single'), 985),
-    (get_release_type_id('Live Album'), 980),
+    (get_release_type_id('Live album'), 980),
 ]
 
 
