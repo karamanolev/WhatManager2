@@ -1,35 +1,53 @@
 {% load custom_filters %}
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Nick</th>
+                            <th>Name</th>
+                            <th>Size</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
 
-{% for t_r in requests %}
-    <tr data-what-id="{{ t_r.what_torrent_id }}">
-        <td width="140">
-            <a href="https://what.cd/torrents.php?torrentid={{ t_r.what_torrent_id }}" target="_blank">
-                [what.cd: {{ t_r.what_torrent_id }}]
-            </a>
-        </td>
-        <td>
-            {{ t_r.requested_by_what_user }}
-        </td>
-        <td>
-            {{ t_r.what_torrent.joined_artists }}
-            -
-            {{ t_r.what_torrent.info_loads.group.name|safe }}
+                    <tbody>
+                    </tbody>
 
-            {% if t_r.what_torrent.info_loads.torrent.remastered and t_r.what_torrent.info_loads.torrent.remasterYear != t_r.what_torrent.info_loads.group.year %}
-                - {{ t_r.what_torrent.info_loads.torrent.remasterYear }}
-                ({{ t_r.what_torrent.info_loads.group.year }})
-            {% else %}
-                - {{ t_r.what_torrent.info_loads.group.year }}
-            {% endif %}
-        </td>
-        <td width="56">
-            {{ t_r.what_torrent.info_loads.torrent.size|filesizeformat }}
-        </td>
-        <td>
-            {% if t_r.show_retry_button %}
-                <button type="button" class="button-retry">Retry</button>
-            {% endif %}
-            {{ t_r.status|linebreaksbr }}
-        </td>
-    </tr>
-{% endfor %}
+                    {% for t_r in requests %}
+                        <tr data-what-id="{{ t_r.what_torrent_id }}" class="
+                                                {% if t_r.show_retry_button %}danger
+                                                {% else %}info
+                                                {% endif %}
+                                            ">
+                            <td width="140">
+                                <a href="https://what.cd/torrents.php?torrentid={{ t_r.what_torrent_id }}" target="_blank">
+                                [what.cd: {{ t_r.what_torrent_id }}]
+                                </a>
+                            </td>
+                            <td>
+                                {{ t_r.requested_by_what_user }}
+                            </td>
+                            <td>
+                                {{ t_r.what_torrent.joined_artists }}
+                                -
+                                {{ t_r.what_torrent.info_loads.group.name|safe }}
+                                {% if t_r.what_torrent.info_loads.torrent.remastered and t_r.what_torrent.info_loads.torrent.remasterYear != t_r.what_torrent.info_loads.group.year %}
+                                    - {{ t_r.what_torrent.info_loads.torrent.remasterYear }}
+                                    ({{ t_r.what_torrent.info_loads.group.year }})
+                                {% else %}
+                                    - {{ t_r.what_torrent.info_loads.group.year }}
+                                {% endif %}
+                            </td>
+                            <td width="56">
+                                {{ t_r.what_torrent.info_loads.torrent.size|filesizeformat }}
+                            </td>
+                            <td>
+                                {% if t_r.show_retry_button %}
+                                    <button type="button" class="btn btn-primary" id="button-retry">Retry</button>
+                                {% endif %}
+                                {{ t_r.status|linebreaksbr }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                </tbody>
+

@@ -1,37 +1,66 @@
-<!DOCTYPE html>
-<html>
-<head>
-    {% load staticfiles %}
-    <meta charset=utf-8/>
-    <title>What Transcode</title>
-    <script type="text/javascript"
-            src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="{% static 'js/unicorn.dashboard.js' %}"></script>
-    <style type="text/css">
-        #status-table {
-            border-collapse: collapse;
-        }
+{% extends 'dashboard_base.html' %}
 
-        #status-table td {
-            border: 1px solid #666;
-            padding: 6px;
-            margin: 0;
-        }
-    </style>
-</head>
-<body>
+{% load staticfiles custom_filters %}
 
-[IP: {{ request.META.REMOTE_ADDR }}; What user: {{ what_user }}]<br />
+{% block content %}
+<div id="content-header">
+    <h1>What Transcode</h1>
+</div>
+<script type="text/javascript"
+        src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="{% static 'js/unicorn.dashboard.js' %}"></script>
 
-{% if allow_request %}
-    Request transcode: <input type="text" id="request-what-id" />
-    <button type="button" id="btn-request">Request</button>
-    <br />
-{% endif %}
 
-<table id="status-table">
-</table>
-
+<div class="container-fluid">
+    <div class="row" id="transcodes">
+        <div class="col-md-3">
+            <div class="widget-box">
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-user"></i></span><h5>User</h5>
+                </div>
+                <div class="widget-title">
+                <h5>IP: {{ request.META.REMOTE_ADDR }}</h5>
+                </div>
+                <div class="widget-title">
+                <h5>What user: {{ what_user }}</h5>
+                </div>
+                
+            </div>
+        </div>
+    {% if allow_request %}
+        <div class="col-md-6">
+            <div class="widget-box">
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-plus"></i></span><h5>Transcode</h5>
+                </div>
+                <div class="widget-content" style="text-align: right;">
+                    <form class="form-inline">
+                        <p>
+                            <input id="request-what-id" type="text" class="form-control" placeholder="Paste TorrentID here" />
+                        </p>
+                        <button type="button" class="btn btn-primary" id="btn-request">Request</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    </div>
+    <div class="row" id="row_transcodes">
+        <div class="col-md-12">
+            <div class="widget-box">
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-list"></i></span><h5>Transcodes</h5>
+                </div>
+                <div class="widget-content nopadding">
+                    <table class="table table-bordered table-hover" id="status-table">
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block body_scripts %}
 <script>
     function reloadStatusTable() {
         $('#status-table').load('{% url 'what_transcode.views.status_table' %}', function () {
@@ -76,5 +105,4 @@
         }, 'json');
     })
 </script>
-</body>
-</html>
+{% endblock %}
