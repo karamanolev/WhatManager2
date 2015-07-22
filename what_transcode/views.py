@@ -159,10 +159,11 @@ def request_retry(request):
         'message': 'Queued new task'
     }
 
+
 @json_return_method
 def request_delete(request):
     try:
-        request_what_user = request_get_what_user(request)
+        request_get_what_user(request)
     except Exception:
         return {
             'message': 'You don\'t have permission to add or delete transcode requests.'
@@ -184,6 +185,7 @@ def request_delete(request):
         return {
             'message': 'Unable to delete request.'
         }
+
 
 @json_return_method
 @csrf_exempt

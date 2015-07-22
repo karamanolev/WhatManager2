@@ -14,14 +14,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MAMLoginCache',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True,
+                                        primary_key=True)),
                 ('cookies', models.TextField()),
             ],
         ),
         migrations.CreateModel(
             name='MAMTorrent',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True,
+                                        primary_key=True)),
                 ('info_hash', models.CharField(max_length=40, db_index=True)),
                 ('title', models.CharField(max_length=256)),
                 ('retrieved', models.DateTimeField()),
@@ -42,7 +44,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MAMTransTorrent',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True,
+                                        primary_key=True)),
                 ('info_hash', models.CharField(max_length=40)),
                 ('torrent_id', models.IntegerField(null=True)),
                 ('torrent_name', models.TextField(null=True)),

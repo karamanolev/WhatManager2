@@ -29,4 +29,3 @@ def myanonamouse(request):
         'root': USERSCRIPT_WM_ROOT
     }
     return render(request, 'userscript/myanonamouse.user.js', data, content_type='text/javascript')
-

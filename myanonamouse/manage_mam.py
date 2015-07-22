@@ -11,7 +11,7 @@ from myanonamouse.models import MAMTorrent, MAMTransTorrent
 
 
 def add_mam_torrent(torrent_id, instance=None, location=None, mam_client=None,
-                          add_to_client=True):
+                    add_to_client=True):
     mam_torrent = MAMTorrent.get_or_create(mam_client, torrent_id)
 
     if not instance:
