@@ -11,6 +11,7 @@ install:
   - "mysql -e 'CREATE DATABASE `what_manager2` COLLATE utf8_unicode_ci;'"
   - "cp WhatManager2/settings.example.py WhatManager2/settings.py"
   - "cp bibliotik/settings.example.py bibliotik/settings.py"
+  - "cp myanonamouse/settings.example.py myanonamouse/settings.py"
   - "./manage.py migrate --noinput"
   - "sudo -- bash -c 'source /home/travis/virtualenv/python2.7/bin/activate && ./manage.py transmission_new --no-confirm what.cd'"
   - "sudo -- bash -c 'source /home/travis/virtualenv/python2.7/bin/activate && ./manage.py transmission_new --no-confirm bibliotik.org'"
