@@ -159,6 +159,31 @@ def request_retry(request):
         'message': 'Queued new task'
     }
 
+@json_return_method
+def request_delete(request):
+    try:
+        request_what_user = request_get_what_user(request)
+    except Exception:
+        return {
+            'message': 'You don\'t have permission to add or delete transcode requests.'
+        }
+
+    try:
+        what_id = int(request.POST['what_id'])
+    except:
+        return {
+            'message': 'Missing or invalid what id'
+        }
+
+    try:
+        TranscodeRequest.objects.get(what_torrent=what_id).delete()
+        return {
+            'message': 'Request successfully removed.'
+        }
+    except:
+        return {
+            'message': 'Unable to delete request.'
+        }
 
 @json_return_method
 @csrf_exempt

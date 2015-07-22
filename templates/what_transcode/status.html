@@ -4,7 +4,7 @@
 
 {% block content %}
 <div id="content-header">
-    <h1>What Transcode</h1>
+    <h1>Transcode</h1>
 </div>
 <script type="text/javascript"
         src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
@@ -77,6 +77,20 @@
                     $('#btn-request').attr('disabled', false);
                     $('#request-what-id').attr('disabled', false).val('');
                 }, 'json');
+            });
+            $('#status-table .button-delete').click(function () {
+                if(confirm('Are you sure you want to remove this torrent from the transcode queue?')) {
+                    $this = $(this);
+                    var what_id = $this.parents('tr').data('what-id');
+                    $.post('{% url 'what_transcode.views.request_delete' %}', {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        'what_id': what_id
+                    }, function (data) {
+                        alert(data.message);
+                        $('#btn-delete').attr('disabled', false);
+                        $('#request-what-id').attr('disabled', false).val('');
+                    }, 'json');
+                }
             });
         });
     }

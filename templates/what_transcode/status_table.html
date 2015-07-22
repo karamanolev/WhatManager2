@@ -5,6 +5,8 @@
                             <th>Nick</th>
                             <th>Name</th>
                             <th>Size</th>
+                            <th></th>
+                            <th></th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -18,7 +20,7 @@
                                                 {% else %}info
                                                 {% endif %}
                                             ">
-                            <td width="140">
+                            <td width="150">
                                 <a href="https://what.cd/torrents.php?torrentid={{ t_r.what_torrent_id }}" target="_blank">
                                 [what.cd: {{ t_r.what_torrent_id }}]
                                 </a>
@@ -37,13 +39,18 @@
                                     - {{ t_r.what_torrent.info_loads.group.year }}
                                 {% endif %}
                             </td>
-                            <td width="56">
+                            <td width="70">
                                 {{ t_r.what_torrent.info_loads.torrent.size|filesizeformat }}
                             </td>
                             <td>
+                                <button type="button" class="btn btn-danger button-delete">Delete</button>
+                            </td>
+                            <td>
                                 {% if t_r.show_retry_button %}
-                                    <button type="button" class="btn btn-primary" id="button-retry">Retry</button>
+                                    <button type="button" class="btn btn-primary button-retry">Retry</button>
                                 {% endif %}
+                            </td>
+                            <td>
                                 {{ t_r.status|linebreaksbr }}
                             </td>
                         </tr>

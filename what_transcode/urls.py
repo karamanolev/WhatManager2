@@ -7,4 +7,5 @@ urlpatterns = patterns(
     url(r'^request$', 'what_transcode.views.request_transcode'),
     url(r'^request_retry$', 'what_transcode.views.request_retry'),
     url(r'^update$', 'what_transcode.views.update'),
+    url(r'^request_delete$', 'what_transcode.views.request_delete'),
 )
