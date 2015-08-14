@@ -269,13 +269,14 @@ class TranscodeSingleJob(object):
                 elif '.part' in filename.lower():
                     raise Exception('There is a file that has not been fully downloaded. WTF?')
 
-        if len(flac_paths) <= 1 and self.what_torrent['group']['releaseType'] != 9:  # 9 is Single
+        if (len(flac_paths) <= 1) and (self.what_torrent['group']['releaseType'] != 9) and \
+           (self.what_torrent['group']['releaseType'] != 13):  # 9 is Single, # 13 is Remix
             if self.force_warnings:
-                print 'Warning: This is a single audio file torrent that is not a single in' \
-                      ' What.cd. Will not transcode.'
+                print 'Warning: This is a single audio file torrent that is not a single or a ' \
+                      'remix in What.cd. Will not transcode.'
             else:
-                raise Exception('This is a single audio file torrent that is not a single in '
-                                'What.cd. Will not transcode.')
+                raise Exception('This is a single audio file torrent that is not a single or a '
+                                'remix in What.cd. Will not transcode.')
 
         files_created = 0
         self.report_progress(
