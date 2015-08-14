@@ -1,7 +1,6 @@
 import re
 import requests
 import pickle
-from samba.netcmd import time
 
 from myanonamouse.models import MAMLoginCache
 from myanonamouse.settings import MAM_USERNAME, MAM_PASSWORD, MAM_LOGIN_URL, MAM_ROOT_URL
