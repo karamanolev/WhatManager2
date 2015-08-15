@@ -14,10 +14,10 @@
         <tr class="danger">
             <td>
                 {% if t|type_name == 'TransTorrent' %}
-                    <a href="{{ t.what_torrent_id|what_cd_torrent_link }}" target="_blank"><i class="fa fa-external-link" style="margin:2px"></i></a>
                     {% if t.torrent_done == 1 %}
                         <a href="{% url 'download.views.download_zip' t.what_torrent_id %}"><i class="fa fa-download" style="margin:2px"></i></a>
                         <a href="javascript: playWhat({{ t.what_torrent_id }}); void(0);"><i class="fa fa-play-circle" style="margin:2px"></i></a>
+                        <a href="{{ t.what_torrent_id|what_cd_torrent_link }}" target="_blank"><i class="fa fa-external-link" style="margin:2px"></i></a>
                     {% else %}
                         downloading
                     {% endif %}
