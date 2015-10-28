@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name OverDrive Tracker Search
 // @namespace https://karamanolev.com
-// @version 0.0.3
+// @version 0.0.4
 // @description Integration between OverDrive and torrent trackers
 // @match http://localhost/*
 // @match http://*.overdrive.com/*
 // @grant GM_xmlhttpRequest
 // @updateURL {{ root }}/userscript/overdrive.user.js
-// @require http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
+// @require https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js
 // ==/UserScript==
 
 var bibliotikSearchProxyUrl = '{{ root }}/books/bibliotik/json/search';

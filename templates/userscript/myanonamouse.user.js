@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name MyAnonaMouse / WM Integrator
 // @namespace https://karamanolev.com
-// @version 0.1.0
+// @version 0.1.1
 // @description Integration between WM and MyAnonaMouse.net
 // @match http://*.myanonamouse.net/*
 // @match https://*.myanonamouse.net/*
 // @grant GM_xmlhttpRequest
 // @updateURL {{ root }}/userscript/bibliotik.user.js
-// @require https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
-// @require {{ root }}/static/js/jquery.noty.packaged.min.js
+// @require https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js
+// @require https://cdnjs.cloudflare.com/ajax/libs/jquery-noty/2.3.7/packaged/jquery.noty.packaged.min.js
 // ==/UserScript==
 
 var torrentsInfoUrl = '{{ root }}/myanonamouse/json/torrents_info';
