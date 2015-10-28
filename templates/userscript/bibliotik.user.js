@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name Bibliotik.org / WM Integrator
 // @namespace https://karamanolev.com
-// @version 0.2.1
+// @version 0.2.2
 // @description Integration between WM and Bibliotik.org
 // @match http://bibliotik.org/*
 // @match https://bibliotik.org/*
 // @grant GM_xmlhttpRequest
 // @updateURL {{ root }}/userscript/bibliotik.user.js
-// @require https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
-// @require {{ root }}/static/js/jquery.noty.packaged.min.js
+// @require https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js
+// @require https://cdnjs.cloudflare.com/ajax/libs/jquery-noty/2.3.7/packaged/jquery.noty.packaged.min.js
 // ==/UserScript==
 
 var torrentsInfoUrl = '{{ root }}/books/bibliotik/json/torrents_info';
