@@ -12,7 +12,7 @@
         "model": "home.replicaset",
         "fields": {
             "name": "master",
-            "zone": "bibliotik.org"
+            "zone": "bibliotik.me"
         }
     }
 ]

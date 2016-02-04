@@ -47,16 +47,16 @@
                                         {% if book.is_valid %}
                                             {% if book.bibliotik_torrent_id == 0 %}
                                                 <button class="btn btn-block btn-inverse">
-                                                    Skipped bibliotik.org
+                                                    Skipped bibliotik.me
                                                 </button>
                                             {% elif book.bibliotik_torrent_id == None %}
                                                 <button class="btn btn-block btn-primary"
                                                         onclick="javascript: bibliotikUpload();">
-                                                    Upload to bibliotik.org
+                                                    Upload to bibliotik.me
                                                 </button>
                                                 {# <a class="btn btn-block btn-warning"#}
                                                 {#    href="{% url 'books.views.skip_bibliotik' book.id %}">#}
-                                                {#     Skip bibliotik.org#}
+                                                {#     Skip bibliotik.me#}
                                                 {# </a>#}
                                             {% endif %}
 

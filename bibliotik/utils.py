@@ -66,7 +66,7 @@ class BibliotikClient(object):
             return self.auth_key
         for i in xrange(3):
             try:
-                response = self.session.get('http://bibliotik.org/upload/ebooks')
+                response = self.session.get('https://bibliotik.me/upload/ebooks')
                 response.raise_for_status()
                 break
             except Exception:
@@ -101,7 +101,7 @@ class BibliotikClient(object):
         raise download_exception
 
     def search(self, query):
-        url = 'http://bibliotik.org/torrents/'
+        url = 'https://bibliotik.me/torrents/'
         response = self._search_request(url, query)
         if not response.url.startswith(url):
             raise Exception(u'Search redirected to {0}. Probably invalid id. Was {1}.'.format(
@@ -126,7 +126,7 @@ class BibliotikClient(object):
 
 
 def upload_book_to_bibliotik(bibliotik_client, book_upload):
-    print 'Sending request for upload to bibliotik.org'
+    print 'Sending request for upload to bibliotik.me'
 
     payload_files = dict()
     payload_files['TorrentFileField'] = ('torrent.torrent', book_upload.bibliotik_torrent_file)
@@ -158,7 +158,7 @@ def upload_book_to_bibliotik(bibliotik_client, book_upload):
         with open(os.path.join(MEDIA_ROOT, 'bibliotik_upload.html'), 'wb') as f:
             f.write(response.content)
         raise Exception('Bibliotik does not want this. Written to media/')
-    redirect_match = re.match('^http://bibliotik.org/torrents/(?P<id>\d+)$',
+    redirect_match = re.match('^https://bibliotik.me/torrents/(?P<id>\d+)$',
                               response.headers['location'])
     if not redirect_match:
         raise Exception('Could not get new torrent ID.')

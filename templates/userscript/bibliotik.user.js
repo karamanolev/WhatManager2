@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name Bibliotik.org / WM Integrator
+// @name Bibliotik.me / WM Integrator
 // @namespace https://karamanolev.com
-// @version 0.2.3
-// @description Integration between WM and Bibliotik.org
-// @match http://bibliotik.org/*
-// @match https://bibliotik.org/*
+// @version 0.2.1
+// @description Integration between WM and Bibliotik.me
+// @match http://bibliotik.me/*
+// @match https://bibliotik.me/*
 // @grant GM_xmlhttpRequest
 // @updateURL {{ root }}/userscript/bibliotik.user.js
 // @require https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
@@ -185,9 +185,9 @@ function processRow() {
     });
 }
 
-if (window.location.href.replace('https', 'http').indexOf('http://bibliotik.org/uploads') == 0) {
+if (window.location.href.replace('https', 'http').indexOf('https://bibliotik.me/uploads') == 0) {
     $('div#body > div.table_div > form > table > tbody > tr').each(processRow);
-} else if (window.location.href.replace('https', 'http').indexOf('http://bibliotik.org/collections') == 0) {
+} else if (window.location.href.replace('https', 'http').indexOf('https://bibliotik.me/collections') == 0) {
     $('div#body div.table_div table > tbody > tr[id]').each(processRow);
 } else {
     $('tr.torrent').each(processRow);
