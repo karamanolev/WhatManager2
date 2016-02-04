@@ -3,7 +3,7 @@
 <table class="table table-bordered table-striped table-hover">
     <thead>
     <tr>
-        <th class="col-actions">What</th>
+        <th class="col-actions">Manage</th>
         <th style="width: 160px;">Progress</th>
         <th>Name</th>
     </tr>
@@ -14,9 +14,9 @@
         <tr>
             <td>
                 {% if t|type_name == 'TransTorrent' %}
-                    <a href="{{ t.what_torrent_id|what_cd_torrent_link }}" target="_blank">what.cd</a>
+                    <a href="{{ t.what_torrent_id|what_cd_torrent_link }}" target="_blank"><i class="fa fa-external-link" style="margin:2px"></i></a>
                 {% elif t|type_name == 'BibliotikTransTorrent' %}
-                    <a href="{{ t.bibliotik_torrent_id|bibliotik_torrent_link }}" target="_blank">bibliotik</a>
+                    <a href="{{ t.bibliotik_torrent_id|bibliotik_torrent_link }}" target="_blank"><i class="fa fa-external-link" style="margin:2px"></i></a>
                 {% endif %}
             </td>
             <td>

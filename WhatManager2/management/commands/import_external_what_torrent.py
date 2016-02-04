@@ -9,7 +9,7 @@ from django.core.management.base import BaseCommand
 
 from WhatManager2 import manage_torrent
 from WhatManager2.utils import wm_unicode, wm_str
-from home.models import WhatTorrent, DownloadLocation, ReplicaSet
+from home.models import WhatTorrent, DownloadLocation, ReplicaSet, TransTorrent
 from what_transcode.utils import get_info_hash
 
 
@@ -79,7 +79,7 @@ class Command(BaseCommand):
             f_path = os.path.join(self.data_path, self.torrent_info['info']['name'])
             print wm_str(u'Checking {0}'.format(f_path))
             if not os.path.isfile(wm_str(f_path)):
-                print wm_str(u'{0} does not exist. What are you giving me?')
+                print wm_str(u'{0} does not exist. What are you giving me?'.format(f_path))
                 return False
         print u'Creating destination directory...'
         self.dest_path = os.path.join(self.download_location.path, unicode(self.what_torrent.id))
@@ -118,6 +118,14 @@ class Command(BaseCommand):
         if options['base_dir']:
             self.data_path = os.path.join(self.data_path,
                                           wm_unicode(self.torrent_info['info']['name']))
+        print u'Checking to see if torrent is already loaded into WM..'
+        masters = list(ReplicaSet.get_what_master().transinstance_set.all())
+        try:
+            TransTorrent.objects.get(instance__in=masters, info_hash=self.info_hash)
+            print u'Torrent already added to WM. Skipping...'
+            return False
+        except TransTorrent.DoesNotExist:
+            pass
         self.what_torrent = WhatTorrent.get_or_create(self.pseudo_request, info_hash=self.info_hash)
         if not self.check_files():
             return
