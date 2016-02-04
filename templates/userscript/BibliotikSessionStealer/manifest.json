@@ -5,10 +5,10 @@
 	"version": "0.0.2",
 	"permissions": [
 		"cookies",
-		"*://*.bibliotik.org/"
+		"*://*.bibliotik.me/"
 	],
 	"externally_connectable": {
-		"matches": ["*://*.lib.overdrive.com/*", "https://*.karamanolev.com/*", "*://*.bibliotik.org/*"]
+		"matches": ["*://*.lib.overdrive.com/*", "https://*.karamanolev.com/*", "*://*.bibliotik.me/*"]
 	},
 	"background": {
 		"persistent": false,
