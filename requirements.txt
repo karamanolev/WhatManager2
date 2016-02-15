@@ -1,5 +1,5 @@
 bencode>=1.0
-Django>=1.7
+Django==1.8.9
 MySQL-python>=1.2.4
 django-celery>=3.0.23
 mutagen>=1.22
