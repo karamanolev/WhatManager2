@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Bibliotik.me / WM Integrator
 // @namespace https://karamanolev.com
-// @version 0.2.1
+// @version 0.2.2
 // @description Integration between WM and Bibliotik.me
 // @match http://bibliotik.me/*
 // @match https://bibliotik.me/*
@@ -124,7 +124,7 @@ function downloadTorrent(row) {
             row.actions.text('ERR');
         } else {
             noty({
-                text: 'Error adding ' + resp.id + ': ' + addResult.error,
+                text: 'Error adding ' + row.whatId + ': ' + addResult.error,
                 type: 'error'
             });
             row.actions.text('ERR');
