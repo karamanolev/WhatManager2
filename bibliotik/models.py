@@ -104,6 +104,8 @@ class BibliotikTorrent(models.Model):
             details = details[1:]
         else:
             self.pages = 0
+        if details[0] == u'Unabridged' or details[0] == u'Abridged':
+            details = details[1:]
         if details[0].split(' ')[0] in LANGUAGES:
             parts = details[0].split(' ')
             details = details[1:]
