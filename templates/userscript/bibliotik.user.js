@@ -53,7 +53,7 @@ function stealBibliotikSessionId(callback) {
             text: 'Please make sure the extension is installed and working.',
             type: 'error'
         });
-    }, 1000);
+    }, 1500);
     chrome.runtime.sendMessage(extensionId, "stealBibliotikId", function (response) {
         clearTimeout(timeoutID);
         if (response == null) {
@@ -144,7 +144,7 @@ function processResult(result) {
         row.actions.empty();
         if (resp.status == 'downloaded') {
             // Download
-            link = $('<a href="' + downloadUrl + resp.id + '">↓</a>');
+            link = $('<a href="' + downloadUrl + resp.id + '">↓DL</a>');
             row.actions.append(link);
         } else if (resp.status == 'downloading') {
             row.actions.text(Math.floor(resp.progress * 100) + '%');
