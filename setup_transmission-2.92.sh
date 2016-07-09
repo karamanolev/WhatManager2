@@ -1,5 +1,5 @@
 #!/bin/bash -e
-sudo apt-get install build-essential libcurl4-openssl-dev intltool checkinstall libssl-dev
+sudo apt-get install build-essential libcurl4-openssl-dev intltool checkinstall libssl-dev pkg-config
 
 tar xvzf deps/libevent-2.0.22-stable.tar.gz
 cd libevent-2.0.22-stable
