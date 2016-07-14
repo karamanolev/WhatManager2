@@ -58,3 +58,9 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# libevent and transmission build outputs
+libevent-*/*
+transmission-*/*
+
+# Vagrant
+.vagrant
