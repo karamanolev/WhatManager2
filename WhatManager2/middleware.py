@@ -3,9 +3,10 @@ import base64
 from django.contrib import auth
 from django.core.exceptions import ImproperlyConfigured
 from django.http.response import HttpResponse
+from django.utils.deprecation import MiddlewareMixin
 
 
-class HttpBasicAuthMiddleware(object):
+class HttpBasicAuthMiddleware(MiddlewareMixin):
     def get_response_401(self):
         response = HttpResponse('Unauthorized\r\n')
         response.status_code = 401

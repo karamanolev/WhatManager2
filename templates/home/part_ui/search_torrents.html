@@ -22,8 +22,8 @@
                     <td>
                         <a href="{{ t.id|what_cd_torrent_link }}" target="_blank">w: {{ t.id }}</a>
                         {% if t.transtorrent_set.all.0.torrent_done == 1 %}
-                            <a href="{% url 'download.views.download_pls' t.playlist_name %}?username={{ request.user.username }}&token={{ token }}">pls</a>
-                            <a href="{% url 'download.views.download_zip' t.id %}">download</a>
+                            <a href="{% url 'download-download_pls' t.playlist_name %}?username={{ request.user.username }}&token={{ token }}">pls</a>
+                            <a href="{% url 'download-download_zip' t.id %}">download</a>
                             <a href="javascript: playWhat({{ t.id }}); void(0);">play</a>
                         {% else %}
                             downloading
@@ -39,7 +39,7 @@
                     <td>
                         <a href="{{ t.id|bibliotik_torrent_link }}" target="_blank">b: {{ t.id }}</a>
                         {% if t.bibliotiktranstorrent_set.all.0.torrent_done == 1 %}
-                            <a href="{% url 'download.views.download_bibliotik_zip' t.id %}">download</a>
+                            <a href="{% url 'download-download_bibliotik_zip' t.id %}">download</a>
                         {% else %}
                             downloading
                         {% endif %}

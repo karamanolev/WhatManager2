@@ -1,9 +1,10 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-urlpatterns = patterns(
-    '',
-    url(r'^$', 'player.views.index'),
-    url(r'^file$', 'player.views.get_file'),
-    url(r'^metadata$', 'player.views.metadata'),
-    url(r'^album_art', 'player.views.album_art'),
-)
+from player import views
+
+urlpatterns = [
+    url(r'^$', views.index, name='player-index'),
+    url(r'^file$', views.get_file, name='player-get_file'),
+    url(r'^metadata$', views.metadata, name='player-metadata'),
+    url(r'^album_art', views.album_art, name='player-album_art'),
+]

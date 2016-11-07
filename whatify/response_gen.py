@@ -14,7 +14,7 @@ from whatify.utils import extended_artists_to_music_info
 def get_image_cache_url(url):
     if url is None:
         return None
-    return reverse('what_meta.views.image') + u'?url=' + urlquote(url, '')
+    return reverse('what_meta-image') + u'?url=' + urlquote(url, '')
 
 
 def get_artist_alias_dict(artist_alias, *args, **kwargs):
@@ -135,7 +135,7 @@ def get_torrent_group_have(what_trans_torrents, sync_torrents=False):
                 'playlist': [
                     {
                         'id': 'what/' + str(torrent.id) + '#' + str(i),
-                        'url': reverse('player.views.get_file') + '?path=' + urlquote(
+                        'url': reverse('player-get_file') + '?path=' + urlquote(
                             entry.path, ''),
                         'metadata': entry.easy
                     }
