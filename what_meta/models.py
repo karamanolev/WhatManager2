@@ -1,7 +1,7 @@
 from django.db import models, transaction
 
-from django.db.backends.mysql.base import parse_datetime_with_timezone_support
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.utils.functional import cached_property
 
 import ujson
@@ -183,7 +183,7 @@ class WhatTorrentGroup(models.Model):
         group.release_type = data_dict['releaseType']
         group.category_id = data_dict['categoryId']
         group.category_name = data_dict['categoryName']
-        group.time = parse_datetime_with_timezone_support(data_dict['time'])
+        group.time = parse_datetime(data_dict['time'])
         group.vanity_house = data_dict['vanityHouse']
         group.info_json = ujson.dumps(data_dict)
         if torrents_dict is not None:

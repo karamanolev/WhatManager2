@@ -86,9 +86,9 @@ def auth_username_token(fn):
             try:
                 user = User.objects.get(username=request.GET.get('username'))
             except User.DoesNotExist:
-                return redirect('login.views.login')
+                return redirect('login-login')
             if get_user_token(user) != request.GET['token']:
-                return redirect('login.views.login')
+                return redirect('login-login')
             request.user = user
         return fn(request, *args, **kwargs)
 

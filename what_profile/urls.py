@@ -1,8 +1,10 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-urlpatterns = patterns(
-    '',
-    url(r'^$', 'what_profile.views.profile'),
-    url(r'^part/buffer_up_down_data$', 'what_profile.parts.buffer_up_down_data'),
-    url(r'^part/profile_history', 'what_profile.parts.profile_history'),
-)
+from what_profile.views import profile
+from what_profile import parts
+
+urlpatterns = [
+    url(r'^$', profile, name='what_profile-profile'),
+    url(r'^part/buffer_up_down_data$', parts.buffer_up_down_data, name='what_profile-buffer_up_down_data'),
+    url(r'^part/profile_history', parts.profile_history, name='what_profile-profile_history'),
+]

@@ -39,7 +39,7 @@ def new_upload(request):
                 book_upload.cover_data = request.FILES['cover'].read()
                 book_upload.format = os.path.splitext(request.FILES['ebook'].name)[1][1:].upper()
                 book_upload.save()
-                return redirect('books.views.edit_upload', book_upload.id)
+                return redirect('books-edit_upload', book_upload.id)
         else:
             errors.append('Please upload the ebook, the OPF and the cover')
     data = {
@@ -95,7 +95,7 @@ def upload_cover_upload(request, upload_id):
         whatimg_url = whatimg.upload_image_from_memory(book_upload.cover_data)
         book_upload.cover_url = whatimg_url
         book_upload.save()
-    return redirect('books.views.edit_upload', upload_id)
+    return redirect('books-edit_upload', upload_id)
 
 
 @login_required
@@ -126,7 +126,7 @@ def upload_generate_torrents(request, upload_id):
         book_upload.save()
         os.remove(torrent_temp_filename)
 
-    return redirect('books.views.edit_upload', upload_id)
+    return redirect('books-edit_upload', upload_id)
 
 
 @login_required
@@ -141,7 +141,7 @@ def skip_what(request, upload_id):
     book_upload = BookUpload.objects.defer(*BookUpload.binary_fields).get(id=upload_id)
     book_upload.what_torrent_id = 0
     book_upload.save()
-    return redirect('books.views.edit_upload', upload_id)
+    return redirect('books-edit_upload', upload_id)
 
 
 @login_required
@@ -149,4 +149,4 @@ def skip_bibliotik(request, upload_id):
     book_upload = BookUpload.objects.defer(*BookUpload.binary_fields).get(id=upload_id)
     book_upload.bibliotik_torrent_id = 0
     book_upload.save()
-    return redirect('books.views.edit_upload', upload_id)
+    return redirect('books-edit_upload', upload_id)

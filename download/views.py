@@ -108,7 +108,7 @@ def download_pls(request, playlist_path):
     playlist_name, cache_entries = get_playlist_files(playlist_path)
     for f in cache_entries:
         file_data = f.easy
-        file_data['path'] = request.build_absolute_uri(build_url('player.views.get_file', get={
+        file_data['path'] = request.build_absolute_uri(build_url('player-get_file', get={
             'path': f.path,
             'username': request.user.username,
             'token': get_user_token(request.user),

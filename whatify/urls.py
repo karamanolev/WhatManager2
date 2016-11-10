@@ -1,12 +1,13 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-urlpatterns = patterns(
-    '',
-    url(r'^$', 'whatify.views.index'),
-    url(r'^search/(.+)$', 'whatify.views.search'),
-    url(r'^torrent_groups/(\d+)$', 'whatify.views.get_torrent_group'),
-    url(r'^torrent_groups/(\d+)/download$', 'whatify.views.download_torrent_group'),
-    url(r'^torrent_groups/random$', 'whatify.views.random_torrent_groups'),
-    url(r'^torrent_groups/top10$', 'whatify.views.top10_torrent_groups'),
-    url(r'^artists/(\d+)$', 'whatify.views.get_artist'),
-)
+from whatify import views
+
+urlpatterns = [
+    url(r'^$', views.index, name='whatify-index'),
+    url(r'^search/(.+)$', views.search, name='whatify-search'),
+    url(r'^torrent_groups/(\d+)$', views.get_torrent_group, name='whatify-get_torrent_group'),
+    url(r'^torrent_groups/(\d+)/download$', views.download_torrent_group, name='whatify-download_torrent_group'),
+    url(r'^torrent_groups/random$', views.random_torrent_groups, name='whatify-index'),
+    url(r'^torrent_groups/top10$', views.top10_torrent_groups, name='whatify-index'),
+    url(r'^artists/(\d+)$', views.get_artist, name='whatify-index'),
+]

@@ -25,7 +25,7 @@
         $.executeAndRepeat(5000, function () {
             var downloadingRow = $('#downloading_torrents_row');
 
-            downloadingRow.find('.widget-content').load('{% url 'home.parts.downloading' %}', function () {
+            downloadingRow.find('.widget-content').load('{% url 'home-downloading' %}', function () {
                 if ($('tbody tr').length) {
                     downloadingRow.show();
                 } else {

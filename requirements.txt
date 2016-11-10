@@ -1,13 +1,15 @@
 bencode>=1.0
-Django==1.8.9
+Django>=1.10.3
 MySQL-python>=1.2.4
-django-celery>=3.0.23
+# django-celery and celery need to be at the same version. Without manually specifying, pip may install mismatched versions which will break things.
+django-celery==3.1.17
+celery==3.1.17
 mutagen>=1.22
 pyquery>=1.2.4
 pytz>=2013.7
 transmissionrpc>=0.10
 requests>=2.0.0
-kombu>=3.0.15
+kombu==3.0.37
 billiard>=3.3.0.17
 django-bootstrap-form>=3.1
 sqlparse>=0.1.11

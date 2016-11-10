@@ -1,8 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-urlpatterns = patterns(
-    '',
-    url(r'^login$', 'login.views.login'),
-    url(r'^logout$', 'login.views.logout'),
-    url(r'^view_token$', 'login.views.view_token'),
-)
+from login import views
+
+urlpatterns = [
+    url(r'^login$', views.login, name='login-login'),
+    url(r'^logout$', views.logout, name='login-logout'),
+    url(r'^view_token$', views.view_token, name='login-view_token'),
+]
