@@ -183,6 +183,7 @@ WSGI_APPLICATION = 'WhatManager2.wsgi.application'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
         'DIRS': [os.path.join(os.path.dirname(__file__), '..', 'templates').replace('\\', '/'), ],
         'OPTIONS': {
             'context_processors': [
