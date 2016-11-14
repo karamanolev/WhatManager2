@@ -6,7 +6,7 @@ function DGAuroraPlayer(player, DGPlayer) {
     DGPlayer.duration = 0;
     DGPlayer.bufferProgress = 0;
 
-    var onplay, onpause, onvolume, onformat, onbuffer, onprogress, onduration, onmetadata;
+    var onplay, onpause, onvolume, onseek, onformat, onbuffer, onprogress, onduration, onmetadata;
 
     DGPlayer.on('play', onplay = function() {
         player.play();
@@ -20,6 +20,12 @@ function DGAuroraPlayer(player, DGPlayer) {
 
     DGPlayer.on('volume', onvolume = function(value) {
         player.volume = value;
+    });
+    
+    DGPlayer.on('seek', onseek = function(value) {
+        if (value <= ((DGPlayer.bufferProgress * DGPlayer.duration) / 100) - 10000) {
+            player.seek(value);
+        }
     });
 
     player.on('buffer', onbuffer = function(percent) {
