@@ -53,19 +53,19 @@ function DGAuroraPlayer(player, DGPlayer) {
 
     var originalDescription = DGPlayer.fileDescription;
     player.on('error', onerror = function(e) {
-        // reset state
-        DGPlayer.state = 'paused';
-        DGPlayer.duration = 0;
-        DGPlayer.bufferProgress = 0;
-        DGPlayer.seekTime = 0;
-        DGPlayer.coverArt = UNKNOWN_ART;
-        DGPlayer.songTitle = 'Unknown Title';
-        DGPlayer.songArtist = 'Unknown Artist';
+       // reset state
+       // DGPlayer.state = 'paused';
+       // DGPlayer.duration = 0;
+       // DGPlayer.bufferProgress = 0;
+       // DGPlayer.seekTime = 0;
+       // DGPlayer.coverArt = UNKNOWN_ART;
+       // DGPlayer.songTitle = 'Unknown Title';
+       // DGPlayer.songArtist = 'Unknown Artist';
 
-        DGPlayer.fileDescription = "Hmm. I don't recognize that format. Try another.";
-        setTimeout(function() {
-            DGPlayer.fileDescription = originalDescription;
-        }, 3000);
+        //DGPlayer.fileDescription = "Hmm. I don't recognize that format. Try another.";
+        //setTimeout(function() {
+        //    DGPlayer.fileDescription = originalDescription;
+        //}, 3000);
     });
 
     player.volume = DGPlayer.volume;
