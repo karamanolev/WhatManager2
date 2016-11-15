@@ -534,7 +534,7 @@ class WhatFileMetadataCache(models.Model):
             if hasattr(metadata.tags, '_EasyID3__id3'):
                 metadata.tags._EasyID3__id3.delall('APIC')
         self.file_mtime = file_mtime
-        self.metadata_pickle = pickle.dumps(metadata)
+        self.metadata_pickle = pickle.dumps(metadata, pickle.HIGHEST_PROTOCOL)
         self.artists = self.easy['artist'][:200]
         self.album = self.easy['album'][:200]
         self.title = self.easy['title'][:200]
