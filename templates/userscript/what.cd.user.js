@@ -3,7 +3,7 @@
 // @namespace https://karamanolev.com
 // @version 1.2.1
 // @description Integration between WM and What.CD
-// @match https://what.cd/*
+// @match https://passtheheadphones.me/*
 // @grant GM_xmlhttpRequest
 // @updateURL {{ root }}/userscript/what.cd.user.js
 // @require https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
