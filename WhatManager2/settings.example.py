@@ -6,8 +6,8 @@ import djcelery
 djcelery.setup_loader()
 
 WHAT_USER_ID = 123456
-WHAT_USERNAME = 'your what.cd username'
-WHAT_PASSWORD = 'your what.cd password'
+WHAT_USERNAME = 'your PTH username'
+WHAT_PASSWORD = 'your PTH password'
 # How frequently your profile will be stored, in seconds
 WHAT_PROFILE_SNAPSHOT_INTERVAL = 10 * 60
 # What part of your disk is guaranteed left empty by WM
@@ -16,11 +16,11 @@ MIN_FREE_DISK_SPACE = 0.10
 MIN_WHAT_RATIO = 1.3
 # Whether the frequent sync will make sure ReleaseInfo is there. Leave False.
 SYNC_SYNCS_FILES = False
-# You might set this to ssl.what.cd is what.cd has a long downtime, but ssl is up.
-WHAT_CD_DOMAIN = 'what.cd'
+# You might set this to ssl.passtheheadphones.me if PTH has a long downtime, but ssl is up.
+WHAT_CD_DOMAIN = 'passtheheadphones.me'
 WHAT_UPLOAD_URL = 'https://{0}/upload.php'.format(WHAT_CD_DOMAIN)
 # Only for uploading
-WHAT_ANNOUNCE = 'http://tracker.what.cd:34000/SET THIS TO YOUR ANNOUNCE/announce'
+WHAT_ANNOUNCE = 'http://tracker.passtheheadphones.me:34000/SET THIS TO YOUR ANNOUNCE/announce'
 
 # Set this to something reasonable that only you know.
 TRANSMISSION_PASSWORD = '9dqQQ2WW'
