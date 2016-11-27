@@ -7,8 +7,9 @@ pyquery>=1.2.4
 pytz>=2013.7
 transmissionrpc>=0.10
 requests>=2.0.0
-kombu>=3.0.15
+kombu<4.0.0,>=3.0.15
 billiard>=3.3.0.17
 django-bootstrap-form>=3.1
 sqlparse>=0.1.11
 ujson>=1.33
+Celery<4.0
