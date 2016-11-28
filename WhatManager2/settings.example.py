@@ -20,7 +20,7 @@ SYNC_SYNCS_FILES = False
 WHAT_CD_DOMAIN = 'passtheheadphones.me'
 WHAT_UPLOAD_URL = 'https://{0}/upload.php'.format(WHAT_CD_DOMAIN)
 # Only for uploading
-WHAT_ANNOUNCE = 'http://tracker.passtheheadphones.me:34000/SET THIS TO YOUR ANNOUNCE/announce'
+WHAT_ANNOUNCE = 'http://please.passtheheadphones.me/SET THIS TO YOUR ANNOUNCE/announce'
 
 # Set this to something reasonable that only you know.
 TRANSMISSION_PASSWORD = '9dqQQ2WW'
