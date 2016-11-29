@@ -130,7 +130,7 @@ function whatOutputFormatter(response) {
     $table.append('<tr><td colspan="2"><h6>What.CD Search Results</h6></td></tr>');
     if (response) {
         $.each(response.response.results, function (i, result) {
-            var url = 'https://what.cd/torrents.php?id=' + result.groupId + '&torrentid=' + result.torrentId + '#torrent' + result.torrentId;
+            var url = 'https://passtheheadphones.me/torrents.php?id=' + result.groupId + '&torrentid=' + result.torrentId + '#torrent' + result.torrentId;
             var row = $('<tr><td class="title"><a target="_blank"></a></td><td class="tags"></td></tr>');
             row.find('.title a').text(result.groupName).attr('href', url);
             row.find('.tags').text(result.tags.join(', '));
