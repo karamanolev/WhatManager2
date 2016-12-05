@@ -32,7 +32,7 @@ class TorrentAlreadyAddedException(Exception):
 
 
 class ReplicaSet(models.Model):
-    ZONE_WHAT = 'what.cd'
+    ZONE_WHAT = 'passtheheadphones.me'
     ZONE_BIBLIOTIK = 'bibliotik.me'
     ZONE_MYANONAMOUSE = 'myanonamouse.net'
 
@@ -534,9 +534,9 @@ class WhatFileMetadataCache(models.Model):
             if hasattr(metadata.tags, '_EasyID3__id3'):
                 metadata.tags._EasyID3__id3.delall('APIC')
         self.file_mtime = file_mtime
-                try:
+        try:
             self.metadata_pickle = pickle.dumps(metadata)
-        except: 
+        except:
             self.metadata_pickle = pickle.dumps(metadata, pickle.HIGHEST_PROTOCOL)
             pass
         self.artists = self.easy['artist'][:200]
