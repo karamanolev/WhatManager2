@@ -5,7 +5,7 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
 	chrome.cookies.getAll({}, function(cookies) {
 		for (var i in cookies) {
 			var cookie = cookies[i];
-			if (cookie.domain == "bibliotik.org" && cookie.name == "id") {
+			if (cookie.domain == ".bibliotik.me" && cookie.name == "id") {
 				sendResponse(cookie.value);
 				return;
 			}

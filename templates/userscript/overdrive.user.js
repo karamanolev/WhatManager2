@@ -130,7 +130,7 @@ function whatOutputFormatter(response) {
     $table.append('<tr><td colspan="2"><h6>What.CD Search Results</h6></td></tr>');
     if (response) {
         $.each(response.response.results, function (i, result) {
-            var url = 'https://what.cd/torrents.php?id=' + result.groupId + '&torrentid=' + result.torrentId + '#torrent' + result.torrentId;
+            var url = 'https://passtheheadphones.me/torrents.php?id=' + result.groupId + '&torrentid=' + result.torrentId + '#torrent' + result.torrentId;
             var row = $('<tr><td class="title"><a target="_blank"></a></td><td class="tags"></td></tr>');
             row.find('.title a').text(result.groupName).attr('href', url);
             row.find('.tags').text(result.tags.join(', '));
@@ -151,10 +151,10 @@ function bibliotikOutputFormatter(response) {
     }
 
     var $table = $('<table width="100%"></table>');
-    $table.append('<tr><td colspan="2"><h6>Bibliotik.org Search Results</h6></td></tr>');
+    $table.append('<tr><td colspan="2"><h6>Bibliotik.me Search Results</h6></td></tr>');
     if (response) {
         $.each(response.results, function (i, result) {
-            var url = 'http://bibliotik.org/torrents/' + result.id;
+            var url = 'https://bibliotik.me/torrents/' + result.id;
             var row = $('<tr><td class="title"><a target="_blank"></a></td><td class="tags"></td></tr>');
             if (result.type != 'Ebooks') {
                 row.css('opacity', 0.5);
@@ -170,7 +170,7 @@ function bibliotikOutputFormatter(response) {
             $table.append(row);
         });
         if (!response.results.length) {
-            $table.append('<tr><td colspan="2">No results returned from Bibliotik.org</td></tr>');
+            $table.append('<tr><td colspan="2">No results returned from Bibliotik.me</td></tr>');
         }
     } else {
         $table.append('<tr><td colspan="2"><b>Error!</b></td></tr>');

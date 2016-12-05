@@ -83,12 +83,12 @@ def filter_release_type_name(value):
 
 @register.filter
 def what_cd_torrent_link(value):
-    return u'https://what.cd/torrents.php?torrentid={0}'.format(value)
+    return u'https://passtheheadphones.me/torrents.php?torrentid={0}'.format(value)
 
 
 @register.filter
 def bibliotik_torrent_link(value):
-    return u'http://bibliotik.org/torrents/{0}'.format(value)
+    return u'https://bibliotik.me/torrents/{0}'.format(value)
 
 
 @register.filter

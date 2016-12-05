@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name Bibliotik.org / WM Integrator
+// @name Bibliotik.me / WM Integrator
 // @namespace https://karamanolev.com
-// @version 0.2.3
-// @description Integration between WM and Bibliotik.org
-// @match http://bibliotik.org/*
-// @match https://bibliotik.org/*
+// @version 0.2.4
+// @description Integration between WM and Bibliotik.me
+// @match http://bibliotik.me/*
+// @match https://bibliotik.me/*
 // @grant GM_xmlhttpRequest
 // @updateURL {{ root }}/userscript/bibliotik.user.js
 // @require https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
@@ -53,7 +53,7 @@ function stealBibliotikSessionId(callback) {
             text: 'Please make sure the extension is installed and working.',
             type: 'error'
         });
-    }, 1000);
+    }, 1500);
     chrome.runtime.sendMessage(sessionStealerExtensionId, "stealBibliotikId", function (response) {
         clearTimeout(timeoutID);
         if (response == null) {
@@ -144,7 +144,7 @@ function processResult(result) {
         row.actions.empty();
         if (resp.status == 'downloaded') {
             // Download
-            link = $('<a href="' + downloadUrl + resp.id + '">↓</a>');
+            link = $('<a href="' + downloadUrl + resp.id + '">↓DL</a>');
             row.actions.append(link);
         } else if (resp.status == 'downloading') {
             row.actions.text(Math.floor(resp.progress * 100) + '%');
@@ -185,9 +185,9 @@ function processRow() {
     });
 }
 
-if (window.location.href.replace('https', 'http').indexOf('http://bibliotik.org/uploads') == 0) {
+if (window.location.href.replace('https', 'http').indexOf('https://bibliotik.me/uploads') == 0) {
     $('div#body > div.table_div > form > table > tbody > tr').each(processRow);
-} else if (window.location.href.replace('https', 'http').indexOf('http://bibliotik.org/collections') == 0) {
+} else if (window.location.href.replace('https', 'http').indexOf('https://bibliotik.me/collections') == 0) {
     $('div#body div.table_div table > tbody > tr[id]').each(processRow);
 } else {
     $('tr.torrent').each(processRow);
