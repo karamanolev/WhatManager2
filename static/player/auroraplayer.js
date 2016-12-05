@@ -6,7 +6,7 @@ function DGAuroraPlayer(player, DGPlayer) {
     DGPlayer.duration = 0;
     DGPlayer.bufferProgress = 0;
 
-    var onplay, onpause, onvolume, onformat, onbuffer, onprogress, onduration, onmetadata;
+    var onplay, onpause, onvolume, onseek, onformat, onbuffer, onprogress, onduration, onmetadata;
 
     DGPlayer.on('play', onplay = function() {
         player.play();
@@ -20,6 +20,12 @@ function DGAuroraPlayer(player, DGPlayer) {
 
     DGPlayer.on('volume', onvolume = function(value) {
         player.volume = value;
+    });
+    
+    DGPlayer.on('seek', onseek = function(value) {
+        if (value <= ((DGPlayer.bufferProgress * DGPlayer.duration) / 100) - 10000) {
+            player.seek(value);
+        }
     });
 
     player.on('buffer', onbuffer = function(percent) {
@@ -47,19 +53,19 @@ function DGAuroraPlayer(player, DGPlayer) {
 
     var originalDescription = DGPlayer.fileDescription;
     player.on('error', onerror = function(e) {
-        // reset state
-        DGPlayer.state = 'paused';
-        DGPlayer.duration = 0;
-        DGPlayer.bufferProgress = 0;
-        DGPlayer.seekTime = 0;
-        DGPlayer.coverArt = UNKNOWN_ART;
-        DGPlayer.songTitle = 'Unknown Title';
-        DGPlayer.songArtist = 'Unknown Artist';
+       // reset state
+       // DGPlayer.state = 'paused';
+       // DGPlayer.duration = 0;
+       // DGPlayer.bufferProgress = 0;
+       // DGPlayer.seekTime = 0;
+       // DGPlayer.coverArt = UNKNOWN_ART;
+       // DGPlayer.songTitle = 'Unknown Title';
+       // DGPlayer.songArtist = 'Unknown Artist';
 
-        DGPlayer.fileDescription = "Hmm. I don't recognize that format. Try another.";
-        setTimeout(function() {
-            DGPlayer.fileDescription = originalDescription;
-        }, 3000);
+        //DGPlayer.fileDescription = "Hmm. I don't recognize that format. Try another.";
+        //setTimeout(function() {
+        //    DGPlayer.fileDescription = originalDescription;
+        //}, 3000);
     });
 
     player.volume = DGPlayer.volume;
