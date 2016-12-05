@@ -19,7 +19,7 @@ def _add_to_wm_transcode(what_id):
         'what_id': what_id,
     }
     response = requests.post('https://karamanolev.com/wm/transcode/request', data=post_data,
-                             auth=('ivailo', 'Heman3f5'))
+                             auth=('', ''))
     response_json = response.json()
     if response_json['message'] != 'Request added.':
         raise Exception('Cannot add {0} to wm: {1}'.format(what_id, response_json['message']))
