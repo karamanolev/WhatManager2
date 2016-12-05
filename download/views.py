@@ -61,7 +61,7 @@ def download_zip(request, what_id):
                 rel_path = os.path.join(rel_path.encode('utf-8'), file)
                 torrent_files.append((rel_path, os.path.join(root, file)))
 
-    download_filename = '[{0}] {1}.zip'.format(what_id, torrent_file)
+    download_filename = u'[{0}] {1}.zip'.format(what_id, torrent_file).encode('utf-8')
 
     response = download_zip_handler(download_filename, torrent_files)
     LogEntry.add(request.user, u'action', u'Downloaded {0} - {1}'.format(

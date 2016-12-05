@@ -15,8 +15,9 @@ def add_torrent(request, instance, download_location, what_id, add_to_client=Tru
     with LockModelTables(TransTorrent, LogEntry):
         if add_to_client and not moving:
             try:
-                TransTorrent.objects.get(instance__in=masters, info_hash=w_torrent.info_hash)
-                raise TorrentAlreadyAddedException(u'Already added.')
+                existing_one = TransTorrent.objects.get(instance__in=masters, info_hash=w_torrent.info_hash)
+                raise TorrentAlreadyAddedException(u'Already added (instance={0}, new_instance={1}, info_hash={2}).'.format(
+                    instance, existing_one.instance, w_torrent.info_hash))
             except TransTorrent.DoesNotExist:
                 pass
 

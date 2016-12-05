@@ -7,7 +7,7 @@ from django.db import transaction
 from WhatManager2.locking import LockModelTables
 from WhatManager2.utils import norm_t_torrent
 from bibliotik.models import BibliotikTorrent, BibliotikTransTorrent
-from home.models import ReplicaSet, DownloadLocation, TorrentAlreadyAddedException
+from home.models import ReplicaSet, DownloadLocation, TorrentAlreadyAddedException, TransInstance
 
 
 def add_bibliotik_torrent(torrent_id, instance=None, location=None, bibliotik_client=None,
@@ -19,10 +19,11 @@ def add_bibliotik_torrent(torrent_id, instance=None, location=None, bibliotik_cl
     if not location:
         location = DownloadLocation.get_bibliotik_preferred()
 
-    with LockModelTables(BibliotikTransTorrent):
+    with LockModelTables(BibliotikTransTorrent, TransInstance):
         try:
-            BibliotikTransTorrent.objects.get(info_hash=bibliotik_torrent.info_hash)
-            raise TorrentAlreadyAddedException(u'Already added.')
+            existing_one = BibliotikTransTorrent.objects.get(info_hash=bibliotik_torrent.info_hash)
+            raise TorrentAlreadyAddedException(u'Already added (instance={0}, new_instance={1}, info_hash={2}).'.format(
+                 instance, existing_one.instance, bibliotik_torrent.info_hash))
         except BibliotikTransTorrent.DoesNotExist:
             pass
 

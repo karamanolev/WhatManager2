@@ -8,7 +8,7 @@ from django.db.models.aggregates import Max
 
 from django.http.response import HttpResponse
 
-from requests.models import json_dumps
+from json import dumps as json_dumps
 
 from WhatManager2.utils import json_return_method
 from bibliotik import manage_bibliotik, trans_sync
@@ -157,7 +157,7 @@ def cache_next(request):
         pass
     elif response.status_code == 302:
         location = response.headers['location']
-        if location.startswith('http://bibliotik.org/log/'):
+        if location.startswith('http://bibliotik.me/log/') or location.startswith('/log/'):
             pass
         else:
             return {'success': False, 'location': location}
