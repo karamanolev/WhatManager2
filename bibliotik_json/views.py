@@ -1,14 +1,11 @@
 # Create your views here.
-import traceback
 import time
+import traceback
+from json import dumps as json_dumps
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-
 from django.db.models.aggregates import Max
-
 from django.http.response import HttpResponse
-
-from json import dumps as json_dumps
 
 from WhatManager2.utils import json_return_method
 from bibliotik import manage_bibliotik, trans_sync
@@ -157,7 +154,7 @@ def cache_next(request):
         pass
     elif response.status_code == 302:
         location = response.headers['location']
-        if location.startswith('http://bibliotik.me/log/') or location.startswith('/log/'):
+        if location.startswith('http://bibliotik.org/log/'):
             pass
         else:
             return {'success': False, 'location': location}
@@ -167,7 +164,8 @@ def cache_next(request):
                                      headers=json_dumps(dict(response.headers)),
                                      body=response.text)
     item.save()
-    res = {'success': True, 'id': item.id, 'status_code': item.status_code, 'body_length': len(item.body)}
+    res = {'success': True, 'id': item.id, 'status_code': item.status_code,
+           'body_length': len(item.body)}
     if 'location' in response.headers:
         res['location'] = response.headers['location']
     return res
