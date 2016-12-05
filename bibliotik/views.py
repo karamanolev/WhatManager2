@@ -20,3 +20,8 @@ def upload_book(request, book_upload_id):
 @login_required
 def refresh_ui(request):
     return render(request, 'bibliotik/refresh_ui.html')
+
+
+@login_required
+def cache_worker(request):
+    return render(request, 'bibliotik/cache_worker.html')

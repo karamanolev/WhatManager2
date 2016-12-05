@@ -121,7 +121,7 @@ $.fn.timedReload = function (url, interval, readyFn, getDataFn) {
 
 
 function stealBibliotikSessionId(callback) {
-    var extensionId = "opapngdimmnncheoehlpdnceakheghcn";
+    var extensionId = "lmikggmhkhhfhancahkkdibafpcnbkno";
     var timeoutID = setTimeout(function () {
         alert('Please make sure the extension is installed and working.');
     }, 2000);

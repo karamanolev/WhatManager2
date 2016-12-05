@@ -1,0 +1,79 @@
+{% extends 'dashboard_base.html' %}
+
+{% load staticfiles custom_filters %}
+
+{% block content %}
+    <div id="content-header">
+        <h1>Bibliotik Data Refresh</h1>
+    </div>
+    <div id="breadcrumb">
+        <a href="{% url 'home.views.dashboard' %}" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="{% url 'bibliotik.views.refresh_ui' %}" class="current">Bibliotik Data Refresh</a>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="widget-box">
+                    {% spaceless %}
+                        <div class="widget-title">
+                            <span class="icon"><i class="fa fa-refresh"></i></span>
+                            <h5>Biblitoik Data Refresh</h5>
+                        </div>
+                    {% endspaceless %}
+                    <div class="widget-content">
+                        <textarea id="refresh_log" class="form-control" style="height: 600px;"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    {% include 'dashboard_search_redirect.html' %}
+
+    <script type="text/javascript">
+        $(function () {
+            var url = '{% url 'bibliotik_json.views.cache_next' %}';
+            var refreshLog = $('#refresh_log');
+
+            function appendLog(text) {
+                refreshLog.append(text + '\n');
+                $('#refresh_log').animate({
+                    scrollTop: refreshLog[0].scrollHeight - refreshLog.height()
+                }, 250);
+            }
+
+            stealBibliotikSessionId(function (sessionId) {
+                var timeout = 500;
+                var consFailure = 0;
+                var refreshItemFail = function () {
+                    ++consFailure;
+                    if (consFailure < 8) {
+                        appendLog('Request failed, will retry...');
+                        setTimeout(refreshItem, timeout);
+                    } else {
+                        appendLog('Requests failing. Check bibliotik and refresh.');
+                    }
+                };
+                var refreshItem = function () {
+                    $.getJSON(url, { bibliotik_id: sessionId }, function (resp) {
+                        appendLog(JSON.stringify(resp));
+                        if (!resp.success) {
+                            refreshItemFail();
+                        } else {
+                            consFailure = 0;
+                            setTimeout(refreshItem, timeout);
+                        }
+                    }).fail(function () {
+                        refreshItemFail();
+                    })
+                };
+                refreshItem();
+            });
+        });
+    </script>
+{% endblock %}

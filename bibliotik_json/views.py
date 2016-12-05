@@ -3,11 +3,17 @@ import traceback
 import time
 
 from django.contrib.auth.decorators import login_required, user_passes_test
+
+from django.db.models.aggregates import Max
+
 from django.http.response import HttpResponse
+
+from requests.models import json_dumps
 
 from WhatManager2.utils import json_return_method
 from bibliotik import manage_bibliotik, trans_sync
-from bibliotik.models import BibliotikTransTorrent, BibliotikTorrent
+from bibliotik.models import BibliotikTransTorrent, BibliotikTorrent, BibliotikTorrentPageCache
+from bibliotik.settings import BIBLIOTIK_GET_TORRENT_URL
 from bibliotik.utils import BibliotikClient
 from home.models import ReplicaSet, LogEntry, TorrentAlreadyAddedException
 
@@ -135,3 +141,33 @@ def torrents_info(request):
 def get_torrent_file(request, torrent_id):
     torrent = BibliotikTorrent.objects.get(id=torrent_id)
     return HttpResponse(torrent.torrent_file, content_type='application/x-bittorrent')
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser is True)
+@json_return_method
+def cache_next(request):
+    bibliotik_id = request.GET['bibliotik_id']
+    bibliotik_client = BibliotikClient(bibliotik_id)
+    last_id = BibliotikTorrentPageCache.objects.aggregate(Max('id'))['id__max'] or 0
+    next_id = last_id + 1
+    response = bibliotik_client.session.get(
+        BIBLIOTIK_GET_TORRENT_URL.format(next_id), allow_redirects=False)
+    if response.status_code == 200:
+        pass
+    elif response.status_code == 302:
+        location = response.headers['location']
+        if location.startswith('http://bibliotik.org/log/'):
+            pass
+        else:
+            return {'success': False, 'location': location}
+    else:
+        return {'success': False, 'status_code': response.status_code}
+    item = BibliotikTorrentPageCache(id=next_id, status_code=response.status_code,
+                                     headers=json_dumps(dict(response.headers)),
+                                     body=response.text)
+    item.save()
+    res = {'success': True, 'id': item.id, 'status_code': item.status_code, 'body_length': len(item.body)}
+    if 'location' in response.headers:
+        res['location'] = response.headers['location']
+    return res

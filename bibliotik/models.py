@@ -1,3 +1,4 @@
+import re
 import time
 import os.path
 
@@ -47,7 +48,7 @@ class BibliotikTorrent(models.Model):
     cover_url = models.TextField()
     tags = models.TextField()
     publisher = models.TextField()
-    year = models.IntegerField()
+    year = models.IntegerField(null=True)
     author = models.TextField()
     title = models.TextField()
     html_page = models.TextField()
@@ -76,6 +77,7 @@ class BibliotikTorrent(models.Model):
             raise Exception(u'Title should not be empty.')
         self.category = pq('h1#title > img:first-child').attr('title')
         details = pq('p#details_content_info').text().split(', ')
+        assert len(details) and details[0]
         self.format = details[0]
         details = details[1:]
         if self.category == u'Ebooks':
@@ -143,6 +145,10 @@ class BibliotikTorrent(models.Model):
                 self.year = int(publisher_year)
             else:
                 self.year = 0
+        file_info = pq('#details_file_info').text()
+        match = re.match(r'(?P<size>\d*,?\d+(\.\d+)?) (?P<quant>B|KB|MB|GB),.*', file_info)
+        self.torrent_size = float(match.group('size').replace(',', '')) * {
+            'B': 1, 'KB': 1000, 'MB': 1000 ** 2, 'GB': 1000 ** 3}[match.group('quant')]
 
     @staticmethod
     def get_or_create(bibliotik_client, torrent_id):
@@ -209,3 +215,10 @@ class BibliotikFulltext(models.Model):
             self.info = info
             self.more_info = more_info
             self.save()
+
+
+class BibliotikTorrentPageCache(models.Model):
+    id = models.IntegerField(primary_key=True)
+    status_code = models.IntegerField()
+    headers = models.TextField()
+    body = models.TextField()
