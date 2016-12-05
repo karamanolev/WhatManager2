@@ -4,11 +4,7 @@
     <data-source source="LOCAL" name="Django default" uuid="ceb48461-f26b-460d-92cf-ce578620eff8">
       <driver-ref>mysql</driver-ref>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
-<<<<<<< HEAD
-      <jdbc-url>jdbc:mysql://karamanolev.com/what_manager2</jdbc-url>
-=======
       <jdbc-url>jdbc:mysql://127.0.0.1/what_manager2</jdbc-url>
->>>>>>> master
       <libraries />
     </data-source>
   </component>
