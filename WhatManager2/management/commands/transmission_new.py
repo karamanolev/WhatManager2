@@ -11,7 +11,7 @@ from home import models
 
 
 class Command(BaseCommand):
-    option_list = transmission_provision.Command.option_list
+    BaseCommand.add_arguments(transmission_provision.Command.option_list)
     args = u'<zone_name>'
     help = u'Provisions transmission instances'
 
