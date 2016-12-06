@@ -24,7 +24,7 @@ dummy_request = lambda: None  # To hold the what object
 def extract_new_artists_importance(group_info):
     artists = []
     importance = []
-    for importance_key, artist_list in group_info['musicInfo']:
+    for importance_key, artist_list in group_info['musicInfo'].items():
         importance_value = {
             'artists': 1,  # Main
             'with': 2,  # Guest
