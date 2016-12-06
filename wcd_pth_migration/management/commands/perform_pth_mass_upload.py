@@ -10,6 +10,7 @@ from django.core.management.base import BaseCommand
 from html2bbcode.parser import HTML2BBCode
 
 from WhatManager2.manage_torrent import add_torrent
+from WhatManager2.utils import wm_str
 from books.utils import call_mktorrent
 from home.models import ReplicaSet, get_what_client, DownloadLocation
 from wcd_pth_migration import torrentcheck
@@ -56,7 +57,7 @@ class TorrentMigrationJob(object):
         self.what_torrent = self.data['what_torrent']
         self.what_torrent_info = ujson.loads(self.what_torrent['info'])
         self.full_location = os.path.join(
-            self.data['location']['path'],
+            wm_str(self.data['location']['path']),
             str(self.what_torrent['id']),
         )
         self.torrent_dict = bencode.bdecode(b64decode(self.what_torrent['torrent_file']))
@@ -322,6 +323,12 @@ class TorrentMigrationJob(object):
                 return
             elif status.status == WhatTorrentMigrationStatus.STATUS_DUPLICATE:
                 print 'Skipping duplicate torrent', what_torrent_id
+                return
+            elif status.status == WhatTorrentMigrationStatus.STATUS_SKIPPED:
+                print 'Skipping skipped torrent', what_torrent_id
+                return
+            elif status.status == WhatTorrentMigrationStatus.STATUS_SKIPPED_PERMANENTLY:
+                print 'Skipping permanently skipped torrent', what_torrent_id
                 return
             else:
                 raise Exception('Not sure what to do with status {} on {}'.format(
