@@ -337,7 +337,10 @@ class TorrentMigrationJob(object):
         if self.REAL_RUN:
             os.makedirs(self.full_new_location)
             shutil.move(self.torrent_dir_path, self.full_new_location)
-            recursive_chmod(self.full_new_location, 0777)
+            try:
+                recursive_chmod(self.full_new_location, 0777)
+            except OSError:
+                print 'recursive_chmod failed'
         else:
             print 'os.makedirs({})'.format(self.full_new_location)
             print 'shutil.move({}, {})'.format(self.torrent_dir_path, self.full_new_location)
