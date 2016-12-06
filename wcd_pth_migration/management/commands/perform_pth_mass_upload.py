@@ -318,7 +318,7 @@ class TorrentMigrationJob(object):
         self._add_to_wm()
 
     def enhance_torrent_data(self):
-        if not self.what_torrent_info['group']['tags']:
+        if not any(self.what_torrent_info['group']['tags']):
             tags = raw_input('Enter tags (comma separated): ').split(',')
             self.what_torrent_info['group']['tags'] = tags
 
