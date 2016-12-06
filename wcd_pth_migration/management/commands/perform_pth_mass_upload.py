@@ -112,6 +112,9 @@ class TorrentMigrationJob(object):
         if self.new_torrent:
             return
         self.new_torrent = safe_retrieve_new_torrent(self.what, info_hash)
+        self.migration_status.pth_torrent_id = self.new_torrent['torrent']['id']
+        self.migration_status.save()
+
         mapped_location = self.location_mapping[self.data['location']['path']]
         self.new_location_obj = DownloadLocation.objects.get(path=mapped_location)
         self.full_new_location = os.path.join(
@@ -276,7 +279,8 @@ class TorrentMigrationJob(object):
             else:
                 self.existing_new_group = None
             self.migration_status = WhatTorrentMigrationStatus(
-                status=WhatTorrentMigrationStatus.STATUS_PROCESSING
+                what_torrent_id=self.what_torrent['id'],
+                status=WhatTorrentMigrationStatus.STATUS_PROCESSING,
             )
             return True
         elif response == 'dup':

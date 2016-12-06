@@ -16,3 +16,4 @@ class WhatTorrentMigrationStatus(models.Model):
 
     what_torrent_id = models.BigIntegerField(unique=True)
     status = models.IntegerField()
+    pth_torrent_id = models.BigIntegerField(null=True)
