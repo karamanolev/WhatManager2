@@ -85,6 +85,7 @@ class TorrentMigrationJob(object):
                 what_torrent_id=self.what_torrent['id'],
                 status=WhatTorrentMigrationStatus.STATUS_FAILED_VALIDATION
             )
+            return False
         print('Hash matching')
         torrent_file_set = {'/'.join(f['path']) for f in self.torrent_dict['info']['files']}
         for dirpath, dirnames, filenames in os.walk(self.torrent_dir_path):
@@ -98,6 +99,7 @@ class TorrentMigrationJob(object):
                     self.log_files_full_paths.append(abs_path)
         print('No extraneous files')
         print 'Torrent verification complete'
+        return True
 
     def mktorrent(self):
         print 'Creating torrent file...'
@@ -357,7 +359,8 @@ class TorrentMigrationJob(object):
                     status.status, what_torrent_id))
         except WhatTorrentMigrationStatus.DoesNotExist:
             pass
-        self.check_valid()
+        if not self.check_valid():
+            return
         self.mktorrent()
         if not self.find_dupes():
             return
