@@ -188,21 +188,14 @@ class TorrentMigrationJob(object):
                 if response.url == settings.WHAT_UPLOAD_URL:
                     try:
                         errors = extract_upload_errors(response.text)
-                        print 'Print errors uploading:'
-                        for error in errors:
-                            print error
-                        raise StopIteration('Upload failed')
-                    except StopIteration:
-                        raise
                     except Exception:
                         errors = ''
                     exception = Exception(
-                        'Error uploading data to passtheheadphones.me. Errors: {0}'.format(
-                            '; '.join(errors)))
+                        'Error uploading data to what.cd. Errors: {0}'.format('; '.join(errors)))
                     exception.response_text = response.text
+                    with open('uploaded_error.html', 'w') as error_file:
+                        error_file.write(response.text.encode('utf-8'))
                     raise exception
-            except StopIteration:
-                raise
             except Exception as ex:
                 time.sleep(2)
                 try:
@@ -295,7 +288,8 @@ class TorrentMigrationJob(object):
     def _add_to_wm(self):
         new_id = self.new_torrent['torrent']['id']
         instance = ReplicaSet.get_what_master().get_preferred_instance()
-        add_torrent(dummy_request, instance, self.new_location_obj, new_id)
+        trans_torrent = add_torrent(dummy_request, instance, self.new_location_obj, new_id)
+        print 'Added to', trans_torrent.instance.name
 
     def add_to_wm(self):
         for i in range(3):
@@ -387,4 +381,3 @@ class Command(BaseCommand):
                 data = ujson.loads(line)
                 migration_job = TorrentMigrationJob(what, location_mapping, data)
                 migration_job.process()
-                return
