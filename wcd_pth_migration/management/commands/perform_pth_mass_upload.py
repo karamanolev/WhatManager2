@@ -207,6 +207,8 @@ class TorrentMigrationJob(object):
             finally:
                 self.retrieve_new_torrent(self.torrent_new_infohash)
                 self.what.session.headers['Content-type'] = old_content_type
+            self.migration_status.status = WhatTorrentMigrationStatus.STATUS_UPLOADED
+            self.migration_status.save()
         else:
             print 'Ready with payload'
             print ujson.dumps(self.payload, indent=4)
@@ -273,18 +275,21 @@ class TorrentMigrationJob(object):
                     'torrentgroup', id=existing_id)['response']
             else:
                 self.existing_new_group = None
+            self.migration_status = WhatTorrentMigrationStatus(
+                status=WhatTorrentMigrationStatus.STATUS_PROCESSING
+            )
             return True
         elif response == 'dup':
-            migration_status = WhatTorrentMigrationStatus.STATUS_DUPLICATE
+            status = WhatTorrentMigrationStatus.STATUS_DUPLICATE
         elif response == 'skip':
-            migration_status = WhatTorrentMigrationStatus.STATUS_SKIPPED
+            status = WhatTorrentMigrationStatus.STATUS_SKIPPED
         elif response == 'skipp':
-            migration_status = WhatTorrentMigrationStatus.STATUS_SKIPPED_PERMANENTLY
+            status = WhatTorrentMigrationStatus.STATUS_SKIPPED_PERMANENTLY
         else:
             raise Exception('Unknown response')
-        WhatTorrentMigrationStatus.objects.create(
+        self.migration_status = WhatTorrentMigrationStatus.objects.create(
             what_torrent_id=self.what_torrent['id'],
-            status=migration_status,
+            status=status,
         )
         return False
 
@@ -310,6 +315,7 @@ class TorrentMigrationJob(object):
             status = WhatTorrentMigrationStatus.objects.get(what_torrent_id=what_torrent_id)
             if status.status == WhatTorrentMigrationStatus.STATUS_COMPLETE:
                 print 'Skipping complete torrent', what_torrent_id
+                return
             else:
                 raise Exception('Not sure what to do with status {} on {}'.format(
                     status.status, what_torrent_id))
@@ -334,8 +340,12 @@ class TorrentMigrationJob(object):
             print 'recursive_chmod({}, 0777)'.format(self.full_new_location)
         if self.REAL_RUN:
             self.add_to_wm()
+            self.migration_status.status = WhatTorrentMigrationStatus.STATUS_COMPLETE
+            self.migration_status.save()
         else:
             print 'add_to_wm()'
+        print
+        print
 
 
 class Command(BaseCommand):
