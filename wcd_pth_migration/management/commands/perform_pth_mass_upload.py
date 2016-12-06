@@ -285,19 +285,21 @@ class TorrentMigrationJob(object):
                 status=WhatTorrentMigrationStatus.STATUS_PROCESSING,
             )
             return True
-        elif response == 'dup':
-            status = WhatTorrentMigrationStatus.STATUS_DUPLICATE
-        elif response == 'skip':
-            status = WhatTorrentMigrationStatus.STATUS_SKIPPED
-        elif response == 'skipp':
-            status = WhatTorrentMigrationStatus.STATUS_SKIPPED_PERMANENTLY
         else:
-            raise Exception('Unknown response')
-        self.migration_status = WhatTorrentMigrationStatus.objects.create(
-            what_torrent_id=self.what_torrent['id'],
-            status=status,
-        )
-        return False
+            self.migration_status = WhatTorrentMigrationStatus(
+                what_torrent_id=self.what_torrent['id'],
+            )
+            if response == 'dup':
+                self.migration_status.status = WhatTorrentMigrationStatus.STATUS_DUPLICATE
+                self.migration_status.pth_torrent_id = raw_input('Enter existing torrent id: ')
+            elif response == 'skip':
+                self.migration_status.status = WhatTorrentMigrationStatus.STATUS_SKIPPED
+            elif response == 'skipp':
+                self.migration_status.status = WhatTorrentMigrationStatus.STATUS_SKIPPED_PERMANENTLY
+            else:
+                raise Exception('Unknown response')
+            self.migration_status.save()
+            return False
 
     def _add_to_wm(self):
         new_id = self.new_torrent['torrent']['id']
