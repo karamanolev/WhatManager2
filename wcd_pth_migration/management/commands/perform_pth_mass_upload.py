@@ -317,6 +317,11 @@ class TorrentMigrationJob(object):
                 time.sleep(5)
         self._add_to_wm()
 
+    def enhance_torrent_data(self):
+        if not self.what_torrent_info['group']['tags']:
+            tags = raw_input('Enter tags (comma separated): ').split(',')
+            self.what_torrent_info['group']['tags'] = tags
+
     def process(self):
         what_torrent_id = self.what_torrent['id']
         try:
@@ -342,6 +347,7 @@ class TorrentMigrationJob(object):
         self.mktorrent()
         if not self.find_dupes():
             return
+        self.enhance_torrent_data()
         self.prepare_payload()
         self.print_info()
         self.prepare_payload_files()
