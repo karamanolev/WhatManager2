@@ -41,7 +41,7 @@ def extract_new_artists_importance(group_info):
 
 
 class TorrentMigrationJob(object):
-    REAL_RUN = False
+    REAL_RUN = True
 
     def __init__(self, what, location_mapping, data):
         self.what = what
@@ -180,9 +180,20 @@ class TorrentMigrationJob(object):
 
                 response = self.what.session.post(
                     settings.WHAT_UPLOAD_URL, data=self.payload, files=self.payload_files)
+                print 'Response URL:'
+                print response.url
+                print settings.WHAT_UPLOAD_URL
+                print response.url == settings.WHAT_UPLOAD_URL
+                print 'blah'
                 if response.url == settings.WHAT_UPLOAD_URL:
                     try:
                         errors = extract_upload_errors(response.text)
+                        print 'Print errors uploading:'
+                        for error in errors:
+                            print error
+                        raise StopIteration('Upload failed')
+                    except StopIteration:
+                        raise
                     except Exception:
                         errors = ''
                     exception = Exception(
@@ -190,6 +201,8 @@ class TorrentMigrationJob(object):
                             '; '.join(errors)))
                     exception.response_text = response.text
                     raise exception
+            except StopIteration:
+                raise
             except Exception as ex:
                 time.sleep(2)
                 try:
@@ -266,16 +279,16 @@ class TorrentMigrationJob(object):
                 self.existing_new_group = None
             return True
         elif response == 'dup':
-            new_status = WhatTorrentMigrationStatus.STATUS_DUPLICATE
+            migration_status = WhatTorrentMigrationStatus.STATUS_DUPLICATE
         elif response == 'skip':
-            new_status = WhatTorrentMigrationStatus.STATUS_SKIPPED
+            migration_status = WhatTorrentMigrationStatus.STATUS_SKIPPED
         elif response == 'skipp':
-            new_status = WhatTorrentMigrationStatus.STATUS_SKIPPED_PERMANENTLY
+            migration_status = WhatTorrentMigrationStatus.STATUS_SKIPPED_PERMANENTLY
         else:
             raise Exception('Unknown response')
         WhatTorrentMigrationStatus.objects.create(
             what_torrent_id=self.what_torrent['id'],
-            status=new_status,
+            status=migration_status,
         )
         return False
 
@@ -311,6 +324,7 @@ class TorrentMigrationJob(object):
             return
         self.prepare_payload()
         self.print_info()
+        self.prepare_payload_files()
         raw_input('Will perform upload...')
         self.perform_upload()
         if self.REAL_RUN:
