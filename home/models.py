@@ -71,7 +71,7 @@ class ReplicaSet(models.Model):
 
 
 class DownloadLocation(models.Model):
-    zone = models.CharField(max_length=16)
+    zone = models.CharField(max_length=32)
     path = models.TextField()
     preferred = models.BooleanField(default=False)
 
