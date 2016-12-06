@@ -76,8 +76,15 @@ class TorrentMigrationJob(object):
 
     def check_valid(self):
         print 'Verifying torrent data...'
-        if not torrentcheck.verify(self.torrent_dict['info'], self.full_location):
-            raise Exception('Torrent does not verify')
+        try:
+            if not torrentcheck.verify(self.torrent_dict['info'], self.full_location):
+                raise Exception('Torrent does not verify')
+        except OSError as ex:
+            print 'Verification threw', ex
+            WhatTorrentMigrationStatus.objects.create(
+                what_torrent_id=self.what_torrent['id'],
+                status=WhatTorrentMigrationStatus.STATUS_FAILED_VALIDATION
+            )
         print('Hash matching')
         torrent_file_set = {'/'.join(f['path']) for f in self.torrent_dict['info']['files']}
         for dirpath, dirnames, filenames in os.walk(self.torrent_dir_path):
@@ -341,6 +348,9 @@ class TorrentMigrationJob(object):
                 return
             elif status.status == WhatTorrentMigrationStatus.STATUS_SKIPPED_PERMANENTLY:
                 print 'Skipping permanently skipped torrent', what_torrent_id
+                return
+            elif status.status == WhatTorrentMigrationStatus.STATUS_FAILED_VALIDATION:
+                print 'Skipping failed validation torrent', what_torrent_id
                 return
             else:
                 raise Exception('Not sure what to do with status {} on {}'.format(
