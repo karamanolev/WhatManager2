@@ -36,7 +36,7 @@ class ReplicaSet(models.Model):
     ZONE_BIBLIOTIK = 'bibliotik.me'
     ZONE_MYANONAMOUSE = 'myanonamouse.net'
 
-    zone = models.CharField(max_length=16)
+    zone = models.CharField(max_length=32)
     name = models.TextField()
 
     def __unicode__(self):

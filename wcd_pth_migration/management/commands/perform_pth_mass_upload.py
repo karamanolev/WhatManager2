@@ -1,0 +1,376 @@
+import os
+import shutil
+import time
+import ujson
+from base64 import b64decode
+
+import bencode
+from django.conf import settings
+from django.core.management.base import BaseCommand
+from html2bbcode.parser import HTML2BBCode
+
+from WhatManager2.manage_torrent import add_torrent
+from books.utils import call_mktorrent
+from home.models import ReplicaSet, get_what_client, DownloadLocation
+from wcd_pth_migration import torrentcheck
+from wcd_pth_migration.models import DownloadLocationEquivalent, WhatTorrentMigrationStatus
+from what_transcode.utils import extract_upload_errors, safe_retrieve_new_torrent, \
+    get_info_hash_from_data, recursive_chmod
+
+html_to_bbcode = HTML2BBCode()
+dummy_request = lambda: None  # To hold the what object
+
+
+def extract_new_artists_importance(group_info):
+    artists = []
+    importance = []
+    for importance_key, artist_list in group_info['musicInfo']:
+        importance_value = {
+            'artists': 1,  # Main
+            'with': 2,  # Guest
+            'composers': 4,  # Composer
+            'conductor': 5,  # Conductor
+            'dj': 6,  # DJ / Compiler
+            'remixedBy': 3,  # Remixer
+            'producer': 7,  # Producer
+        }[importance_key]
+        for artist_item in artist_list:
+            artists.append(artist_item['name'])
+            importance.append(str(importance_value))
+    return artists, importance
+
+
+class TorrentMigrationJob(object):
+    REAL_RUN = False
+
+    def __init__(self, what, location_mapping, data):
+        self.what = what
+        self.location_mapping = location_mapping
+        self.data = data
+        self.what_torrent = self.data['what_torrent']
+        self.what_torrent_info = ujson.loads(self.what_torrent['info'])
+        self.full_location = os.path.join(
+            self.data['location']['path'],
+            str(self.what_torrent['id']),
+        )
+        self.torrent_dict = bencode.bdecode(b64decode(self.what_torrent['torrent_file']))
+        self.torrent_name = self.torrent_dict['info']['name']
+        self.torrent_new_name = self.torrent_name
+        self.torrent_dir_path = os.path.join(self.full_location.encode('utf-8'), self.torrent_name)
+
+        self.new_torrent = None
+        self.log_files_full_paths = []
+        self.torrent_file_new_data = None
+        self.torrent_new_infohash = None
+        self.payload = None
+        self.payload_files = None
+        self.existing_new_group = None
+        self.full_new_location = None
+
+    def check_valid(self):
+        print 'Verifying torrent data...'
+        if not torrentcheck.verify(self.torrent_dict['info'], self.full_location):
+            raise Exception('Torrent does not verify')
+        print('Hash matching')
+        torrent_file_set = {'/'.join(f['path']) for f in self.torrent_dict['info']['files']}
+        for dirpath, dirnames, filenames in os.walk(self.torrent_dir_path):
+            for filename in filenames:
+                abs_path = os.path.join(dirpath, filename)
+                file_path = os.path.relpath(abs_path, self.torrent_dir_path)
+                if not file_path in torrent_file_set:
+                    raise Exception(
+                        'Extraneous file: {}/{}'.format(self.torrent_dir_path, file_path))
+                if filename.lower().endswith('.log'):
+                    self.log_files_full_paths.append(abs_path)
+        print('No extraneous files')
+        print 'Torrent verification complete'
+
+    def mktorrent(self):
+        print 'Creating torrent file...'
+        torrent_temp_filename = 'temp.torrent'
+        try:
+            os.remove(torrent_temp_filename)
+        except OSError:
+            pass
+        call_mktorrent(self.torrent_dir_path,
+                       torrent_temp_filename,
+                       settings.WHAT_ANNOUNCE,
+                       self.torrent_new_name)
+        with open(torrent_temp_filename, 'rb') as torrent_file:
+            self.torrent_file_new_data = torrent_file.read()
+            self.torrent_new_infohash = get_info_hash_from_data(self.torrent_file_new_data)
+        print 'Torrent file created'
+
+    def retrieve_new_torrent(self, info_hash):
+        if self.new_torrent:
+            return
+        self.new_torrent = safe_retrieve_new_torrent(self.what, info_hash)
+        mapped_location = self.location_mapping[self.data['location']['path']]
+        self.new_location_obj = DownloadLocation.objects.get(path=mapped_location)
+        self.full_new_location = os.path.join(
+            mapped_location,
+            str(self.new_torrent['torrent']['id'])
+        )
+
+    def prepare_payload(self):
+        t_info = self.what_torrent_info['torrent']
+        g_info = self.what_torrent_info['group']
+
+        if g_info['categoryName'] != 'Music':
+            raise Exception('Can only upload Music torrents for now')
+        if t_info['format'] == 'MP3' and t_info['encoding'] not in ['V0 (VBR)', '320']:
+            raise Exception('Please let\'s not upload this bitrate MP3')
+
+        payload = dict()
+        payload['submit'] = 'true'
+        payload['auth'] = self.what.authkey
+        payload['type'] = '0'  # Music
+        if self.existing_new_group:
+            payload['groupid'] = self.existing_new_group['group']['id']
+        else:
+            payload['artists[]'], payload['importance[]'] = extract_new_artists_importance(g_info)
+            payload['title'] = html_to_bbcode.feed(g_info['name'])
+            payload['year'] = str(g_info['year'])
+            payload['record_label'] = g_info['recordLabel'] or ''
+            payload['catalogue_number'] = g_info['catalogueNumber'] or ''
+            payload['releasetype'] = str(g_info['releaseType'])
+            payload['tags'] = ','.join(g_info['tags'])
+            payload['image'] = g_info['wikiImage'] or ''
+            payload['album_desc'] = html_to_bbcode.feed(g_info['wikiBody'])
+        if t_info['scene']:
+            payload['scene'] = 'on'
+        payload['format'] = t_info['format']
+        payload['bitrate'] = t_info['encoding']
+        payload['media'] = t_info['media']
+        payload['release_desc'] = html_to_bbcode.feed(t_info['description']).replace(
+            'karamanolevs', 'karamanolev\'s')
+
+        if t_info['remastered']:
+            payload['remaster'] = 'on'
+            payload['remaster_year'] = t_info['remasterYear']
+            payload['remaster_title'] = t_info['remasterTitle']
+            payload['remaster_record_label'] = t_info['remasterRecordLabel']
+            payload['remaster_catalogue_number'] = t_info['remasterCatalogueNumber']
+        self.payload = payload
+
+    def prepare_payload_files(self):
+        payload_files = dict()
+        payload_files['file_input'] = ('torrent.torrent', self.torrent_file_new_data)
+        if self.what_torrent_info['torrent']['format'] == 'FLAC':
+            logfiles = []
+            for log_file_path in self.log_files_full_paths:
+                print 'Log file {}'.format(log_file_path)
+                print '\n'.join(list(open(log_file_path))[:4])
+                print
+                response = raw_input('Add to upload [y/n]: ')
+                if response == 'y':
+                    base_name = os.path.basename(log_file_path)
+                    logfiles.append((base_name, open(log_file_path, 'rb')))
+                elif response == 'n':
+                    pass
+                else:
+                    raise Exception('Bad response')
+        self.payload_files = payload_files
+
+    def perform_upload(self):
+        if self.REAL_RUN:
+            old_content_type = self.what.session.headers['Content-type']
+            try:
+                del self.what.session.headers['Content-type']
+
+                response = self.what.session.post(
+                    settings.WHAT_UPLOAD_URL, data=self.payload, files=self.payload_files)
+                if response.url == settings.WHAT_UPLOAD_URL:
+                    try:
+                        errors = extract_upload_errors(response.text)
+                    except Exception:
+                        errors = ''
+                    exception = Exception(
+                        'Error uploading data to passtheheadphones.me. Errors: {0}'.format(
+                            '; '.join(errors)))
+                    exception.response_text = response.text
+                    raise exception
+            except Exception as ex:
+                time.sleep(2)
+                try:
+                    self.retrieve_new_torrent(self.torrent_new_infohash)
+                except:
+                    raise ex
+            finally:
+                self.what.session.headers['Content-type'] = old_content_type
+        else:
+            print 'Ready with payload'
+            print ujson.dumps(self.payload, indent=4)
+
+    def print_info(self):
+        if 'groupid' in self.payload:
+            print 'Part of existing torrent group'
+            print 'Artists:       ', ','.join(
+                artist['name'] for artist in
+                self.existing_new_group['group']['musicInfo']['artists']
+            )
+            print 'Album title:   ', self.existing_new_group['group']['name']
+            print 'Year:          ', self.existing_new_group['group']['year']
+            print 'Record label:  ', self.existing_new_group['group']['recordLabel']
+            print 'Catalog number:', self.existing_new_group['group']['catalogueNumber']
+            print 'Release type:  ', self.existing_new_group['group']['releaseType']
+            print
+        else:
+            print 'Artists:       ', ','.join(
+                artist['name'] for artist, importance in zip(
+                    self.payload['artists[]'], self.payload['importance[]'])
+                if importance == 1  # Main
+            )
+            print 'Album title:   ', self.payload['title']
+            print 'Year:          ', self.payload['year']
+            print 'Record label:  ', self.payload['record_label']
+            print 'Catalog number:', self.payload['catalogue_number']
+            print 'Release type:  ', self.payload['releasetype']
+            print
+        if 'remaster' in self.payload:
+            print '  Edition information'
+            print '  Year:          ', self.payload['remaster_year']
+            print '  Record label:  ', self.payload['remaster_record_label']
+            print '  Catalog number:', self.payload['remaster_catalogue_number']
+            print
+        print 'Scene:         ', 'yes' if 'scene' in self.payload else 'no'
+        print 'Format:        ', self.payload['format']
+        print 'Bitrate:       ', self.payload['bitrate']
+        print 'Media:         ', self.payload['media']
+        if 'groupid' not in self.payload:
+            print 'Tags:          ', self.payload['tags']
+            print 'Image:         ', self.payload['image']
+            print 'Album desc:    ', self.payload['album_desc']
+        print 'Release desc:  ', self.payload['release_desc']
+
+    def find_dupes(self):
+        t_info = self.what_torrent_info['torrent']
+        g_info = self.what_torrent_info['group']
+        print 'Artists:', '; '.join(a['name'] for a in g_info['musicInfo']['artists'])
+        print 'Title:  ', g_info['name']
+        print 'Year:   ', g_info['year']
+        print 'Media:  ', t_info['media']
+        print 'Format: ', t_info['format']
+        print 'Bitrate:', t_info['encoding']
+        print 'Label:  ', t_info['remasterRecordLabel'] or g_info['recordLabel']
+        print 'Cat no: ', t_info['remasterCatalogueNumber'] or g_info['catalogueNumber']
+        print
+        response = raw_input('Choose action [up/dup/skip/skipp]: ')
+        if response == 'up':
+            existing = raw_input('Enter existing group id (just press enter if non-existent): ')
+            if existing.strip() != '':
+                existing_id = int(existing)
+                self.existing_new_group = self.what.request(
+                    'torrentgroup', id=existing_id)['response']
+            else:
+                self.existing_new_group = None
+            return True
+        elif response == 'dup':
+            new_status = WhatTorrentMigrationStatus.STATUS_DUPLICATE
+        elif response == 'skip':
+            new_status = WhatTorrentMigrationStatus.STATUS_SKIPPED
+        elif response == 'skipp':
+            new_status = WhatTorrentMigrationStatus.STATUS_SKIPPED_PERMANENTLY
+        else:
+            raise Exception('Unknown response')
+        WhatTorrentMigrationStatus.objects.create(
+            what_torrent_id=self.what_torrent['id'],
+            status=new_status,
+        )
+        return False
+
+    def _add_to_wm(self):
+        new_id = self.new_torrent['torrent']['id']
+        instance = ReplicaSet.get_what_master().get_preferred_instance()
+        add_torrent(dummy_request, instance, self.new_location_obj, new_id)
+
+    def add_to_wm(self):
+        for i in range(3):
+            try:
+                self._add_to_wm()
+                return
+            except Exception:
+                print 'Error adding to wm, trying again in 5 sec...'
+                time.sleep(5)
+        self._add_to_wm()
+
+    def process(self):
+        what_torrent_id = self.what_torrent['id']
+        try:
+            status = WhatTorrentMigrationStatus.objects.get(what_torrent_id=what_torrent_id)
+            if status.status == WhatTorrentMigrationStatus.STATUS_COMPLETE:
+                print 'Skipping complete torrent', what_torrent_id
+            else:
+                raise Exception('Not sure what to do with status {} on {}'.format(
+                    status.status, what_torrent_id))
+        except WhatTorrentMigrationStatus.DoesNotExist:
+            pass
+        self.check_valid()
+        self.mktorrent()
+        if not self.find_dupes():
+            return
+        self.prepare_payload()
+        self.print_info()
+        raw_input('Will perform upload...')
+        self.perform_upload()
+        if self.REAL_RUN:
+            os.makedirs(self.full_new_location)
+            shutil.move(self.torrent_dir_path, self.full_new_location)
+            recursive_chmod(self.full_new_location, 0777)
+        else:
+            print 'os.makedirs({})'.format(self.full_new_location)
+            print 'shutil.move({}, {})'.format(self.torrent_dir_path, self.full_new_location)
+            print 'recursive_chmod({}, 0777)'.format(self.full_new_location)
+        if self.REAL_RUN:
+            self.add_to_wm()
+        else:
+            print 'add_to_wm()'
+
+
+class Command(BaseCommand):
+    help = 'Export transmission torrents and what torrents'
+
+    def handle(self, *args, **options):
+        print 'Initiating what client...'
+        what = get_what_client(dummy_request)
+        index_response = what.request('index')
+        print 'Status:', index_response['status']
+        print 'Scanning replica sets...'
+        try:
+            ReplicaSet.objects.get(zone='what.cd')
+            raise Exception('Please delete your what.cd replica set now')
+        except ReplicaSet.DoesNotExist:
+            pass
+        try:
+            pth_replica_set = ReplicaSet.get_what_master()
+            if pth_replica_set.transinstance_set.count() < 1:
+                raise ReplicaSet.DoesNotExist()
+        except ReplicaSet.DoesNotExist:
+            raise Exception('Please get your PTH replica set ready')
+        print 'Scanning locations...'
+        location_mapping = {}
+        with open('what_manager2_torrents.jsonl', 'rb') as torrents_input:
+            for line in torrents_input:
+                data = ujson.loads(line)
+                location_path = data['location']['path']
+                if location_path not in location_mapping:
+                    try:
+                        new_location = DownloadLocationEquivalent.objects.get(
+                            old_location=location_path).new_location
+                    except DownloadLocationEquivalent.DoesNotExist:
+                        new_location = raw_input(
+                            'Enter the new location to map to {}: '.format(location_path))
+                        DownloadLocationEquivalent.objects.create(
+                            old_location=location_path,
+                            new_location=new_location,
+                        )
+                    location_mapping[location_path] = new_location
+        print 'Location mappings:'
+        for old_location, new_location in location_mapping.items():
+            print old_location, '=', new_location
+        with open('what_manager2_torrents.jsonl', 'rb') as torrents_input:
+            for line in torrents_input:
+                data = ujson.loads(line)
+                migration_job = TorrentMigrationJob(what, location_mapping, data)
+                migration_job.process()
+                return
