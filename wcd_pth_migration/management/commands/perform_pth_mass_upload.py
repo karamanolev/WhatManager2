@@ -40,6 +40,12 @@ def extract_new_artists_importance(group_info):
     return artists, importance
 
 
+def pthify_torrent(torrent_data):
+    data = bencode.bdecode(torrent_data)
+    data['info']['source'] = 'PTH'
+    return bencode.bencode(data)
+
+
 class TorrentMigrationJob(object):
     REAL_RUN = True
 
@@ -97,8 +103,9 @@ class TorrentMigrationJob(object):
                        settings.WHAT_ANNOUNCE,
                        self.torrent_new_name)
         with open(torrent_temp_filename, 'rb') as torrent_file:
-            self.torrent_file_new_data = torrent_file.read()
+            self.torrent_file_new_data = pthify_torrent(torrent_file.read())
             self.torrent_new_infohash = get_info_hash_from_data(self.torrent_file_new_data)
+            print 'New info hash is: ', self.torrent_new_infohash
         print 'Torrent file created'
 
     def retrieve_new_torrent(self, info_hash):
@@ -180,11 +187,6 @@ class TorrentMigrationJob(object):
 
                 response = self.what.session.post(
                     settings.WHAT_UPLOAD_URL, data=self.payload, files=self.payload_files)
-                print 'Response URL:'
-                print response.url
-                print settings.WHAT_UPLOAD_URL
-                print response.url == settings.WHAT_UPLOAD_URL
-                print 'blah'
                 if response.url == settings.WHAT_UPLOAD_URL:
                     try:
                         errors = extract_upload_errors(response.text)
