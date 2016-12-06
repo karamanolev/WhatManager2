@@ -164,10 +164,9 @@ class TorrentMigrationJob(object):
         self.payload = payload
 
     def prepare_payload_files(self):
-        payload_files = dict()
-        payload_files['file_input'] = ('torrent.torrent', self.torrent_file_new_data)
+        payload_files = []
+        payload_files.append(('file_input', ('torrent.torrent', self.torrent_file_new_data)))
         if self.what_torrent_info['torrent']['format'] == 'FLAC':
-            logfiles = []
             for log_file_path in self.log_files_full_paths:
                 print 'Log file {}'.format(log_file_path)
                 print '\n'.join(list(open(log_file_path))[:4])
@@ -175,7 +174,7 @@ class TorrentMigrationJob(object):
                 response = raw_input('Add to upload [y/n]: ')
                 if response == 'y':
                     base_name = os.path.basename(log_file_path)
-                    logfiles.append((base_name, open(log_file_path, 'rb')))
+                    payload_files.append(('logfiles[]', (base_name, open(log_file_path, 'rb'))))
                 elif response == 'n':
                     pass
                 else:
