@@ -372,7 +372,7 @@ class TorrentMigrationJob(object):
         self.perform_upload()
         if self.REAL_RUN:
             os.makedirs(self.full_new_location)
-            shutil.move(self.torrent_dir_path, self.full_new_location)
+            shutil.move(wm_str(self.torrent_dir_path), wm_str(self.full_new_location))
             try:
                 recursive_chmod(self.full_new_location, 0777)
             except OSError:
