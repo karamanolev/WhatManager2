@@ -260,6 +260,7 @@ class TorrentMigrationJob(object):
     def find_dupes(self):
         t_info = self.what_torrent_info['torrent']
         g_info = self.what_torrent_info['group']
+        print 'What id:     ', self.what_torrent['id']
         print 'Artists:     ', '; '.join(a['name'] for a in g_info['musicInfo']['artists'])
         print 'Title:       ', g_info['name']
         print 'Year:        ', g_info['year']
