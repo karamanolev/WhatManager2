@@ -267,6 +267,7 @@ class TorrentMigrationJob(object):
         print 'Media:       ', t_info['media']
         print 'Format:      ', t_info['format']
         print 'Bitrate:     ', t_info['encoding']
+        print 'Remaster:    ', 'yes' if t_info['remastered'] else 'no'
         print 'Label:       ', t_info['remasterRecordLabel'] or g_info['recordLabel']
         print 'Cat no:      ', t_info['remasterCatalogueNumber'] or g_info['catalogueNumber']
         print 'Torrent name:', self.torrent_name
