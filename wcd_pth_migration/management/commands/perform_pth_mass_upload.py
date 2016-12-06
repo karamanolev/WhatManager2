@@ -320,6 +320,9 @@ class TorrentMigrationJob(object):
             if status.status == WhatTorrentMigrationStatus.STATUS_COMPLETE:
                 print 'Skipping complete torrent', what_torrent_id
                 return
+            elif status.status == WhatTorrentMigrationStatus.STATUS_DUPLICATE:
+                print 'Skipping duplicate torrent', what_torrent_id
+                return
             else:
                 raise Exception('Not sure what to do with status {} on {}'.format(
                     status.status, what_torrent_id))
