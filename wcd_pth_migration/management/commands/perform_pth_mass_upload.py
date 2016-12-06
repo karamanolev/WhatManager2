@@ -260,14 +260,15 @@ class TorrentMigrationJob(object):
     def find_dupes(self):
         t_info = self.what_torrent_info['torrent']
         g_info = self.what_torrent_info['group']
-        print 'Artists:', '; '.join(a['name'] for a in g_info['musicInfo']['artists'])
-        print 'Title:  ', g_info['name']
-        print 'Year:   ', g_info['year']
-        print 'Media:  ', t_info['media']
-        print 'Format: ', t_info['format']
-        print 'Bitrate:', t_info['encoding']
-        print 'Label:  ', t_info['remasterRecordLabel'] or g_info['recordLabel']
-        print 'Cat no: ', t_info['remasterCatalogueNumber'] or g_info['catalogueNumber']
+        print 'Artists:     ', '; '.join(a['name'] for a in g_info['musicInfo']['artists'])
+        print 'Title:       ', g_info['name']
+        print 'Year:        ', g_info['year']
+        print 'Media:       ', t_info['media']
+        print 'Format:      ', t_info['format']
+        print 'Bitrate:     ', t_info['encoding']
+        print 'Label:       ', t_info['remasterRecordLabel'] or g_info['recordLabel']
+        print 'Cat no:      ', t_info['remasterCatalogueNumber'] or g_info['catalogueNumber']
+        print 'Torrent name:', self.torrent_name
         print
         response = raw_input('Choose action [up/dup/skip/skipp]: ')
         if response == 'up':
