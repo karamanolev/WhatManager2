@@ -205,6 +205,7 @@ class TorrentMigrationJob(object):
                 except:
                     raise ex
             finally:
+                self.retrieve_new_torrent(self.torrent_new_infohash)
                 self.what.session.headers['Content-type'] = old_content_type
         else:
             print 'Ready with payload'
