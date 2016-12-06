@@ -378,6 +378,10 @@ class Command(BaseCommand):
                     location_mapping[location_path] = new_location
         print 'Location mappings:'
         for old_location, new_location in location_mapping.items():
+            try:
+                DownloadLocation.objects.get(path=new_location)
+            except DownloadLocation.DoesNotExist:
+                print 'Please create the {} location in the DB'.format(new_location)
             print old_location, '=', new_location
         with open('what_manager2_torrents.jsonl', 'rb') as torrents_input:
             for line in torrents_input:
