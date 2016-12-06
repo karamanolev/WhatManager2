@@ -322,6 +322,9 @@ class TorrentMigrationJob(object):
         if not any(self.what_torrent_info['group']['tags']):
             tags = raw_input('Enter tags (comma separated): ').split(',')
             self.what_torrent_info['group']['tags'] = tags
+        if len(self.what_torrent_info['group']['wikiBody']) < 10:
+            wiki_body = raw_input('Enter wiki body: ')
+            self.what_torrent_info['group']['wikiBody'] = wiki_body
 
     def process(self):
         what_torrent_id = self.what_torrent['id']
