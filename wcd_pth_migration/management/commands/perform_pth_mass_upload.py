@@ -157,14 +157,14 @@ class TorrentMigrationJob(object):
             payload['releasetype'] = str(g_info['releaseType'])
             payload['tags'] = ','.join(g_info['tags'])
             payload['image'] = g_info['wikiImage'] or ''
-            payload['album_desc'] = html_to_bbcode.feed(g_info['wikiBody'])
+            payload['album_desc'] = html_to_bbcode.feed(g_info['wikiBody']).replace('\n\n', '\n')
         if t_info['scene']:
             payload['scene'] = 'on'
         payload['format'] = t_info['format']
         payload['bitrate'] = t_info['encoding']
         payload['media'] = t_info['media']
         payload['release_desc'] = html_to_bbcode.feed(t_info['description']).replace(
-            'karamanolevs', 'karamanolev\'s')
+            'karamanolevs', 'karamanolev\'s').replace('\n\n', '\n')
 
         if t_info['remastered']:
             payload['remaster'] = 'on'
