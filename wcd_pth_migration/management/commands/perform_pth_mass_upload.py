@@ -304,6 +304,7 @@ class TorrentMigrationJob(object):
                 status=WhatTorrentMigrationStatus.STATUS_RESEEDED,
                 pth_torrent_id=existing,
             )
+            return True
         else:
             self.migration_status = WhatTorrentMigrationStatus(
                 what_torrent_id=self.what_torrent['id'],
