@@ -270,7 +270,8 @@ class TorrentMigrationJob(object):
     def find_dupes(self):
         existing_by_hash = self.what.request('torrent', hash=self.torrent_new_infohash)
         if existing_by_hash['status'] == 'success':
-            print 'Found existing torrent id', existing_by_hash['response']['torrent']['id']
+            raw_input('Found existing torrent id {}!!!'.format(
+                existing_by_hash['response']['torrent']['id']))
 
         t_info = self.what_torrent_info['torrent']
         g_info = self.what_torrent_info['group']
