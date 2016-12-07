@@ -270,17 +270,18 @@ class TorrentMigrationJob(object):
     def find_dupes(self):
         t_info = self.what_torrent_info['torrent']
         g_info = self.what_torrent_info['group']
-        print 'What id:     ', self.what_torrent['id']
-        print 'Title:       ', '; '.join(
+        print 'What id:      ', self.what_torrent['id']
+        print 'Title:        ', '; '.join(
             a['name'] for a in g_info['musicInfo']['artists']), '-', g_info['name']
-        print 'Year:        ', g_info['year']
-        print 'Media:       ', t_info['media']
-        print 'Format:      ', t_info['format']
-        print 'Bitrate:     ', t_info['encoding']
-        print 'Remaster:    ', 'yes' if t_info['remastered'] else 'no'
-        print 'Label:       ', t_info['remasterRecordLabel'] or g_info['recordLabel']
-        print 'Cat no:      ', t_info['remasterCatalogueNumber'] or g_info['catalogueNumber']
-        print 'Torrent name:', self.torrent_name
+        print 'Year:         ', g_info['year']
+        print 'Media:        ', t_info['media']
+        print 'Format:       ', t_info['format']
+        print 'Bitrate:      ', t_info['encoding']
+        print 'Remaster:     ', 'yes' if t_info['remastered'] else 'no'
+        print 'Label:        ', t_info['remasterRecordLabel'] or g_info['recordLabel']
+        print 'Cat no:       ', t_info['remasterCatalogueNumber'] or g_info['catalogueNumber']
+        print 'Remaster desc:', t_info['remasterTitle']
+        print 'Torrent name: ', self.torrent_name
         print
         response = raw_input('Choose action [up/dup/skip/skipp/reseed]: ')
         if response == 'up':
