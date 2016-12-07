@@ -271,7 +271,7 @@ class TorrentMigrationJob(object):
         t_info = self.what_torrent_info['torrent']
         g_info = self.what_torrent_info['group']
         print 'What id:     ', self.what_torrent['id']
-        print 'Artists - Title:     ', '; '.join(
+        print 'Title:       ', '; '.join(
             a['name'] for a in g_info['musicInfo']['artists']), '-', g_info['name']
         print 'Year:        ', g_info['year']
         print 'Media:       ', t_info['media']
