@@ -349,6 +349,7 @@ class TorrentMigrationJob(object):
 
         if self.flac_only and self.what_torrent_info['torrent']['format'] != 'FLAC':
             print 'Skipping non-FLAC torrent', what_torrent_id
+            return
 
         try:
             status = WhatTorrentMigrationStatus.objects.get(what_torrent_id=what_torrent_id)
