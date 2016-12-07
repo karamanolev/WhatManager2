@@ -413,7 +413,7 @@ class Command(BaseCommand):
     help = 'Export transmission torrents and what torrents'
 
     def add_arguments(self, parser):
-        parser.add_argument('--flac-only')
+        parser.add_argument('--flac-only', action='store_true', default=False)
 
     def handle(self, *args, **options):
         print 'Initiating what client...'
