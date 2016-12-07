@@ -359,6 +359,8 @@ class TorrentMigrationJob(object):
         if len(self.what_torrent_info['group']['wikiBody']) < 10:
             wiki_body = raw_input('Enter wiki body: ')
             self.what_torrent_info['group']['wikiBody'] = wiki_body
+        if 'tinypic.com' in self.what_torrent_info['group']['wikiImage'].lower():
+            self.what_torrent_info['group']['wikiImage'] = ''
 
     def process(self):
         what_torrent_id = self.what_torrent['id']
