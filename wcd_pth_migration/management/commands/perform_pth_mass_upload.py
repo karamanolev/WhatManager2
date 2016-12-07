@@ -12,7 +12,7 @@ from html2bbcode.parser import HTML2BBCode
 from WhatManager2.manage_torrent import add_torrent
 from WhatManager2.utils import wm_str
 from books.utils import call_mktorrent
-from home.models import ReplicaSet, get_what_client, DownloadLocation, WhatTorrent
+from home.models import ReplicaSet, get_what_client, DownloadLocation, WhatTorrent, RequestException
 from wcd_pth_migration import torrentcheck
 from wcd_pth_migration.models import DownloadLocationEquivalent, WhatTorrentMigrationStatus
 from what_transcode.utils import extract_upload_errors, safe_retrieve_new_torrent, \
@@ -268,10 +268,13 @@ class TorrentMigrationJob(object):
         print 'Release desc:  ', self.payload['release_desc']
 
     def find_dupes(self):
-        existing_by_hash = self.what.request('torrent', hash=self.torrent_new_infohash)
-        if existing_by_hash['status'] == 'success':
-            raw_input('Found existing torrent id {}!!!'.format(
-                existing_by_hash['response']['torrent']['id']))
+        try:
+            existing_by_hash = self.what.request('torrent', hash=self.torrent_new_infohash)
+            if existing_by_hash['status'] == 'success':
+                raw_input('Found existing torrent id {}!!!'.format(
+                    existing_by_hash['response']['torrent']['id']))
+        except RequestException:
+            print 'No existing torrent by hash'
 
         t_info = self.what_torrent_info['torrent']
         g_info = self.what_torrent_info['group']
