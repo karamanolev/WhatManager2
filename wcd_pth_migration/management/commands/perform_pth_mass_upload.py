@@ -1,9 +1,10 @@
-import bencode
 import os
 import shutil
 import time
 import ujson
 from base64 import b64decode
+
+import bencode
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from html2bbcode.parser import HTML2BBCode
@@ -49,7 +50,8 @@ def pthify_torrent(torrent_data):
 class TorrentMigrationJob(object):
     REAL_RUN = True
 
-    def __init__(self, what, location_mapping, data):
+    def __init__(self, what, location_mapping, data, flac_only):
+        self.flac_only = flac_only
         self.what = what
         self.location_mapping = location_mapping
         self.data = data
@@ -344,6 +346,10 @@ class TorrentMigrationJob(object):
 
     def process(self):
         what_torrent_id = self.what_torrent['id']
+
+        if self.flac_only and self.what_torrent_info['torrent']['format'] != 'FLAC':
+            print 'Skipping non-FLAC torrent', what_torrent_id
+
         try:
             status = WhatTorrentMigrationStatus.objects.get(what_torrent_id=what_torrent_id)
             if status.status == WhatTorrentMigrationStatus.STATUS_COMPLETE:
@@ -406,6 +412,9 @@ class TorrentMigrationJob(object):
 class Command(BaseCommand):
     help = 'Export transmission torrents and what torrents'
 
+    def add_arguments(self, parser):
+        parser.add_argument('--flac-only')
+
     def handle(self, *args, **options):
         print 'Initiating what client...'
         what = get_what_client(dummy_request)
@@ -453,5 +462,6 @@ class Command(BaseCommand):
         with open('what_manager2_torrents.jsonl', 'rb') as torrents_input:
             for line in torrents_input:
                 data = ujson.loads(line)
-                migration_job = TorrentMigrationJob(what, location_mapping, data)
+                migration_job = TorrentMigrationJob(what, location_mapping, data,
+                                                    flac_only=options['flac_only'])
                 migration_job.process()
