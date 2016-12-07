@@ -304,18 +304,20 @@ class TorrentMigrationJob(object):
             try:
                 if not torrentcheck.verify(existing_info['info'], self.full_location):
                     raise Exception('Torrent does not verify')
-                succe
+                success = True
             except Exception as ex:
                 print 'Existing torrent does not verify with', ex
                 resp = raw_input('Continue? [y/n]: ')
-                if resp == '
-            self.new_torrent = self.what.request('torrent', id=existing)['response']
-            self.migration_status = WhatTorrentMigrationStatus.objects.create(
-                what_torrent_id=self.what_torrent['id'],
-                status=WhatTorrentMigrationStatus.STATUS_RESEEDED,
-                pth_torrent_id=existing,
-            )
-            return True
+                if resp == 'y':
+                    success = True
+            if success:
+                self.new_torrent = self.what.request('torrent', id=existing)['response']
+                self.migration_status = WhatTorrentMigrationStatus.objects.create(
+                    what_torrent_id=self.what_torrent['id'],
+                    status=WhatTorrentMigrationStatus.STATUS_RESEEDED,
+                    pth_torrent_id=existing,
+                )
+                return True
         self.migration_status = WhatTorrentMigrationStatus(
             what_torrent_id=self.what_torrent['id'],
         )
@@ -326,6 +328,9 @@ class TorrentMigrationJob(object):
             self.migration_status.status = WhatTorrentMigrationStatus.STATUS_SKIPPED
         elif response == 'skipp':
             self.migration_status.status = WhatTorrentMigrationStatus.STATUS_SKIPPED_PERMANENTLY
+        elif response == 'reseed':
+            self.migration_status.status = WhatTorrentMigrationStatus.STATUS_DUPLICATE
+            self.migration_status.pth_torrent_id = existing
         else:
             raise Exception('Unknown response')
         self.migration_status.save()
