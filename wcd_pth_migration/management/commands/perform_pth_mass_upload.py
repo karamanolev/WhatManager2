@@ -12,7 +12,7 @@ from html2bbcode.parser import HTML2BBCode
 from WhatManager2.manage_torrent import add_torrent
 from WhatManager2.utils import wm_str
 from books.utils import call_mktorrent
-from home.models import ReplicaSet, get_what_client, DownloadLocation
+from home.models import ReplicaSet, get_what_client, DownloadLocation, WhatTorrent
 from wcd_pth_migration import torrentcheck
 from wcd_pth_migration.models import DownloadLocationEquivalent, WhatTorrentMigrationStatus
 from what_transcode.utils import extract_upload_errors, safe_retrieve_new_torrent, \
@@ -298,6 +298,17 @@ class TorrentMigrationJob(object):
             return True
         elif response == 'reseed':
             existing = int(raw_input('Enter existing torrent id: '))
+            existing_torrent = WhatTorrent.get_or_create(dummy_request, what_id=existing)
+            existing_info = bencode.bdecode(existing_torrent.torrent_file_binary)
+            success = False
+            try:
+                if not torrentcheck.verify(existing_info['info'], self.full_location):
+                    raise Exception('Torrent does not verify')
+                succe
+            except Exception as ex:
+                print 'Existing torrent does not verify with', ex
+                resp = raw_input('Continue? [y/n]: ')
+                if resp == '
             self.new_torrent = self.what.request('torrent', id=existing)['response']
             self.migration_status = WhatTorrentMigrationStatus.objects.create(
                 what_torrent_id=self.what_torrent['id'],
@@ -305,21 +316,20 @@ class TorrentMigrationJob(object):
                 pth_torrent_id=existing,
             )
             return True
+        self.migration_status = WhatTorrentMigrationStatus(
+            what_torrent_id=self.what_torrent['id'],
+        )
+        if response == 'dup':
+            self.migration_status.status = WhatTorrentMigrationStatus.STATUS_DUPLICATE
+            self.migration_status.pth_torrent_id = raw_input('Enter existing torrent id: ')
+        elif response == 'skip':
+            self.migration_status.status = WhatTorrentMigrationStatus.STATUS_SKIPPED
+        elif response == 'skipp':
+            self.migration_status.status = WhatTorrentMigrationStatus.STATUS_SKIPPED_PERMANENTLY
         else:
-            self.migration_status = WhatTorrentMigrationStatus(
-                what_torrent_id=self.what_torrent['id'],
-            )
-            if response == 'dup':
-                self.migration_status.status = WhatTorrentMigrationStatus.STATUS_DUPLICATE
-                self.migration_status.pth_torrent_id = raw_input('Enter existing torrent id: ')
-            elif response == 'skip':
-                self.migration_status.status = WhatTorrentMigrationStatus.STATUS_SKIPPED
-            elif response == 'skipp':
-                self.migration_status.status = WhatTorrentMigrationStatus.STATUS_SKIPPED_PERMANENTLY
-            else:
-                raise Exception('Unknown response')
-            self.migration_status.save()
-            return False
+            raise Exception('Unknown response')
+        self.migration_status.save()
+        return False
 
     def _add_to_wm(self):
         new_id = self.new_torrent['torrent']['id']
