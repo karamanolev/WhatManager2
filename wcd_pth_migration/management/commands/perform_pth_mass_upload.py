@@ -280,7 +280,8 @@ class TorrentMigrationJob(object):
         g_info = self.what_torrent_info['group']
         print 'What id:      ', self.what_torrent['id']
         print 'Title:        ', '; '.join(
-            a['name'] for a in g_info['musicInfo']['artists']), '-', g_info['name']
+            a['name'] for a in g_info['musicInfo']['artists']), '-', html_to_bbcode.feed(
+            g_info['name'])
         print 'Year:         ', g_info['year']
         print 'Media:        ', t_info['media']
         print 'Format:       ', t_info['format']
