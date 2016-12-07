@@ -14,6 +14,7 @@ class WhatTorrentMigrationStatus(models.Model):
     STATUS_COMPLETE = 4
     STATUS_SKIPPED_PERMANENTLY = 5
     STATUS_FAILED_VALIDATION = 6
+    STATUS_RESEEDED = 7
 
     what_torrent_id = models.BigIntegerField(unique=True)
     status = models.IntegerField()

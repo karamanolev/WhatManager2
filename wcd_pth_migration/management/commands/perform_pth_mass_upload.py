@@ -1,10 +1,9 @@
+import bencode
 import os
 import shutil
 import time
 import ujson
 from base64 import b64decode
-
-import bencode
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from html2bbcode.parser import HTML2BBCode
@@ -119,12 +118,12 @@ class TorrentMigrationJob(object):
         print 'Torrent file created'
 
     def retrieve_new_torrent(self, info_hash):
-        if self.new_torrent:
-            return
-        self.new_torrent = safe_retrieve_new_torrent(self.what, info_hash)
-        self.migration_status.pth_torrent_id = self.new_torrent['torrent']['id']
-        self.migration_status.save()
+        if self.new_torrent is None:
+            self.new_torrent = safe_retrieve_new_torrent(self.what, info_hash)
+            self.migration_status.pth_torrent_id = self.new_torrent['torrent']['id']
+            self.migration_status.save()
 
+    def set_new_location(self):
         mapped_location = self.location_mapping[self.data['location']['path']]
         self.new_location_obj = DownloadLocation.objects.get(path=mapped_location)
         self.full_new_location = os.path.join(
@@ -281,7 +280,7 @@ class TorrentMigrationJob(object):
         print 'Cat no:      ', t_info['remasterCatalogueNumber'] or g_info['catalogueNumber']
         print 'Torrent name:', self.torrent_name
         print
-        response = raw_input('Choose action [up/dup/skip/skipp]: ')
+        response = raw_input('Choose action [up/dup/skip/skipp/reseed]: ')
         if response == 'up':
             existing = raw_input('Enter existing group id (just press enter if non-existent): ')
             if existing.strip() != '':
@@ -295,6 +294,14 @@ class TorrentMigrationJob(object):
                 status=WhatTorrentMigrationStatus.STATUS_PROCESSING,
             )
             return True
+        elif response == 'reseed':
+            existing = int(raw_input('Enter existing torrent id: '))
+            self.new_torrent = self.what.request('torrent', id=existing)['response']
+            self.migration_status = WhatTorrentMigrationStatus.objects.create(
+                what_torrent_id=self.what_torrent['id'],
+                status=WhatTorrentMigrationStatus.STATUS_RESEEDED,
+                pth_torrent_id=existing,
+            )
         else:
             self.migration_status = WhatTorrentMigrationStatus(
                 what_torrent_id=self.what_torrent['id'],
@@ -354,6 +361,9 @@ class TorrentMigrationJob(object):
             elif status.status == WhatTorrentMigrationStatus.STATUS_FAILED_VALIDATION:
                 print 'Skipping failed validation torrent', what_torrent_id
                 return
+            elif status.status == WhatTorrentMigrationStatus.STATUS_RESEEDED:
+                print 'Skipping reseeded torrent', what_torrent_id
+                return
             else:
                 raise Exception('Not sure what to do with status {} on {}'.format(
                     status.status, what_torrent_id))
@@ -364,12 +374,14 @@ class TorrentMigrationJob(object):
         self.mktorrent()
         if not self.find_dupes():
             return
-        self.enhance_torrent_data()
-        self.prepare_payload()
-        self.print_info()
-        self.prepare_payload_files()
-        raw_input('Will perform upload...')
-        self.perform_upload()
+        if not self.new_torrent:
+            self.enhance_torrent_data()
+            self.prepare_payload()
+            self.print_info()
+            self.prepare_payload_files()
+            raw_input('Will perform upload...')
+            self.perform_upload()
+        self.set_new_location()
         if self.REAL_RUN:
             os.makedirs(self.full_new_location)
             shutil.move(wm_str(self.torrent_dir_path), wm_str(self.full_new_location))
