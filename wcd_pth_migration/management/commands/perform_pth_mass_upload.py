@@ -466,6 +466,7 @@ class TorrentMigrationJob(object):
 
     def enhance_torrent_data(self):
         if self.what_torrent_info['torrent']['media'] == 'Blu-ray':
+            print 'HEEEEEEEREEEEE!!!!!!!!!!!!!!!!!!!!!!!'
             self.what_torrent_info['torrent']['media'] = 'Blu-Ray'
         if not any(self.what_torrent_info['group']['tags']):
             tags = raw_input('Enter tags (comma separated): ').split(',')
