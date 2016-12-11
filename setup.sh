@@ -4,3 +4,4 @@ sudo apt-get install -y libapache2-mod-wsgi python-pip flac lame sox mktorrent l
 sudo pip install -r requirements.txt
 sudo chmod 777 media/book_data
 sudo chmod 777 media/what_image_cache
+sudo chmod 777 media/qobuz_uploads

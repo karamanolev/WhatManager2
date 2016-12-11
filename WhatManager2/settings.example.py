@@ -217,6 +217,7 @@ INSTALLED_APPS = (
     'bibliotik_json',
     'what_meta',
     'whatify',
+    'qobuz2',
     'myanonamouse',
 )
 

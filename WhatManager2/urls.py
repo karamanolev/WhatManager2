@@ -20,5 +20,6 @@ urlpatterns = patterns(
     url(r'^userscript/', include('userscript.urls')),
     url(r'^what_meta/', include('what_meta.urls')),
     url(r'^whatify/', include('whatify.urls')),
+    url(r'^qobuz/', include('qobuz2.urls')),
     url(r'^myanonamouse/', include('myanonamouse.urls')),
 )

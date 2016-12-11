@@ -1,0 +1,28 @@
+{% load staticfiles %}
+{% if spectrals %}
+    <script type="text/javascript" src="{% static 'js/jquery.elevatezoom.js' %}"></script>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="widget-box">
+                <div class="widget-title">
+                    <span class="icon"><i class="fa fa-picture-o"></i></span>
+                    <h5>Spectrals</h5>
+                </div>
+                <div class="widget-content">
+                    {% for file in spectrals %}
+                        <p>
+                            <img class="spectral-image"
+                                 src="{% url 'qobuz2.views.view_spectral' upload.id %}?path={{ file|urlencode }}">
+                        </p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $('.spectral-image').elevateZoom({
+            zoomType: "inner",
+            cursor: "crosshair"
+        });
+    </script>
+{% endif %}

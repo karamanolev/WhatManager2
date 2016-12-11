@@ -1,0 +1,123 @@
+{% extends 'dashboard_base.html' %}
+
+{% load staticfiles custom_filters bootstrap %}
+
+{% block content %}
+    <style type="text/css">
+        .spectral-image {
+            width: 100%;
+        }
+    </style>
+    <div id="content-header">
+        <h1>Upload to What.CD</h1>
+    </div>
+    <div id="breadcrumb">
+        <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="{% url 'qobuz2.views.index' %}">Qobuz Uploads</a>
+        <a href="{% url 'qobuz2.views.edit_upload' upload.id %}" class="current">
+            Upload to What.CD
+        </a>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <span class="icon"><i class="fa fa-book"></i></span>
+                        <h5>Upload Details</h5>
+                    </div>
+                    <div class="widget-content">
+                        <p>
+                            Cover URL:
+                            <input type="text" class="form-control"
+                                   value="{{ upload.upload.metadata.image_url }}">
+                            <a href="{% url 'qobuz2.views.upload_cover' upload.id %}"
+                               class="btn btn-primary">
+                                Upload Cover
+                            </a>
+                        </p>
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="active"><a href="#existing" role="tab" data-toggle="tab">
+                                Existing Torrent Group
+                            </a></li>
+                            <li><a href="#new" role="tab" data-toggle="tab">
+                                New Torrent Group
+                            </a></li>
+                        </ul>
+                        <div class="well tab-content">
+                            <div class="tab-pane active" id="existing">
+                                <form action="?type=existing" method="post">
+                                    {% csrf_token %}
+                                    <p>
+                                        Torrent Group ID:
+                                        <input type="text" class="form-control" name="group_id">
+                                        <button type="submit" name="subgroup" class="btn btn-primary">
+                                            New Edition
+                                        </button>
+                                        <button type="submit" name="original"
+                                                class="btn btn-primary">
+                                            Original
+                                        </button>
+                                    </p>
+                                    <p>
+                                        With Torrent ID:
+                                        <input type="text" class="form-control" name="with_id">
+                                        <button type="submit" name="with_torrent"
+                                                class="btn btn-primary">
+                                            With Torrent
+                                        </button>
+                                    </p>
+                                </form>
+                            </div>
+                            <div class="tab-pane" id="new">
+                                <form action="?type=new" method="post">
+                                    {% csrf_token %}
+                                    <p>
+                                        Release Type:
+                                        <select name="release_type" class="form-control">
+                                            {% for type in release_types %}
+                                                <option value="{{ type.0 }}">{{ type.1 }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </p>
+                                    <p>
+                                        Original Year (if another edition):
+                                        <input type="text" name="original_year"
+                                               class="form-control">
+                                    </p>
+
+                                    <p>
+                                        Tags:
+                                        <input type="text" name="tags" class="form-control">
+                                    </p>
+
+                                    <p>
+                                        Force Artists:
+                                        <input type="checkbox" name="force_artists">
+                                    </p>
+
+                                    <p>
+                                        <button type="submit" class="btn btn-primary">
+                                            Upload
+                                        </button>
+                                    </p>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include 'qobuz2/spectrals_row.html' %}
+
+        {% include 'qobuz2/description_row.html' %}
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    {% include 'dashboard_search_redirect.html' %}
+{% endblock %}

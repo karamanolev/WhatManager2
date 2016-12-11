@@ -1,0 +1,174 @@
+{% extends 'dashboard_base.html' %}
+
+{% load staticfiles custom_filters bootstrap %}
+
+{% block content %}
+    <style type="text/css">
+        .spectral-image {
+            width: 100%;
+        }
+
+        .track-formset-form .form-inline input {
+            width: 100px;
+        }
+
+        .track-formset-form .form-inline > *:nth-of-type(1) input {
+            width: 300px;
+        }
+
+        .track-formset-form .form-inline > *:nth-of-type(2) input {
+            width: 390px;
+        }
+    </style>
+    <div id="content-header">
+        <h1>Edit Qobuz Upload</h1>
+    </div>
+    <div id="breadcrumb">
+        <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="{% url 'qobuz2.views.index' %}">Qobuz Uploads</a>
+        <a href="{% url 'qobuz2.views.edit_upload' upload.id %}" class="current">
+            Edit Qobuz Upload
+        </a>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-9">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <span class="icon"><i class="fa fa-book"></i></span>
+                        <h5>Upload Details</h5>
+                    </div>
+                    <div class="widget-content nopadding">
+                        <form action="{% url 'qobuz2.views.edit_upload' upload.id %}" method="post"
+                              enctype="multipart/form-data" class="form-horizontal" role="form">
+                            {% csrf_token %}
+                            {{ artists_formset.management_form }}
+                            {% for artist_form in artists_formset %}
+                                <div class="form-group track-formset-form">
+                                    <label class="control-label col-sm-2 col-lg-2"></label>
+
+                                    <div class="col-sm-10 col-lg-10 form-inline">
+                                        {% for field in artist_form %}
+                                            {{ field|bootstrap }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            {{ form|bootstrap_horizontal }}
+                            {{ tracks_formset.management_form }}
+                            {% for track_form in tracks_formset %}
+                                <div class="form-group track-formset-form">
+                                    <label class="control-label col-sm-2 col-lg-2"></label>
+
+                                    <div class="col-sm-10 col-lg-10 form-inline">
+                                        {% for field in track_form %}
+                                            {{ field|bootstrap }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary btn-lg">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="col-md-12" style="padding-left: 0;">
+                        <div class="widget-box">
+                            <div class="widget-title">
+                                <span class="icon"><i class="fa fa-book"></i></span>
+                                <h5>Album Actions</h5>
+                            </div>
+                            <div class="widget-content">
+                                <a href="{% url 'qobuz2.views.title_case' upload.id %}"
+                                   class="btn btn-block btn-default">
+                                    Title Case
+                                </a>
+
+                                {% if upload.upload.state == STATE_INITIALIZED %}
+                                    {% if not status %}
+                                        <a href="{% url 'qobuz2.views.start_download' upload.id %}"
+                                           class="btn btn-block btn-primary">
+                                            Download from Qobuz
+                                        </a>
+                                    {% elif status == 'pending' %}
+                                        <a class="btn btn-block btn-default">Pending</a>
+                                    {% elif status == 'started' %}
+                                        <a class="btn btn-block btn-default">Started</a>
+                                    {% elif status == 'failed' %}
+                                        <div class="alert alert-danger">
+                                            {{ error }}
+                                            <a href="{% url 'qobuz2.views.start_download' upload.id %}"
+                                               class="btn btn-block btn-default">
+                                                Retry
+                                            </a>
+                                        </div>
+                                    {% else %}
+                                        Unknown status
+                                    {% endif %}
+                                {% elif upload.upload.state == STATE_DOWNLOADED %}
+                                    <a href="{% url 'qobuz2.views.prepare' upload.id %}"
+                                       class="btn btn-block btn-primary">
+                                        Prepare
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12" style="padding-left: 0;">
+                        <div class="widget-box">
+                            <div class="widget-title">
+                                <span class="icon"><i class="fa fa-picture-o"></i></span>
+                                <h5>Covers</h5>
+                            </div>
+                            <div class="widget-content">
+                                {% for file in images %}
+                                    <img class="spectral-image"
+                                         src="{% url 'qobuz2.views.view_cover' upload.id %}?path={{ file }}">
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12" style="padding-left: 0;">
+                        <div class="widget-box">
+                            <div class="widget-title">
+                                <span class="icon"><i class="fa fa-picture-o"></i></span>
+                                <h5>Find/Replace</h5>
+                            </div>
+                            <div class="widget-content">
+                                <form action="{% url 'qobuz2.views.find_replace' upload.id %}"
+                                      method="post">
+                                    {% csrf_token %}
+                                    Find:
+                                    <input type="text" class="form-control" name="find">
+                                    Replace:
+                                    <input type="text" class="form-control" name="replace">
+                                    <input type="submit" class="btn btn-primary" value="Replace">
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include 'qobuz2/description_row.html' %}
+
+        {% include 'qobuz2/spectrals_row.html' %}
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    {% include 'dashboard_search_redirect.html' %}
+{% endblock %}

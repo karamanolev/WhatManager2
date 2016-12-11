@@ -15,14 +15,14 @@ def login(session):
     session.post('https://whatimg.com/users.php', params=params, data=payload)
 
 
-def upload_image_from_memory(data):
+def upload_image_from_memory(album_id, data):
     session = requests.Session()
     login(session)
     files = {
         'userfile[]': ('image.jpg', data),
     }
     payload = {
-        'upload_to': '4459',
+        'upload_to': album_id,
         'private_upload': '1',
         'upload_type': 'standard',
     }

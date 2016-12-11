@@ -92,7 +92,7 @@ def upload_cover(request, upload_id):
 def upload_cover_upload(request, upload_id):
     book_upload = BookUpload.objects.only('cover_url', 'cover_data').get(id=upload_id)
     if not book_upload.cover_url:
-        whatimg_url = whatimg.upload_image_from_memory(book_upload.cover_data)
+        whatimg_url = whatimg.upload_image_from_memory('4459', book_upload.cover_data)
         book_upload.cover_url = whatimg_url
         book_upload.save()
     return redirect('books.views.edit_upload', upload_id)

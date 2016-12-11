@@ -1,0 +1,3 @@
+[submodule "qiller"]
+	path = qiller
+	url = gogs@git.ub.vc:magicinc/qiller.git

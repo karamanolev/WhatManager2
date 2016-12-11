@@ -1,0 +1,155 @@
+{% extends 'dashboard_base.html' %}
+
+{% load staticfiles custom_filters bootstrap %}
+
+{% block content %}
+    <style type="text/css">
+        .spectral-image {
+            width: 100%;
+        }
+    </style>
+    <div id="content-header">
+        <h1>Edit Qobuz Upload</h1>
+    </div>
+    <div id="breadcrumb">
+        <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="{% url 'qobuz.views.uploads' %}">Qobuz Uploads</a>
+        <a href="{% url 'qobuz.views.edit_upload' upload.id %}" class="current">
+            Edit Qobuz Upload
+        </a>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-9">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <span class="icon"><i class="fa fa-book"></i></span>
+                        <h5>Upload Details</h5>
+                    </div>
+                    <div class="widget-content nopadding">
+                        <form action="{% url 'qobuz.views.edit_upload' upload.id %}" method="post"
+                              enctype="multipart/form-data" class="form-horizontal" role="form">
+                            {% csrf_token %}
+                            {{ form|bootstrap_horizontal }}
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary btn-lg">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="col-md-12" style="padding-left: 0;">
+                        <div class="widget-box">
+                            <div class="widget-title">
+                                <span class="icon"><i class="fa fa-book"></i></span>
+                                <h5>Album Actions</h5>
+                            </div>
+                            <div class="widget-content">
+                                {% if download_status == 'not_started' %}
+                                    <a href="{% url 'qobuz.views.start_download_album' upload.id %}"
+                                       class="btn btn-block btn-primary">
+                                        Download from Qobuz
+                                    </a>
+                                {% else %}
+                                    <a class="btn btn-block btn-default">
+                                        {{ download_status }}
+                                    </a>
+                                {% endif %}
+
+                                {% if download_status == 'Completed' %}
+                                    {% if not upload.what_img_cover %}
+                                        <a href="{% url 'qobuz.views.upload_cover_to_whatimg' upload.id %}"
+                                           class="btn btn-block btn-primary">
+                                            Upload cover to Whatimg
+                                        </a>
+                                    {% endif %}
+                                    {% if not upload.what_torrent_id %}
+                                        <a href="{% url 'qobuz.views.start_seeding' upload.id %}"
+                                           class="btn btn-block btn-primary">
+                                            Start seeding
+                                        </a>
+                                    {% endif %}
+
+                                    <a href="{% url 'qobuz.views.download_torrent_file' upload.id %}"
+                                       class="btn btn-block btn-primary">
+                                        Download torrent file
+                                    </a>
+                                {% endif %}
+
+                                {% if download_error %}
+                                    <div class="alert alert-danger">
+                                        {{ download_error }}
+                                        <a href="{% url 'qobuz.views.start_download_album' upload.id %}"
+                                           class="btn btn-block btn-default">
+                                            Retry
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12" style="padding-left: 0;">
+                        <div class="widget-box">
+                            <div class="widget-title">
+                                <span class="icon"><i class="fa fa-picture-o"></i></span>
+                                <h5>Covers</h5>
+                            </div>
+                            <div class="widget-content">
+                                {% for file in cover_files %}
+                                    <img class="spectral-image"
+                                         src="{% url 'qobuz.views.view_cover' upload.id %}?path={{ file }}">
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <span class="icon"><i class="fa fa-picture-o"></i></span>
+                        <h5>Generated Description</h5>
+                    </div>
+                    <div class="widget-content">
+                        <textarea class="form-control" style="height: 300px;"
+                                >{{ upload.description_box }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if spectral_files %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <span class="icon"><i class="fa fa-picture-o"></i></span>
+                            <h5>Spectrals</h5>
+                        </div>
+                        <div class="widget-content">
+                            {% for file in spectral_files %}
+                                <img class="spectral-image"
+                                     src="{% url 'qobuz.views.view_spectral' upload.id %}?path={{ file }}">
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    {% include 'dashboard_search_redirect.html' %}
+{% endblock %}

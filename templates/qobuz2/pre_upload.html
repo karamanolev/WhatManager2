@@ -1,0 +1,50 @@
+{% extends 'dashboard_base.html' %}
+
+{% load staticfiles custom_filters bootstrap %}
+
+{% block content %}
+    <style type="text/css">
+        .spectral-image {
+            width: 100%;
+        }
+    </style>
+    <div id="content-header">
+        <h1>Prepare Qobuz Upload</h1>
+    </div>
+    <div id="breadcrumb">
+        <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="{% url 'qobuz2.views.index' %}">Qobuz Uploads</a>
+        <a href="{% url 'qobuz2.views.edit_upload' upload.id %}" class="current">
+            Prepare Qobuz Upload
+        </a>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <span class="icon"><i class="fa fa-book"></i></span>
+                        <h5>Upload Details</h5>
+                    </div>
+                    <div class="widget-content">
+                        <a href="{% url 'qobuz2.views.make_torrent' upload.id %}"
+                           class="btn btn-block btn-primary">
+                            Acknowledge spectrals / mktorrent
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include 'qobuz2/spectrals_row.html' %}
+
+        {% include 'qobuz2/description_row.html' %}
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    {% include 'dashboard_search_redirect.html' %}
+{% endblock %}

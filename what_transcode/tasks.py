@@ -1,10 +1,10 @@
 from __future__ import unicode_literals
-
 import os
 import shutil
 from subprocess import call
 import time
 
+from numpy import random
 from celery import task
 from django import db
 from django.utils.functional import cached_property
@@ -22,6 +22,11 @@ from what_transcode.utils import torrent_is_preemphasized, get_info_hash, html_u
 
 
 source_roots, dest_upload_dir = None, None
+random.seed()
+
+
+def make_temp_dir():
+    return TRANSCODER_TEMP_DIR + '_' + str(random.randint(10000000, 99999999))
 
 
 def get_source_roots():
@@ -44,7 +49,7 @@ def get_dest_upload_dir():
 
 class TranscodeSingleJob(object):
     def __init__(self, what, what_torrent, report_progress, source_dir, bitrate,
-                 torrent_temp_dir=None):
+                 torrent_temp_dir=None, transcoder_temp_dir=None):
         self.what = what
         self.force_warnings = False
         self.what_torrent = what_torrent
@@ -52,7 +57,7 @@ class TranscodeSingleJob(object):
         self.source_dir = source_dir
         self.bitrate = bitrate
         if torrent_temp_dir is None:
-            self.torrent_temp_dir = os.path.join(TRANSCODER_TEMP_DIR, self.directory_name)
+            self.torrent_temp_dir = os.path.join(transcoder_temp_dir, self.directory_name)
         else:
             self.torrent_temp_dir = torrent_temp_dir
         self.torrent_file_path = os.path.join(self.torrent_temp_dir,
@@ -324,24 +329,23 @@ class TranscodeJob(object):
         raise Exception('Source directory for id {0} not found.'.format(self.what_id))
 
     def run(self):
-        try:
-            shutil.rmtree(TRANSCODER_TEMP_DIR)
-        except OSError:
-            pass
+        temp_dir = make_temp_dir()
+        if os.path.exists(temp_dir):
+            raise Exception('Destination directory exists')
 
         # Pass an object that can hold the what_client property
         self.what = get_what_client(lambda: None)
 
-        os.makedirs(TRANSCODER_TEMP_DIR)
+        os.makedirs(temp_dir)
         try:
-            self.transcode_upload_lossless()
+            self.transcode_upload_lossless(temp_dir)
         finally:
             try:
-                shutil.rmtree(TRANSCODER_TEMP_DIR)
+                shutil.rmtree(temp_dir)
             except OSError:
                 pass
 
-    def transcode_upload_lossless(self):
+    def transcode_upload_lossless(self, temp_dir):
         print 'Will transcode {0}'.format(self.what_id)
 
         self.what_torrent = self.what.request('torrent', id=self.what_id)['response']
@@ -367,7 +371,7 @@ class TranscodeJob(object):
             if bitrate not in mp3_ids:
                 single_job = TranscodeSingleJob(self.what, self.what_torrent, self.report_progress,
                                                 self.source_dir,
-                                                bitrate)
+                                                bitrate, transcoder_temp_dir=temp_dir)
                 single_job.force_warnings = self.force_warnings
                 single_job.run()
                 print 'Uploaded {0}'.format(bitrate.upper())

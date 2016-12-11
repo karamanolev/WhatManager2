@@ -8,6 +8,7 @@ import bencode
 from mutagen.flac import FLAC
 from pyquery.pyquery import PyQuery
 
+from WhatManager2.utils import wm_str
 from home.models import TransTorrent, ReplicaSet
 
 
@@ -68,7 +69,7 @@ def get_info_hash_from_data(torrent_data):
 
 
 def get_info_hash(torrent_path):
-    with open(torrent_path, 'rb') as torrent_file:
+    with open(wm_str(torrent_path), 'rb') as torrent_file:
         return get_info_hash_from_data(torrent_file.read())
 
 

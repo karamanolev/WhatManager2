@@ -1,0 +1,69 @@
+{% extends 'dashboard_base.html' %}
+
+{% load staticfiles custom_filters %}
+
+{% block content %}
+    <div id="content-header">
+        <h1>Book Uploads</h1>
+    </div>
+    <div id="breadcrumb">
+        <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="{% url 'qobuz.views.uploads' %}" class="current">Qobuz Uploads</a>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="widget-box">
+                    {% spaceless %}
+                        <div class="widget-title">
+                            <span class="icon"><i class="fa fa-book"></i></span>
+                            <h5>Current Uploads</h5>
+
+                            <div class="buttons">
+                                <a class="btn" href="{% url 'qobuz.views.new_upload' %}">
+                                    <i class="fa fa-upload"></i>
+                                    New Upload
+                                </a>
+                            </div>
+                        </div>
+                    {% endspaceless %}
+                    <div class="widget-content nopadding">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                            <tr>
+                                <th># (ID)</th>
+                                <th>Artists</th>
+                                <th>Album</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for upload in uploads %}
+                                <tr>
+                                    <td>
+                                        {{ forloop.counter }}&nbsp;({{ upload.id }})
+                                    </td>
+                                    <td>
+                                        {{ upload.artists }}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'qobuz.views.edit_upload' upload.id %}">
+                                            {{ upload.album_name }}
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ block.super }}
+
+    {% include 'dashboard_search_redirect.html' %}
+{% endblock %}

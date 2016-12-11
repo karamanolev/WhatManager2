@@ -163,6 +163,10 @@ def request_retry(request):
 @json_return_method
 @csrf_exempt
 def request_transcode(request):
+    return run_request_transcode(request, request.POST['what_id'])
+
+
+def run_request_transcode(request, what_id):
     try:
         request_what_user = request_get_what_user(request)
     except Exception:
@@ -171,7 +175,7 @@ def request_transcode(request):
         }
 
     try:
-        what_id = int(request.POST['what_id'])
+        what_id = int(what_id)
     except:
         return {
             'message': 'Missing or invalid what id'
