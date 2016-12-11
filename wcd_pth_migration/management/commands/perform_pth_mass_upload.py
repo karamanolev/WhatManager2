@@ -303,6 +303,7 @@ class TorrentMigrationJob(object):
                     print 'Found existing group', existing_group_id
                 else:
                     print 'Multiple matching existing groups!!!!!!!!!!'
+                    existing_group_id = None
                     break
         if not existing_group_id:
             existing_group_id = raw_input(u'Enter existing group id (empty if non-existent): ')
@@ -322,7 +323,8 @@ class TorrentMigrationJob(object):
                 if not existing_torrent_id:
                     existing_torrent_id = torrent['id']
                 else:
-                    raise Exception('Multiple matching torrent sizes ({} and {})'.format(
+                    raw_input('Warning: Multiple matching torrent sizes ({} and {})! '
+                              'Taking first.'.format(
                         existing_torrent_id, torrent['id']))
         return existing_torrent_id
 
@@ -466,7 +468,6 @@ class TorrentMigrationJob(object):
 
     def enhance_torrent_data(self):
         if self.what_torrent_info['torrent']['media'] == 'Blu-ray':
-            print 'HEEEEEEEREEEEE!!!!!!!!!!!!!!!!!!!!!!!'
             self.what_torrent_info['torrent']['media'] = 'Blu-Ray'
         if not any(self.what_torrent_info['group']['tags']):
             tags = raw_input('Enter tags (comma separated): ').split(',')
