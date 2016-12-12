@@ -14,3 +14,6 @@ sqlparse>=0.1.11
 ujson>=1.33
 Celery<4.0
 html2bbcode==2.3.2
+Pillow==3.4.2
+imgurpython==1.1.7
+numpy==1.11.2
