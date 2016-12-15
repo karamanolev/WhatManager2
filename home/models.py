@@ -1,26 +1,27 @@
 import base64
 import hashlib
-from itertools import count
 import os
 import pickle
 import re
 import socket
-from time import sleep
 import ujson
+from itertools import count
+from time import sleep
 
+import mutagen
+import requests
+import transmissionrpc
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db import models, transaction
 from django.db.models.aggregates import Sum
 from django.utils import timezone
 from django.utils.functional import cached_property
-import mutagen
-import requests
-import transmissionrpc
 
 from WhatManager2 import settings
 from WhatManager2.settings import FREELEECH_EMAIL_TO, WHAT_CD_DOMAIN, FREELEECH_HOSTNAME, \
     FREELEECH_EMAIL_FROM
+from WhatManager2.throttling import Throttler
 from WhatManager2.utils import match_properties, copy_properties, norm_t_torrent, html_unescape, \
     wm_str, get_artists, wm_unicode
 from home.info_holder import InfoHolder
@@ -643,13 +644,15 @@ def send_freeleech_email(message):
 
 
 class CustomWhatAPI:
-    def __init__(self, username=None, password=None):
+    def __init__(self, username=None, password=None, throttle=False):
         self.session = requests.Session()
         self.session.headers = headers
         self.authkey = None
         self.passkey = None
         self.username = username
         self.password = password
+        self.throttle = False
+        self.throttler = Throttler(5, 10)
         self._login()
 
     def _login(self):
@@ -692,6 +695,8 @@ class CustomWhatAPI:
             params['auth'] = self.authkey
         params.update(kwargs)
 
+        if self.throttle:
+            self.throttler.throttle_request()
         r = self.session.get(ajaxpage, params=params, allow_redirects=False)
         try:
             json_response = r.json()
@@ -705,6 +710,8 @@ class CustomWhatAPI:
                     response=json_response)
             return json_response
         except ValueError:
+            if action == 'torrentlog' and r.content == 'no payload data (empty result set)':
+                return {'status': 'success', 'response': []}
             raise RequestException()
 
     def get_torrent(self, torrent_id):

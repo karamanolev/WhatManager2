@@ -15,7 +15,9 @@ from WhatManager2.utils import wm_str
 from books.utils import call_mktorrent
 from home.models import ReplicaSet, get_what_client, DownloadLocation, WhatTorrent, RequestException
 from wcd_pth_migration import torrentcheck
+from wcd_pth_migration.logfile import LogFile, UnrecognizedRippingLogException
 from wcd_pth_migration.models import DownloadLocationEquivalent, WhatTorrentMigrationStatus
+from wcd_pth_migration.utils import generate_spectrals_for_dir
 from what_transcode.utils import extract_upload_errors, safe_retrieve_new_torrent, \
     get_info_hash_from_data, recursive_chmod
 
@@ -58,6 +60,10 @@ def format_bytes_pth(length):
     return '{:.2f} {}'.format(mb, suffix)
 
 
+def fix_duplicate_newlines(s):
+    return s.replace('\r', '').replace('\n\n', '\n')
+
+
 class TorrentMigrationJob(object):
     REAL_RUN = True
 
@@ -78,6 +84,7 @@ class TorrentMigrationJob(object):
         self.torrent_dir_path = os.path.join(self.full_location.encode('utf-8'), self.torrent_name)
 
         self.new_torrent = None
+        self.log_files = set()
         self.log_files_full_paths = []
         self.torrent_file_new_data = None
         self.torrent_new_infohash = None
@@ -104,10 +111,17 @@ class TorrentMigrationJob(object):
             for filename in filenames:
                 abs_path = os.path.join(dirpath, filename)
                 file_path = os.path.relpath(abs_path, self.torrent_dir_path)
-                if not file_path in torrent_file_set:
+                if file_path not in torrent_file_set:
                     raise Exception(
                         'Extraneous file: {}/{}'.format(self.torrent_dir_path, file_path))
                 if filename.lower().endswith('.log'):
+                    print 'Candidate log file', abs_path
+                    with open(abs_path, 'r') as log_f:
+                        try:
+                            self.log_files.add(LogFile(log_f.read()))
+                        except UnrecognizedRippingLogException:
+                            print 'Skipping: unrecognized'
+                            pass
                     self.log_files_full_paths.append(abs_path)
         print('No extraneous files')
         print 'Torrent verification complete'
@@ -168,14 +182,14 @@ class TorrentMigrationJob(object):
             payload['releasetype'] = str(g_info['releaseType'])
             payload['tags'] = ','.join(g_info['tags'])
             payload['image'] = g_info['wikiImage'] or ''
-            payload['album_desc'] = html_to_bbcode.feed(g_info['wikiBody']).replace('\n\n', '\n')
+            payload['album_desc'] = fix_duplicate_newlines(html_to_bbcode.feed(g_info['wikiBody']))
         if t_info['scene']:
             payload['scene'] = 'on'
         payload['format'] = t_info['format']
         payload['bitrate'] = t_info['encoding']
         payload['media'] = t_info['media']
-        payload['release_desc'] = html_to_bbcode.feed(t_info['description']).replace(
-            'karamanolevs', 'karamanolev\'s').replace('\n\n', '\n')
+        payload['release_desc'] = fix_duplicate_newlines(html_to_bbcode.feed(
+            t_info['description']).replace('karamanolevs', 'karamanolev\'s'))
 
         if t_info['remastered']:
             payload['remaster'] = 'on'
@@ -191,12 +205,11 @@ class TorrentMigrationJob(object):
         if self.what_torrent_info['torrent']['format'] == 'FLAC':
             for log_file_path in self.log_files_full_paths:
                 print 'Log file {}'.format(log_file_path)
-                print '\n'.join(list(open(log_file_path))[:4])
+                print ''.join(list(open(log_file_path))[:4])
                 print
                 response = raw_input('Add to upload [y/n]: ')
                 if response == 'y':
-                    base_name = os.path.basename(log_file_path)
-                    payload_files.append(('logfiles[]', (base_name, open(log_file_path, 'rb'))))
+                    payload_files.append(('logfiles[]', ('logfile.log', open(log_file_path, 'rb'))))
                 elif response == 'n':
                     pass
                 else:
@@ -293,7 +306,8 @@ class TorrentMigrationJob(object):
     def find_existing_torrent_group(self):
         group_year = self.what_torrent_info['group']['year']
         group_name = html_parser.unescape(self.what_torrent_info['group']['name']).lower()
-        results = self.what.request('browse', searchstr=group_name)['response']['results']
+        search_str = '{} {}'.format(wm_str(group_name), wm_str(str(group_year)))
+        results = self.what.request('browse', searchstr=search_str)['response']['results']
         existing_group_id = None
         for result in results:
             if html_parser.unescape(result['groupName']).lower() == group_name and \
@@ -344,10 +358,33 @@ class TorrentMigrationJob(object):
             if original_catalog_number == torrent_catalog_number and matching_media_format:
                 if not existing_torrent_id:
                     existing_torrent_id = torrent['id']
+                    continue
                 else:
                     print 'Multiple existing catalog numbers ({} and {})'.format(
                         existing_torrent_id, torrent['id'])
                     existing_torrent_id = raw_input('Enter torrent id if dup: ')
+
+            # Comparing log files
+            if torrent['format'] == 'FLAC' and t_info['format'] == 'FLAC' and len(self.log_files):
+                torrent_log_files = {
+                    LogFile(l) for l in
+                    self.what.request('torrentlog', torrentid=torrent['id'])['response']
+                    }
+                if torrent_log_files == self.log_files:
+                    print 'Found matching log files!!!'
+                    if not existing_torrent_id:
+                        existing_torrent_id = torrent['id']
+                        continue
+                    else:
+                        print 'Multiple existing catalog numbers ({} and {})'.format(
+                            existing_torrent_id, torrent['id'])
+                        existing_torrent_id = raw_input('Enter torrent id if dup: ')
+                else:
+                    if len(torrent_log_files.intersection(self.log_files)):
+                        raw_input('Log file sets are not exact matches, '
+                                  'but found matching log files between ours and {}!!!'.format(
+                            torrent['id']))
+
         return existing_torrent_id
 
     def find_dupes(self):
@@ -482,6 +519,10 @@ class TorrentMigrationJob(object):
             remaster_year = raw_input('Enter remaster year: ')
             self.what_torrent_info['torrent']['remasterYear'] = remaster_year
 
+    def generate_spectrals(self):
+        print 'Generating spectrals...'
+        generate_spectrals_for_dir(self.full_location)
+
     def process(self):
         what_torrent_id = self.what_torrent['id']
 
@@ -524,7 +565,8 @@ class TorrentMigrationJob(object):
             self.prepare_payload()
             self.print_info()
             self.prepare_payload_files()
-            raw_input('Will perform upload...')
+            self.generate_spectrals()
+            raw_input('Will perform upload (CHECK THE SPECTRALS)...')
             self.perform_upload()
         self.set_new_location()
         if self.REAL_RUN:

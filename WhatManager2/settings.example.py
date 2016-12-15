@@ -67,6 +67,9 @@ FILES_SYNC_HTTP_PASSWORD = 'password'
 FILES_SYNC_SSH = 'user@host.com'
 FILES_SYNC_WM_ROOT = 'https://host.com/'
 
+# Only if you're going to run wcd_pth_migration
+WCD_PTH_SPECTRALS_HTML_PATH = '/path/to/target/folder/with/html/and/pngs'
+
 # Used permissions
 # home_view_logentry - Viewing logs
 # home_add_whattorrent - Adding torrents
