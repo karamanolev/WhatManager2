@@ -1,14 +1,15 @@
 from __future__ import unicode_literals
+
 import os
 import shutil
-from subprocess import call
 import time
+from subprocess import call
 
-from numpy import random
+import requests
 from celery import task
 from django import db
 from django.utils.functional import cached_property
-import requests
+from numpy import random
 
 from WhatManager2.settings import WHAT_ANNOUNCE, WHAT_UPLOAD_URL, TRANSCODER_ADD_TORRENT_URL, \
     TRANSCODER_HTTP_USERNAME, TRANSCODER_HTTP_PASSWORD, TRANSCODER_TEMP_DIR, \
@@ -18,8 +19,7 @@ from home.models import get_what_client, DownloadLocation, ReplicaSet
 from what_transcode.flac_lame import transcode_file
 from what_transcode.utils import torrent_is_preemphasized, get_info_hash, html_unescape, \
     fix_pathname, extract_upload_errors, norm_dest_path, get_channels_number, recursive_chmod, \
-    check_directory_tags_filenames, get_mp3_ids, safe_retrieve_new_torrent
-
+    check_directory_tags_filenames, get_mp3_ids, safe_retrieve_new_torrent, pthify_torrent
 
 source_roots, dest_upload_dir = None, None
 random.seed()
@@ -75,6 +75,11 @@ class TranscodeSingleJob(object):
         ]
         if call(['mktorrent'] + args) != 0:
             raise Exception('mktorrent returned non-zero')
+        with open(self.torrent_file_path, 'rb') as f:
+            torrent_data = f.read()
+        torrent_data = pthify_torrent(torrent_data)
+        with open(self.torrent_file_path, 'wb') as f:
+            f.write(torrent_data)
         self.new_torrent_info_hash = get_info_hash(self.torrent_file_path)
 
     def _add_to_wm(self):
@@ -275,7 +280,7 @@ class TranscodeSingleJob(object):
                     raise Exception('There is a file that has not been fully downloaded. WTF?')
 
         if (len(flac_paths) <= 1) and (self.what_torrent['group']['releaseType'] != 9) and \
-           (self.what_torrent['group']['releaseType'] != 13):  # 9 is Single, # 13 is Remix
+                (self.what_torrent['group']['releaseType'] != 13):  # 9 is Single, # 13 is Remix
             if self.force_warnings:
                 print 'Warning: This is a single audio file torrent that is not a single or a ' \
                       'remix in What.cd. Will not transcode.'

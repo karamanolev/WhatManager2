@@ -20,7 +20,7 @@ from wcd_pth_migration.logfile import LogFile, UnrecognizedRippingLogException, 
 from wcd_pth_migration.models import DownloadLocationEquivalent, WhatTorrentMigrationStatus
 from wcd_pth_migration.utils import generate_spectrals_for_dir, normalize_for_matching
 from what_transcode.utils import extract_upload_errors, safe_retrieve_new_torrent, \
-    get_info_hash_from_data, recursive_chmod
+    get_info_hash_from_data, recursive_chmod, pthify_torrent
 
 html_to_bbcode = HTML2BBCode()
 html_parser = HTMLParser()
@@ -44,12 +44,6 @@ def extract_new_artists_importance(group_info):
             artists.append(artist_item['name'])
             importance.append(str(importance_value))
     return artists, importance
-
-
-def pthify_torrent(torrent_data):
-    data = bencode.bdecode(torrent_data)
-    data['info']['source'] = 'PTH'
-    return bencode.bencode(data)
 
 
 def format_bytes_pth(length):

@@ -1,8 +1,8 @@
 import HTMLParser
-import time
 import hashlib
 import os
 import subprocess
+import time
 
 import bencode
 from mutagen.flac import FLAC
@@ -71,6 +71,12 @@ def get_info_hash_from_data(torrent_data):
 def get_info_hash(torrent_path):
     with open(wm_str(torrent_path), 'rb') as torrent_file:
         return get_info_hash_from_data(torrent_file.read())
+
+
+def pthify_torrent(torrent_data):
+    data = bencode.bdecode(torrent_data)
+    data['info']['source'] = 'PTH'
+    return bencode.bencode(data)
 
 
 def norm_dest_path(torrent_name, dest_path):
