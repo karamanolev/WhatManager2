@@ -751,13 +751,14 @@ class CustomWhatAPI:
                     yield int(free_group['torrentId']), free_group, free_group
 
 
-def get_what_client(request):
+def get_what_client(request, throttle=False):
     if not hasattr(request, 'what_client'):
         request.what_client = None
         for i in range(3):
             try:
                 request.what_client = CustomWhatAPI(username=settings.WHAT_USERNAME,
-                                                    password=settings.WHAT_PASSWORD)
+                                                    password=settings.WHAT_PASSWORD,
+                                                    throttle=throttle)
                 break
             except RequestException as ex:
                 pass

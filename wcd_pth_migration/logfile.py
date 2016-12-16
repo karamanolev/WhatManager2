@@ -34,8 +34,14 @@ class LogFile(object):
             self._parse_eac_log()
         elif 'XLD extraction logfile' in self.contents:
             self._parse_xld_log()
+        elif 'auCDtect' in self.contents:
+            self._parse_non_log()
         else:
             raise UnrecognizedRippingLogException()
+
+    def _parse_non_log(self):
+        self.toc = []
+        self.tracks = []
 
     def _parse_xld_log(self):
         track_entries = []
@@ -109,7 +115,7 @@ class LogFile(object):
                     state = STATE_TOC_HEADERS
                 elif line == 'End of status report':
                     state = STATE_END_OF_STATUS_REPORT
-                elif line.startswith('Track ') and 'accurate' not in line:
+                elif line.startswith('Track ') and 'accurate' not in line and 'databas' not in line:
                     current_track = int(line[len('Track '):])
                     track_entries.append({
                         'track': current_track,

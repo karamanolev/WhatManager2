@@ -15,9 +15,10 @@ from WhatManager2.utils import wm_str
 from books.utils import call_mktorrent
 from home.models import ReplicaSet, get_what_client, DownloadLocation, WhatTorrent, RequestException
 from wcd_pth_migration import torrentcheck
-from wcd_pth_migration.logfile import LogFile, UnrecognizedRippingLogException
+from wcd_pth_migration.logfile import LogFile, UnrecognizedRippingLogException, \
+    InvalidRippingLogException
 from wcd_pth_migration.models import DownloadLocationEquivalent, WhatTorrentMigrationStatus
-from wcd_pth_migration.utils import generate_spectrals_for_dir
+from wcd_pth_migration.utils import generate_spectrals_for_dir, normalize_for_matching
 from what_transcode.utils import extract_upload_errors, safe_retrieve_new_torrent, \
     get_info_hash_from_data, recursive_chmod
 
@@ -122,6 +123,8 @@ class TorrentMigrationJob(object):
                         except UnrecognizedRippingLogException:
                             print 'Skipping: unrecognized'
                             pass
+                        except InvalidRippingLogException:
+                            raw_input('Log file unrecognized!')
                     self.log_files_full_paths.append(abs_path)
         print('No extraneous files')
         print 'Torrent verification complete'
@@ -347,14 +350,42 @@ class TorrentMigrationJob(object):
         g_info = self.what_torrent_info['group']
 
         existing_torrent_id = None
-        original_catalog_number = t_info['remasterCatalogueNumber'] or g_info['catalogueNumber']
+        original_catalog_number = normalize_for_matching(
+            t_info['remasterCatalogueNumber'] or g_info['catalogueNumber'])
         for torrent in self.existing_new_group['torrents']:
-            torrent_catalog_number = torrent['remasterCatalogueNumber'] or \
-                                     self.existing_new_group['group']['catalogueNumber']
+            torrent_catalog_number = normalize_for_matching(
+                torrent['remasterCatalogueNumber'] or
+                self.existing_new_group['group']['catalogueNumber'])
+            torrent_catalog_number = torrent_catalog_number.lower()
             matching_media_format = \
                 t_info['media'] == torrent['media'] and \
                 t_info['format'] == torrent['format'] and \
                 t_info['encoding'] == torrent['encoding']
+
+            # Comparing log files
+            if torrent['format'] == 'FLAC' and t_info['format'] == 'FLAC' and len(self.log_files):
+                try:
+                    torrent_log_files = {
+                        LogFile(l) for l in
+                        self.what.request('torrentlog', torrentid=torrent['id'])['response']
+                        }
+                    if torrent_log_files == self.log_files:
+                        print 'Found matching log files with {}!!!'.format(torrent['id'])
+                        if not existing_torrent_id:
+                            existing_torrent_id = torrent['id']
+                            continue
+                        else:
+                            print 'Multiple existing catalog numbers ({} and {})'.format(
+                                existing_torrent_id, torrent['id'])
+                            existing_torrent_id = raw_input('Enter torrent id if dup: ')
+                    else:
+                        if len(torrent_log_files.intersection(self.log_files)):
+                            raw_input('Log file sets are not exact matches, '
+                                      'but found matching log files between ours and {}!!!'.format(
+                                torrent['id']))
+                except InvalidRippingLogException:
+                    raw_input('Log file for {} unrecognized!'.format(torrent['id']))
+
             if original_catalog_number == torrent_catalog_number and matching_media_format:
                 if not existing_torrent_id:
                     existing_torrent_id = torrent['id']
@@ -364,27 +395,6 @@ class TorrentMigrationJob(object):
                         existing_torrent_id, torrent['id'])
                     existing_torrent_id = raw_input('Enter torrent id if dup: ')
 
-            # Comparing log files
-            if torrent['format'] == 'FLAC' and t_info['format'] == 'FLAC' and len(self.log_files):
-                torrent_log_files = {
-                    LogFile(l) for l in
-                    self.what.request('torrentlog', torrentid=torrent['id'])['response']
-                    }
-                if torrent_log_files == self.log_files:
-                    print 'Found matching log files!!!'
-                    if not existing_torrent_id:
-                        existing_torrent_id = torrent['id']
-                        continue
-                    else:
-                        print 'Multiple existing catalog numbers ({} and {})'.format(
-                            existing_torrent_id, torrent['id'])
-                        existing_torrent_id = raw_input('Enter torrent id if dup: ')
-                else:
-                    if len(torrent_log_files.intersection(self.log_files)):
-                        raw_input('Log file sets are not exact matches, '
-                                  'but found matching log files between ours and {}!!!'.format(
-                            torrent['id']))
-
         return existing_torrent_id
 
     def find_dupes(self):
@@ -393,6 +403,7 @@ class TorrentMigrationJob(object):
 
         t_info = self.what_torrent_info['torrent']
         g_info = self.what_torrent_info['group']
+        remaster = t_info['remastered']
         print 'What id:      ', self.what_torrent['id']
         print 'Title:        ', '; '.join(
             a['name'] for a in g_info['musicInfo']['artists']), '-', html_parser.unescape(
@@ -401,10 +412,10 @@ class TorrentMigrationJob(object):
         print 'Media:        ', t_info['media']
         print 'Format:       ', t_info['format']
         print 'Bitrate:      ', t_info['encoding']
-        print 'Remaster:     ', 'yes ({})'.format(t_info['remasterYear']) if t_info[
-            'remastered'] else 'no'
-        print 'Label:        ', t_info['remasterRecordLabel'] or g_info['recordLabel']
-        print 'Cat no:       ', t_info['remasterCatalogueNumber'] or g_info['catalogueNumber']
+        print 'Remaster:     ', 'yes ({})'.format(t_info['remasterYear']) if remaster else 'no'
+        print 'Label:        ', t_info['remasterRecordLabel'] if remaster else g_info['recordLabel']
+        print 'Cat no:       ', t_info['remasterCatalogueNumber'] if remaster else g_info[
+            'catalogueNumber']
         print 'Remaster desc:', t_info['remasterTitle']
         print 'Torrent name: ', self.torrent_name
         print 'Torrent size: ', format_bytes_pth(self.get_total_size())
@@ -598,7 +609,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         print 'Initiating what client...'
-        what = get_what_client(dummy_request)
+        what = get_what_client(dummy_request, True)
         index_response = what.request('index')
         print 'Status:', index_response['status']
         print 'Scanning replica sets...'

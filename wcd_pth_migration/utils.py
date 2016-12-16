@@ -1,16 +1,17 @@
 import os
 import shutil
-
 from subprocess import Popen
+
+from django.conf import settings
 
 
 def generate_spectrals_for_dir(dir_path):
     try:
-        shutil.rmtree(SPECTRALS_HTML_PATH)
+        shutil.rmtree(settings.WCD_PTH_SPECTRALS_HTML_PATH)
     except OSError:
         pass
-    os.makedirs(SPECTRALS_HTML_PATH)
-    html_file = open(os.path.join(SPECTRALS_HTML_PATH, 'index.html'), 'w')
+    os.makedirs(settings.WCD_PTH_SPECTRALS_HTML_PATH)
+    html_file = open(os.path.join(settings.WCD_PTH_SPECTRALS_HTML_PATH, 'index.html'), 'w')
     html_file.write('<html><body><table border="0">')
     spectral_num = 1
     subprocess_calls = []
@@ -19,9 +20,9 @@ def generate_spectrals_for_dir(dir_path):
             if not filename.lower().endswith('flac'):
                 continue
             filepath = os.path.join(dirpath, filename)
-            full_dest_path = os.path.join(SPECTRALS_HTML_PATH,
+            full_dest_path = os.path.join(settings.WCD_PTH_SPECTRALS_HTML_PATH,
                                           u'{0:02}.full.png'.format(spectral_num))
-            zoom_dest_path = os.path.join(SPECTRALS_HTML_PATH,
+            zoom_dest_path = os.path.join(settings.WCD_PTH_SPECTRALS_HTML_PATH,
                                           u'{0:02}.zoom.png'.format(spectral_num))
             args = [
                 'sox', filepath, '-n', 'remix', '1', 'spectrogram', '-x', '3000', '-y', '513',
@@ -49,3 +50,7 @@ def generate_spectrals_for_dir(dir_path):
         if process.returncode != 0:
             raise Exception('sox returned non-zero')
     return spectral_num - 1
+
+
+def normalize_for_matching(s):
+    return s.lower().replace(' ', '').replace('-', '').replace('/', '')
