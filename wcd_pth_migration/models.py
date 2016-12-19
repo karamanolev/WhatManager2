@@ -19,3 +19,11 @@ class WhatTorrentMigrationStatus(models.Model):
     what_torrent_id = models.BigIntegerField(unique=True)
     status = models.IntegerField()
     pth_torrent_id = models.BigIntegerField(null=True)
+
+
+class TorrentGroupMapping(models.Model):
+    what_group_id = models.BigIntegerField()
+    pth_group_id = models.BigIntegerField()
+
+    class Meta:
+        unique_together = (('what_group_id', 'pth_group_id'),)

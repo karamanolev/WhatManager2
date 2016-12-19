@@ -651,7 +651,7 @@ class CustomWhatAPI:
         self.passkey = None
         self.username = username
         self.password = password
-        self.throttle = False
+        self.throttle = throttle
         self.throttler = Throttler(5, 10)
         self._login()
 

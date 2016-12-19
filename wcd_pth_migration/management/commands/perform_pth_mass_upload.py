@@ -17,7 +17,8 @@ from home.models import ReplicaSet, get_what_client, DownloadLocation, WhatTorre
 from wcd_pth_migration import torrentcheck
 from wcd_pth_migration.logfile import LogFile, UnrecognizedRippingLogException, \
     InvalidRippingLogException
-from wcd_pth_migration.models import DownloadLocationEquivalent, WhatTorrentMigrationStatus
+from wcd_pth_migration.models import DownloadLocationEquivalent, WhatTorrentMigrationStatus, \
+    TorrentGroupMapping
 from wcd_pth_migration.utils import generate_spectrals_for_dir, normalize_for_matching
 from what_transcode.utils import extract_upload_errors, safe_retrieve_new_torrent, \
     get_info_hash_from_data, recursive_chmod, pthify_torrent
@@ -301,21 +302,37 @@ class TorrentMigrationJob(object):
         return None
 
     def find_existing_torrent_group(self):
-        group_year = self.what_torrent_info['group']['year']
-        group_name = html_parser.unescape(self.what_torrent_info['group']['name']).lower()
-        search_str = '{} {}'.format(wm_str(group_name), wm_str(str(group_year)))
-        results = self.what.request('browse', searchstr=search_str)['response']['results']
         existing_group_id = None
-        for result in results:
-            if html_parser.unescape(result['groupName']).lower() == group_name and \
-                            result['groupYear'] == group_year:
-                if not existing_group_id:
-                    existing_group_id = result['groupId']
-                    print 'Found existing group', existing_group_id
-                else:
-                    print 'Multiple matching existing groups!!!!!!!!!!'
-                    existing_group_id = None
-                    break
+
+        group_id = self.what_torrent_info['group']['id']
+        try:
+            mapping = TorrentGroupMapping.objects.get(what_group_id=group_id)
+            mapping_group = self.what.request('torrentgroup', id=mapping.pth_group_id)['response']
+            if mapping_group['group']['id'] != mapping.pth_group_id:
+                raise Exception('NOOOOO THIS CANNOT HAPPEN {} {}!'.format(
+                    mapping_group['group']['id'],
+                    mapping.pth_group_id,
+                ))
+            existing_group_id = mapping.pth_group_id
+            print 'Found torrent group mapping with {}'.format(existing_group_id)
+        except TorrentGroupMapping.DoesNotExist:
+            pass
+
+        if not existing_group_id:
+            group_year = self.what_torrent_info['group']['year']
+            group_name = html_parser.unescape(self.what_torrent_info['group']['name']).lower()
+            search_str = '{} {}'.format(wm_str(group_name), wm_str(str(group_year)))
+            results = self.what.request('browse', searchstr=search_str)['response']['results']
+            for result in results:
+                if html_parser.unescape(result['groupName']).lower() == group_name and \
+                                result['groupYear'] == group_year:
+                    if not existing_group_id:
+                        existing_group_id = result['groupId']
+                        print 'Found existing group', existing_group_id
+                    else:
+                        print 'Multiple matching existing groups!!!!!!!!!!'
+                        existing_group_id = None
+                        break
         if not existing_group_id:
             existing_group_id = raw_input(u'Enter existing group id (empty if non-existent): ')
         if existing_group_id:
@@ -478,8 +495,13 @@ class TorrentMigrationJob(object):
         if response == 'dup':
             if not existing_torrent_id:
                 existing_torrent_id = int(raw_input('Enter existing torrent id: '))
+            existing_torrent = self.what.request('torrent', id=existing_torrent_id)['response']
             self.migration_status.status = WhatTorrentMigrationStatus.STATUS_DUPLICATE
             self.migration_status.pth_torrent_id = existing_torrent_id
+            TorrentGroupMapping.objects.get_or_create(
+                what_group_id=self.what_torrent_info['group']['id'],
+                pth_group_id=existing_torrent['group']['id'],
+            )
         elif response == 'skip':
             self.migration_status.status = WhatTorrentMigrationStatus.STATUS_SKIPPED
         elif response == 'skipp':
@@ -527,6 +549,12 @@ class TorrentMigrationJob(object):
     def generate_spectrals(self):
         print 'Generating spectrals...'
         generate_spectrals_for_dir(self.full_location)
+
+    def save_torrent_group_mapping(self):
+        TorrentGroupMapping.objects.get_or_create(
+            what_group_id=self.what_torrent_info['group']['id'],
+            pth_group_id=self.new_torrent['group']['id']
+        )
 
     def process(self):
         what_torrent_id = self.what_torrent['id']
@@ -589,6 +617,7 @@ class TorrentMigrationJob(object):
             self.add_to_wm()
             self.migration_status.status = WhatTorrentMigrationStatus.STATUS_COMPLETE
             self.migration_status.save()
+            self.save_torrent_group_mapping()
         else:
             print 'add_to_wm()'
         print

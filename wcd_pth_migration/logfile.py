@@ -115,7 +115,8 @@ class LogFile(object):
                     state = STATE_TOC_HEADERS
                 elif line == 'End of status report':
                     state = STATE_END_OF_STATUS_REPORT
-                elif line.startswith('Track ') and 'accurate' not in line and 'databas' not in line:
+                elif line.startswith('Track ') and 'accurate' not in line and \
+                                'databas' not in line and 'quality' not in line:
                     current_track = int(line[len('Track '):])
                     track_entries.append({
                         'track': current_track,
@@ -165,12 +166,13 @@ class LogFile(object):
     def __eq__(self, other):
         if len(self.tracks) != len(other.tracks) or len(self.toc) != len(other.toc):
             return False
-        for track_a, track_b in zip(self.toc, other.toc):
-            ta_len = track_a['end_sector'] - track_a['start_sector']
-            tb_len = track_b['end_sector'] - track_a['start_sector']
-            len_ratio = float(ta_len) / float(tb_len)
-            if len_ratio < 0.99 or len_ratio > 1.01:
-                return False
+        if self.toc and other.toc:
+            for track_a, track_b in zip(self.toc, other.toc):
+                ta_len = track_a['end_sector'] - track_a['start_sector']
+                tb_len = track_b['end_sector'] - track_a['start_sector']
+                len_ratio = float(ta_len) / float(tb_len)
+                if len_ratio < 0.99 or len_ratio > 1.01:
+                    return False
         for track_a, track_b in zip(self.tracks, other.tracks):
             if track_a['peak_level'] != track_b['peak_level']:
                 return False
