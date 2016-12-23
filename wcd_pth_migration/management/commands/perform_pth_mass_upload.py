@@ -13,7 +13,9 @@ from html2bbcode.parser import HTML2BBCode
 from WhatManager2.manage_torrent import add_torrent
 from WhatManager2.utils import wm_str
 from books.utils import call_mktorrent
-from home.models import ReplicaSet, get_what_client, DownloadLocation, WhatTorrent, RequestException
+from home.models import ReplicaSet, get_what_client, DownloadLocation, WhatTorrent, \
+    RequestException, \
+    BadIdException
 from wcd_pth_migration import torrentcheck
 from wcd_pth_migration.logfile import LogFile, UnrecognizedRippingLogException, \
     InvalidRippingLogException
@@ -94,12 +96,12 @@ class TorrentMigrationJob(object):
         try:
             if not torrentcheck.verify(self.torrent_dict['info'], self.full_location):
                 raise Exception('Torrent does not verify')
-        except OSError as ex:
-            print 'Verification threw', ex
+        except Exception as ex:
             WhatTorrentMigrationStatus.objects.create(
                 what_torrent_id=self.what_torrent['id'],
                 status=WhatTorrentMigrationStatus.STATUS_FAILED_VALIDATION
             )
+            raw_input('Verification threw {}. Press enter to continue.'.format(ex))
             return False
         print('Hash matching')
         torrent_file_set = {'/'.join(f['path']) for f in self.torrent_dict['info']['files']}
@@ -302,6 +304,9 @@ class TorrentMigrationJob(object):
         return None
 
     def find_existing_torrent_group(self):
+        if self.existing_new_group is not None:
+            return
+
         existing_group_id = None
 
         group_id = self.what_torrent_info['group']['id']
@@ -317,8 +322,11 @@ class TorrentMigrationJob(object):
             print 'Found torrent group mapping with {}'.format(existing_group_id)
         except TorrentGroupMapping.DoesNotExist:
             pass
+        except BadIdException:
+            print 'Mapping has gone bad, deleting...'
+            mapping.delete()
 
-        if not existing_group_id:
+        if existing_group_id is None:
             group_year = self.what_torrent_info['group']['year']
             group_name = html_parser.unescape(self.what_torrent_info['group']['name']).lower()
             search_str = '{} {}'.format(wm_str(group_name), wm_str(str(group_year)))
@@ -333,13 +341,16 @@ class TorrentMigrationJob(object):
                         print 'Multiple matching existing groups!!!!!!!!!!'
                         existing_group_id = None
                         break
-        if not existing_group_id:
+        if existing_group_id is None:
             existing_group_id = raw_input(u'Enter existing group id (empty if non-existent): ')
+            if existing_group_id:
+                TorrentGroupMapping.objects.get_or_create(
+                    what_group_id=self.what_torrent_info['group']['id'],
+                    pth_group_id=existing_group_id
+                )
         if existing_group_id:
             self.existing_new_group = self.existing_new_group = self.what.request(
                 'torrentgroup', id=existing_group_id)['response']
-        else:
-            self.existing_new_group = None
 
     def find_matching_torrent_within_group(self):
         t_info = self.what_torrent_info['torrent']
@@ -456,7 +467,7 @@ class TorrentMigrationJob(object):
                     response = 'dup'
 
         if not response:
-            response = raw_input('Choose action [up/dup/skip/skipp/reseed]: ')
+            response = raw_input('Choose action [up/dup/skip/skipp/reseed/changetg]: ')
         else:
             if response != 'reseed':
                 new_response = raw_input(response + '. Override: ')
@@ -509,6 +520,12 @@ class TorrentMigrationJob(object):
         elif response == 'reseed':
             self.migration_status.status = WhatTorrentMigrationStatus.STATUS_DUPLICATE
             self.migration_status.pth_torrent_id = matching_torrent_id
+        elif response == 'changetg':
+            existing_group_id = raw_input(u'Enter existing group id (empty if non-existent): ')
+            if existing_group_id:
+                self.existing_new_group = self.existing_new_group = self.what.request(
+                    'torrentgroup', id=existing_group_id)['response']
+            return self.find_dupes()
         else:
             raise Exception('Unknown response')
         self.migration_status.save()

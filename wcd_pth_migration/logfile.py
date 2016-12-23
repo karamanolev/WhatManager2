@@ -116,7 +116,10 @@ class LogFile(object):
                 elif line == 'End of status report':
                     state = STATE_END_OF_STATUS_REPORT
                 elif line.startswith('Track ') and 'accurate' not in line and \
-                                'databas' not in line and 'quality' not in line:
+                                'databas' not in line and 'quality' not in line and \
+                                'CTDB Status' not in line:
+                    if ', Index' in line:
+                        line = line.split(',')[0]
                     current_track = int(line[len('Track '):])
                     track_entries.append({
                         'track': current_track,
