@@ -10,5 +10,5 @@ class Command(BaseCommand):
         parser.add_argument('what_torrent_id')
 
     def handle(self, *args, **options):
-        torrent_id = args[0]
-        WhatTorrentMigrationStatus.objects.filter(what_torrent_id=torrent_id).delete()
+        torrent_id = options['what_torrent_id']
+        WhatTorrentMigrationStatus.objects.get(what_torrent_id=torrent_id).delete()
