@@ -406,6 +406,8 @@ class TorrentMigrationJob(object):
                                       'but found matching log files between ours and {}!!!'.format(
                                 torrent['id']))
                 except InvalidRippingLogException:
+                    raw_input('Log file for {} invalid!'.format(torrent['id']))
+                except UnrecognizedRippingLogException:
                     raw_input('Log file for {} unrecognized!'.format(torrent['id']))
 
             if original_catalog_number == torrent_catalog_number and matching_media_format:
@@ -575,6 +577,10 @@ class TorrentMigrationJob(object):
 
     def process(self):
         what_torrent_id = self.what_torrent['id']
+
+        if self.what_torrent_info['group']['categoryName'] != 'Music':
+            print 'Skipping non-Music torrent', what_torrent_id
+            return
 
         if self.flac_only and self.what_torrent_info['torrent']['format'] != 'FLAC':
             print 'Skipping non-FLAC torrent', what_torrent_id
