@@ -174,6 +174,26 @@ function processResult(result) {
             link = $('<a href="' + downloadUrl + resp.id + '">↓</a>');
             row.actions.append(' | ');
             row.actions.append(link);
+
+            // Transcode request
+            link = $('<a href="#">TC</a>');
+            link.click(function (e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to request transcode for ' + resp.id + '?')) {
+                    row.actions.html(loadingImg);
+                    row.isAdding = true;
+                    addTranscodeRequest(resp.id, function (addResult) {
+                        row.isAdding = false;
+                        noty({
+                            text: addResult.message,
+                            type: 'information'
+                        });
+                        row.actions.text('OK');
+                    });
+                }
+            });
+            row.actions.append(' | ');
+            row.actions.append(link);
         } else if (resp.status == 'downloading') {
             row.actions.text(Math.floor(resp.progress * 100) + '%');
         } else if (resp.status == 'missing') {
