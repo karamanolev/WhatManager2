@@ -130,6 +130,9 @@ class Command(BaseCommand):
         if not self.check_files():
             return
         self.move_files()
+        print('Cleaning up empty directory and torrent file...')
+        shutil.rmtree(self.data_path)
+        os.remove(self.torrent_path)
         print 'Adding torrent to WM...'
         manage_torrent.add_torrent(self.pseudo_request, self.trans_instance,
                                    self.download_location, self.what_torrent.id)
