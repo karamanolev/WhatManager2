@@ -13,7 +13,7 @@ from numpy import random
 
 from WhatManager2.settings import WHAT_ANNOUNCE, WHAT_UPLOAD_URL, TRANSCODER_ADD_TORRENT_URL, \
     TRANSCODER_HTTP_USERNAME, TRANSCODER_HTTP_PASSWORD, TRANSCODER_TEMP_DIR, \
-    TRANSCODER_ERROR_OUTPUT, TRANSCODER_FORMATS
+    TRANSCODER_ERROR_OUTPUT, TRANSCODER_FORMATS, SOURCE_STRING
 from WhatManager2.utils import get_artists
 from home.models import get_what_client, DownloadLocation, ReplicaSet
 from what_transcode.flac_lame import transcode_file
@@ -73,6 +73,8 @@ class TranscodeSingleJob(object):
             '-o', self.torrent_file_path,
             self.torrent_temp_dir,
         ]
+        if SOURCE_STRING != '':
+            args[:0] = ['-s', SOURCE_STRING]
         if call(['mktorrent'] + args) != 0:
             raise Exception('mktorrent returned non-zero')
         with open(self.torrent_file_path, 'rb') as f:
@@ -92,7 +94,10 @@ class TranscodeSingleJob(object):
         }
         response = requests.post(TRANSCODER_ADD_TORRENT_URL, data=post_data,
                                  auth=(TRANSCODER_HTTP_USERNAME, TRANSCODER_HTTP_PASSWORD))
-        response_json = response.json()
+        try:
+            response_json = response.json()
+        except Exception:
+            raise Exception('Error parsing response as json. Response: {0}'.format(response.text))
         if not response_json['success']:
             raise Exception('Cannot add {0} to wm: {1}'.format(new_id, response.text))
 
@@ -187,7 +192,7 @@ class TranscodeSingleJob(object):
         payload['media'] = torrent['torrent']['media']
         payload[
             'release_desc'] = 'Made with LAME 3.99.3 with -h using karamanolev\'s auto transcoder' \
-                              ' from What.CD Torrent ID {0}.'.format(
+                              ' from torrent ID {0}.'.format(
             torrent['torrent']['id']) + ' Resampling or bit depth change (if needed) ' \
                                         'was done using SoX.'
 
