@@ -670,7 +670,7 @@ class CustomWhatAPI:
                 'username': self.username,
                 'password': self.password,
                 'keeplogged': 1,
-                'login': 'Login',
+                'login': 'Log+in',
             }
             r = self.session.post(loginpage, data=data, allow_redirects=False)
             if r.status_code != 302:
