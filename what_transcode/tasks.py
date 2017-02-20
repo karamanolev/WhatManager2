@@ -1,5 +1,9 @@
 from __future__ import unicode_literals
 
+import sys
+reload( sys )
+sys.setdefaultencoding( 'utf-8' )
+
 import os
 import shutil
 import time
