@@ -691,10 +691,10 @@ class Command(BaseCommand):
         print 'Location mappings:'
         for old_location, new_location in location_mapping.items():
             try:
-                DownloadLocation.objects.get(zone='passtheheadphones.me', path=new_location)
+                DownloadLocation.objects.get(zone='redacted.ch', path=new_location)
             except DownloadLocation.DoesNotExist:
                 raise Exception(
-                    'Please create the {} location in the DB in zone passtheheadphones.me'.format(
+                    'Please create the {} location in the DB in zone redacted.ch'.format(
                         new_location))
             print old_location, '=', new_location
         with open('what_manager2_torrents.jsonl', 'rb') as torrents_input:

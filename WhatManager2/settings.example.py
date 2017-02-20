@@ -16,11 +16,11 @@ MIN_FREE_DISK_SPACE = 0.10
 MIN_WHAT_RATIO = 1.3
 # Whether the frequent sync will make sure ReleaseInfo is there. Leave False.
 SYNC_SYNCS_FILES = False
-# You might set this to ssl.passtheheadphones.me if PTH has a long downtime, but ssl is up.
-WHAT_CD_DOMAIN = 'passtheheadphones.me'
+# You might set this to ssl.redacted.ch if PTH has a long downtime, but ssl is up.
+WHAT_CD_DOMAIN = 'redacted.ch'
 WHAT_UPLOAD_URL = 'https://{0}/upload.php'.format(WHAT_CD_DOMAIN)
 # Only for uploading
-WHAT_ANNOUNCE = 'http://please.passtheheadphones.me/SET THIS TO YOUR ANNOUNCE/announce'
+WHAT_ANNOUNCE = 'http://please.redacted.ch/SET THIS TO YOUR ANNOUNCE/announce'
 
 # Set this to something reasonable that only you know.
 TRANSMISSION_PASSWORD = '9dqQQ2WW'
