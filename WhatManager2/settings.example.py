@@ -6,8 +6,8 @@ import djcelery
 djcelery.setup_loader()
 
 WHAT_USER_ID = 123456
-WHAT_USERNAME = 'your PTH username'
-WHAT_PASSWORD = 'your PTH password'
+WHAT_USERNAME = 'your RED username'
+WHAT_PASSWORD = 'your RED password'
 # How frequently your profile will be stored, in seconds
 WHAT_PROFILE_SNAPSHOT_INTERVAL = 10 * 60
 # What part of your disk is guaranteed left empty by WM
@@ -20,7 +20,7 @@ SYNC_SYNCS_FILES = False
 WHAT_CD_DOMAIN = 'redacted.ch'
 WHAT_UPLOAD_URL = 'https://{0}/upload.php'.format(WHAT_CD_DOMAIN)
 # Only for uploading
-WHAT_ANNOUNCE = 'http://please.redacted.ch/SET THIS TO YOUR ANNOUNCE/announce'
+WHAT_ANNOUNCE = 'http://flacsfor.me/SET THIS TO YOUR ANNOUNCE/announce'
 
 # Set this to something reasonable that only you know.
 TRANSMISSION_PASSWORD = '9dqQQ2WW'
