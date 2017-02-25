@@ -677,7 +677,7 @@ class CustomWhatAPI:
                 if '<form class="auth_form" name="2fa" id="2fa"' in r.text:
                     raise LoginException("2FA is enabled on your account, unable to login.")
                 else:
-                    raise LoginException
+                    raise LoginException("Unsuccessful login attempt.")
             accountinfo = self.request("index")
             self.authkey = accountinfo["response"]["authkey"]
             self.passkey = accountinfo["response"]["passkey"]
