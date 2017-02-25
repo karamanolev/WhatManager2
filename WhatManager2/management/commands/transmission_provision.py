@@ -105,7 +105,7 @@ def discover_transmission():
 
 def use_systemd():
     # Use getattr rather than importing the setting, to avoid an error if the setting is non-existent
-    return getattr(settings, 'TRANSMISSION_USE_SYSTEMD', False)
+    return getattr(WhatManager2.settings, 'TRANSMISSION_USE_SYSTEMD', False)
 
 
 def get_transmission_init_script(name, files_path):
