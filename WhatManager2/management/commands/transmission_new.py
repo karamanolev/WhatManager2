@@ -45,7 +45,8 @@ class Command(BaseCommand):
                                      .replace('.cd', '')
                                      .replace('.org', '')
                                      .replace('.net', '')
-                                     .replace('.me', '')),
+                                     .replace('.me', '')
+                                     .replace('.ch', '')),
                 host='127.0.0.1',
                 port=zero_port,
                 peer_port=zero_peer_port,
