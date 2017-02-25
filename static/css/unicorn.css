@@ -167,14 +167,14 @@ a:hover {
 }
 #header h1 {
   background: url("../img/logo.png") no-repeat scroll 0 0 transparent;
-  background-size: 215px, 31px;
+  background-size: 176px, 31px;
   height: 31px;
   left: 15px;
   line-height: 600px;
   overflow: hidden;
   position: relative;
   top: 24px;
-  width: 191px;
+  width: 176px;
 }
 #header h1 a {
   display: block;
