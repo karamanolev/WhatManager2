@@ -280,9 +280,9 @@ class TransInstanceManager(object):
             confirm()
             os.chmod(self.init_path, self.init_script_perms)
         if use_systemd():
-           print 'Enabling systemd unit for {0}'.format(self.name)
-           confirm()
-           subprocess.call(['systemctl', 'enable', self.service_name])
+            print 'Enabling systemd unit for {0}'.format(self.name)
+            confirm()
+            subprocess.call(['systemctl', 'enable', self.service_name])
         if not user_exists(self.username):
             print 'Creating user {0} for {1}'.format(self.username, self.name)
             confirm()
