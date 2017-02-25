@@ -1,10 +1,11 @@
 #!/usr/bin/env python
+import WhatManager2.settings
 import json
 import os
 import os.path
 import pwd
 import subprocess
-from WhatManager2.settings import TRANSMISSION_FILES_ROOT, TRANSMISSION_BIND_HOST, TRANSMISSION_USE_SYSTEMD
+from WhatManager2.settings import TRANSMISSION_FILES_ROOT, TRANSMISSION_BIND_HOST
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 
@@ -102,9 +103,14 @@ def discover_transmission():
                         u'Make sure "which transmission-daemon" returns the right thing.')
 
 
+def use_systemd():
+    # Use getattr rather than importing the setting, to avoid an error if the setting is non-existent
+    return getattr(settings, 'TRANSMISSION_USE_SYSTEMD', False)
+
+
 def get_transmission_init_script(name, files_path):
     return (
-        (transmission_init_script_template_systemd if TRANSMISSION_USE_SYSTEMD else transmission_init_script_template)
+        (transmission_init_script_template_systemd if use_systemd() else transmission_init_script_template)
         .replace('<<<daemon_path>>>', discover_transmission())
         .replace('<<<files_path>>>', files_path)
         .replace('<<<name>>>', name)
@@ -240,12 +246,12 @@ class TransInstanceManager(object):
         self.name = str(instance.name)
         self.service_name = 'transmission-daemon-{0}'.format(self.name)
         self.transmission_files_path = os.path.join(TRANSMISSION_FILES_ROOT, self.name)
-        if TRANSMISSION_USE_SYSTEMD:
+        if use_systemd():
             self.init_path = os.path.join('/lib/systemd/system', self.service_name + '.service')
         else:
             self.init_path = os.path.join('/etc/init.d', self.service_name)
         self.init_script = get_transmission_init_script(self.name, self.transmission_files_path)
-        self.init_script_perms = 0644 if TRANSMISSION_USE_SYSTEMD else 0755
+        self.init_script_perms = 0644 if use_systemd() else 0755
         self.username = 'transmission-{0}'.format(self.name)
         self.settings_path = os.path.join(self.transmission_files_path, 'settings.json')
         self.settings_json = get_transmission_settings(
@@ -261,7 +267,7 @@ class TransInstanceManager(object):
 
     def sync(self):
         if not os.path.isfile(self.init_path):
-            print 'Creating {0} file for {1}'.format('systemd unit' if TRANSMISSION_USE_SYSTEMD else 'Upstart job',
+            print 'Creating {0} file for {1}'.format('systemd unit' if use_systemd() else 'Upstart job',
                                                      self.name)
             confirm()
             self.write_init_script()
@@ -273,7 +279,7 @@ class TransInstanceManager(object):
             print 'Fixing init script permissions for {0}'.format(self.name)
             confirm()
             os.chmod(self.init_path, self.init_script_perms)
-        if TRANSMISSION_USE_SYSTEMD:
+        if use_systemd():
            print 'Enabling systemd unit for {0}'.format(self.name)
            confirm()
            subprocess.call(['systemctl', 'enable', self.service_name])
@@ -296,7 +302,7 @@ class TransInstanceManager(object):
             self.write_settings()
 
     def exec_init_script(self, action):
-        if TRANSMISSION_USE_SYSTEMD:
+        if use_systemd():
             args = ['systemctl', action, self.service_name]
         else:
             args = ['service', self.service_name, action]
