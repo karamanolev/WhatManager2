@@ -674,7 +674,10 @@ class CustomWhatAPI:
             }
             r = self.session.post(loginpage, data=data, allow_redirects=False)
             if r.status_code != 302:
-                raise LoginException
+                if '<form class="auth_form" name="2fa" id="2fa"' in r.text:
+                    raise LoginException("2FA is enabled on your account, unable to login.")
+                else:
+                    raise LoginException
             accountinfo = self.request("index")
             self.authkey = accountinfo["response"]["authkey"]
             self.passkey = accountinfo["response"]["passkey"]
