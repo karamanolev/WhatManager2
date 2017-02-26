@@ -1,13 +1,15 @@
 #!/usr/bin/env python
-import WhatManager2.settings
 import json
 import os
 import os.path
 import pwd
+import shutil
 import subprocess
+from optparse import make_option
+
+import WhatManager2.settings
 from WhatManager2.settings import TRANSMISSION_FILES_ROOT, TRANSMISSION_BIND_HOST
 from django.core.management.base import BaseCommand, CommandError
-from optparse import make_option
 
 from WhatManager2.utils import read_text, write_text
 from home import models
@@ -221,6 +223,12 @@ def create_system_user(username):
         raise Exception('useradd returned non-zero. args={0}'.format(args))
 
 
+def delete_system_user(username):
+    args = ['userdel', username]
+    if subprocess.call(args) != 0:
+        raise Exception('userdel returned non-zero. args={0}'.format(args))
+
+
 def check_transmission_settings(path, bind_host, rpc_port, peer_port, username='transmission',
                                 umask=0):
     try:
@@ -279,10 +287,6 @@ class TransInstanceManager(object):
             print 'Fixing init script permissions for {0}'.format(self.name)
             confirm()
             os.chmod(self.init_path, self.init_script_perms)
-        if use_systemd():
-            print 'Enabling systemd unit for {0}'.format(self.name)
-            confirm()
-            subprocess.call(['systemctl', 'enable', self.service_name])
         if not user_exists(self.username):
             print 'Creating user {0} for {1}'.format(self.username, self.name)
             confirm()
@@ -300,6 +304,31 @@ class TransInstanceManager(object):
             print 'Fixing transmission settings file for {0}'.format(self.name)
             confirm()
             self.write_settings()
+        if use_systemd():
+            print 'Enabling systemd unit for {0}'.format(self.name)
+            confirm()
+            self.exec_init_script('enable')
+
+    def remove(self):
+        self.stop_daemon()
+        # No equivalent for Upstart, so just do this for systemd
+        if use_systemd():
+            print 'Disabling systemd unit for {0}'.format(self.name)
+            confirm()
+            self.exec_init_script('disable')
+        if os.path.isdir(self.transmission_files_path):
+            print 'Deleting transmission files directory for {0}'.format(self.name)
+            confirm()
+            shutil.rmtree(self.transmission_files_path)
+        if user_exists(self.username):
+            print 'Deleting user {0} for {1}'.format(self.username, self.name)
+            confirm()
+            delete_system_user(self.username)
+        if os.path.isfile(self.init_path):
+            print 'Deleting {0} file for {1}'.format('systemd unit' if use_systemd() else 'Upstart job',
+                                                     self.name)
+            confirm()
+            os.remove(self.init_path)
 
     def exec_init_script(self, action):
         if use_systemd():
