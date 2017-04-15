@@ -116,7 +116,7 @@ class TranscodeSingleJob(object):
         self.report_progress('{0} - creating torrent'.format(self.bitrate.upper()))
         self.create_torrent()
 
-        self.report_progress('{0} - uploading to what.cd'.format(self.bitrate.upper()))
+        self.report_progress('{0} - uploading to Redacted'.format(self.bitrate.upper()))
         self.upload_torrent()
 
         self.report_progress('{0} - moving to destination'.format(self.bitrate.upper()))
@@ -172,7 +172,7 @@ class TranscodeSingleJob(object):
 
     def upload_torrent(self):
         torrent = self.what_torrent
-        print 'Sending request for upload to what.cd'
+        print 'Sending request for upload to Redacted'
 
         payload_files = dict()
         payload_files['file_input'] = ('torrent.torrent', open(self.torrent_file_path, 'rb'))
@@ -191,7 +191,7 @@ class TranscodeSingleJob(object):
         payload['media'] = torrent['torrent']['media']
         payload[
             'release_desc'] = 'Made with LAME 3.99.3 with -h using karamanolev\'s auto transcoder' \
-                              ' from What.CD Torrent ID {0}.'.format(
+                              ' from RED Torrent ID {0}.'.format(
             torrent['torrent']['id']) + ' Resampling or bit depth change (if needed) ' \
                                         'was done using SoX.'
 
@@ -213,7 +213,7 @@ class TranscodeSingleJob(object):
                 except Exception:
                     errors = ''
                 exception = Exception(
-                    'Error uploading data to what.cd. Errors: {0}'.format('; '.join(errors)))
+                    'Error uploading data to Redacted. Errors: {0}'.format('; '.join(errors)))
                 exception.response_text = response.text
                 with open(TRANSCODER_ERROR_OUTPUT, 'w') as error_file:
                     error_file.write(response.text.encode('utf-8'))
@@ -287,10 +287,10 @@ class TranscodeSingleJob(object):
                 (self.what_torrent['group']['releaseType'] != 13):  # 9 is Single, # 13 is Remix
             if self.force_warnings:
                 print 'Warning: This is a single audio file torrent that is not a single or a ' \
-                      'remix in What.cd. Will not transcode.'
+                      'remix in Redacted. Will not transcode.'
             else:
                 raise Exception('This is a single audio file torrent that is not a single or a '
-                                'remix in What.cd. Will not transcode.')
+                                'remix in Redacted. Will not transcode.')
 
         files_created = 0
         self.report_progress(
