@@ -9,6 +9,6 @@ cd ..
 
 tar xvJf deps/transmission-2.92.tar.xz
 cd transmission-2.92
-CFLAGS="-Os -march=native" ./configure && make -j2
+CFLAGS="-Os -march=corei7-avx" ./configure && make -j2
 sudo checkinstall -y
 cd ..

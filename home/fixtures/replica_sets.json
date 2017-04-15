@@ -4,7 +4,7 @@
         "model": "home.replicaset",
         "fields": {
             "name": "master",
-            "zone": "what.cd"
+            "zone": "redacted.ch"
         }
     },
     {
