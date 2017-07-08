@@ -5,7 +5,7 @@ import json
 import requests
 
 
-WHAT_CD_DOMAIN = 'what.cd'
+WHAT_CD_DOMAIN = 'redacted.ch'
 
 headers = {
     'Content-type': 'application/x-www-form-urlencoded',
