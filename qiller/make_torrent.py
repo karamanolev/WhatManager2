@@ -7,6 +7,7 @@ import os.path
 
 from qiller.utils import q_enc, q_dec
 
+from what_transcode.utils import pthify_torrent
 
 BAD_FILES = ['.ds_store', 'thumbs.db']
 
@@ -45,5 +46,10 @@ class TorrentMaker(object):
             logger.debug('Executing mktorrent: {0}'.format(args))
             if call([q_enc(a) for a in args]) != 0:
                 raise Exception('mktorrent returned non-zero')
+            with open(torrent_path, 'rb') as f:
+                torrent_data = f.read()
+            torrent_data = pthify_torrent(torrent_data)
+            with open(torrent_path, 'wb') as f:
+                f.write(torrent_data)
         finally:
             self.unstash_func()

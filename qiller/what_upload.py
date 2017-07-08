@@ -6,6 +6,7 @@ from pyquery.pyquery import PyQuery
 from qiller.utils import q_enc
 from qiller.what_api import WHAT_CD_DOMAIN
 
+from qobuz2.settings import QILLER_ERROR_OUTPUT
 
 WHAT_UPLOAD_URL = 'https://{0}/upload.php'.format(WHAT_CD_DOMAIN)
 WHAT_RELEASE_TYPES = (
@@ -66,7 +67,9 @@ class WhatUploader(object):
                 except Exception:
                     errors = ''
                 exception = Exception(
-                    'Error uploading data to what.cd. Errors: {0}'.format('; '.join(errors)))
+                    'Error uploading data to Redacted. Errors: {0}'.format('; '.join(errors)))
+                with open(QILLER_ERROR_OUTPUT, 'w') as error_file:
+                    error_file.write(response.text.encode('utf-8'))
                 raise exception
         finally:
             self.what_api.session.headers['Content-type'] = old_content_type
