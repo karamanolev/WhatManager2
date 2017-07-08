@@ -1,34 +1,29 @@
 import pyquery
 import requests
-
+import json
 
 def login(session, username, password):
-    params = {
-        'act': 'login-d',
-    }
     payload = {
-        'username': username,
-        'password': password,
+        'email': username,
+        'pass': password,
     }
-    session.post('https://whatimg.com/users.php', params=params, data=payload)
-
+    r = session.post('https://ptpimg.me/login.php', data=payload)
+    pq = pyquery.PyQuery(r.text)
+    api_key = pq('input').attr('value')
+    return api_key
 
 def upload_image_from_memory(username, password, album_id, data):
     session = requests.Session()
-    login(session, username, password)
+    api_key = login(session, username, password)
     files = {
-        'userfile[]': ('image.jpg', data),
+        'file-upload[]': ('image.jpg', data)
     }
     payload = {
-        'upload_to': album_id,
-        'private_upload': '1',
-        'upload_type': 'standard',
+        'api_key': api_key
     }
-    r = session.post('https://whatimg.com/upload.php', files=files, data=payload)
+    r = session.post('https://ptpimg.me/upload.php', files=files, data=payload)
     if r.status_code != requests.codes.ok:
         raise Exception(u'Error during uploading: error code {0}'.format(r.status_code))
-    pq = pyquery.PyQuery(r.text)
-    link = pq('input.input_field:first')
-    if len(link) == 0:
-        raise Exception(u'Error during uploading: no links found')
-    return link.val()
+    j = json.loads(r.text)
+    link = 'https://ptpimg.me/{}.{}'.format(j[0]['code'], j[0]['ext'])
+    return link
