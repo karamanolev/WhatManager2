@@ -75,7 +75,7 @@ def get_info_hash(torrent_path):
 
 def pthify_torrent(torrent_data):
     data = bencode.bdecode(torrent_data)
-    data['info']['source'] = 'PTH'
+    data['info']['source'] = 'RED'
     return bencode.bencode(data)
 
 
