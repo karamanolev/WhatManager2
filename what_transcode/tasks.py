@@ -61,7 +61,7 @@ class TranscodeSingleJob(object):
         self.source_dir = source_dir
         self.bitrate = bitrate
         self.format = format
-	print 'format is ', format
+
         if torrent_temp_dir is None:
             self.torrent_temp_dir = os.path.join(transcoder_temp_dir, self.directory_name)
         else:

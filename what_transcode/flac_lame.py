@@ -67,9 +67,7 @@ def transcode_file(source_file, dest_file, source_media, bitrate):
     elif bitrate == '16BITFLAC':
         lame_options = []
     else:
-        print 'unknown bitrate selected'
         raise Exception('Unknown bitrate')
-
     lame_options += ['-', dest_file]
 
     if target_samplerate is None and source_bit_depth == 16:
