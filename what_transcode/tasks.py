@@ -364,9 +364,8 @@ class TranscodeJob(object):
         self.what_torrent = self.what.request('torrent', id=self.what_id)['response']
         what_group_id = self.what_torrent['group']['id']
         self.what_group = self.what.request('torrentgroup', id=what_group_id)['response']
-	self.format = self.what_torrent['torrent']['format'];
-	
-        if self.format != 'FLAC':
+
+        if self.what_torrent['torrent']['format'] != 'FLAC':
             raise Exception('Cannot transcode a non-FLAC torrent.')
         if not self.force_warnings and torrent_is_preemphasized(self.what_torrent):
             raise Exception('Cannot transcode a pre-emphasized torrent!')
@@ -383,9 +382,12 @@ class TranscodeJob(object):
             del mp3_ids['320']
         for bitrate in TRANSCODER_FORMATS:
             if bitrate not in mp3_ids:
+		dest_format = "MP3"
+		if bitrate == '16BITFLAC':
+		    dest_format = 'FLAC'
                 single_job = TranscodeSingleJob(self.what, self.what_torrent, self.report_progress,
                                                 self.source_dir,
-                                                bitrate, self.format, transcoder_temp_dir=temp_dir)
+                                                bitrate, dest_format, transcoder_temp_dir=temp_dir)
                 single_job.force_warnings = self.force_warnings
                 single_job.run()
                 print 'Uploaded {0}'.format(bitrate.upper())
