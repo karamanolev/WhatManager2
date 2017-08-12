@@ -53,13 +53,15 @@ def get_dest_upload_dir():
 
 class TranscodeSingleJob(object):
     def __init__(self, what, what_torrent, report_progress, source_dir, bitrate,
-                 torrent_temp_dir=None, transcoder_temp_dir=None):
+                 format, torrent_temp_dir=None, transcoder_temp_dir=None):
         self.what = what
         self.force_warnings = False
         self.what_torrent = what_torrent
         self.report_progress = report_progress
         self.source_dir = source_dir
         self.bitrate = bitrate
+        self.format = format
+	print 'format is ', format
         if torrent_temp_dir is None:
             self.torrent_temp_dir = os.path.join(transcoder_temp_dir, self.directory_name)
         else:
@@ -166,8 +168,8 @@ class TranscodeSingleJob(object):
             name = name[:67] + '...'
         media = torrent['torrent']['media']
         year = torrent['torrent']['remasterYear'] or torrent['group']['year']
-        return fix_pathname('{0} - {1} - {2} ({3} - MP3 - {4})'.format(
-            artists, name, year, media, self.bitrate.upper()
+        return fix_pathname('{0} - {1} - {2} ({3} - {4} - {5})'.format(
+            artists, name, year, media, self.format, self.bitrate.upper()
         ))
 
     def upload_torrent(self):
@@ -182,11 +184,13 @@ class TranscodeSingleJob(object):
         payload['auth'] = self.what.authkey
         payload['type'] = 'Music'
         payload['groupid'] = torrent['group']['id']
-        payload['format'] = 'MP3'
+        payload['format'] = self.format
         payload['bitrate'] = {
             'V0': 'V0 (VBR)',
             'V2': 'V2 (VBR)',
             '320': '320',
+            'Lossless': 'Lossless',
+	    '16BITFLAC': 'Lossless',
         }[self.bitrate]
         payload['media'] = torrent['torrent']['media']
         payload[
@@ -249,7 +253,7 @@ class TranscodeSingleJob(object):
         elif num_channels > 2:
             raise Exception('Not a 2-channel file.')
 
-        dest_rel_path = os.path.relpath(source_path, self.source_dir)[:-4] + 'mp3'
+        dest_rel_path = os.path.relpath(source_path, self.source_dir)[:-4] + self.format.lower()
         dest_rel_path = norm_dest_path(os.path.basename(self.torrent_temp_dir), dest_rel_path)
         dest_path = os.path.join(self.torrent_temp_dir, dest_rel_path)
         dest_path = os.path.join(os.path.dirname(dest_path),
@@ -360,8 +364,9 @@ class TranscodeJob(object):
         self.what_torrent = self.what.request('torrent', id=self.what_id)['response']
         what_group_id = self.what_torrent['group']['id']
         self.what_group = self.what.request('torrentgroup', id=what_group_id)['response']
-
-        if self.what_torrent['torrent']['format'] != 'FLAC':
+	self.format = self.what_torrent['torrent']['format'];
+	
+        if self.format != 'FLAC':
             raise Exception('Cannot transcode a non-FLAC torrent.')
         if not self.force_warnings and torrent_is_preemphasized(self.what_torrent):
             raise Exception('Cannot transcode a pre-emphasized torrent!')
@@ -380,7 +385,7 @@ class TranscodeJob(object):
             if bitrate not in mp3_ids:
                 single_job = TranscodeSingleJob(self.what, self.what_torrent, self.report_progress,
                                                 self.source_dir,
-                                                bitrate, transcoder_temp_dir=temp_dir)
+                                                bitrate, self.format, transcoder_temp_dir=temp_dir)
                 single_job.force_warnings = self.force_warnings
                 single_job.run()
                 print 'Uploaded {0}'.format(bitrate.upper())
