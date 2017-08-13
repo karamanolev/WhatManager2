@@ -61,7 +61,6 @@ class TranscodeSingleJob(object):
         self.source_dir = source_dir
         self.bitrate = bitrate
         self.format = format
-	print 'format is ', format
         if torrent_temp_dir is None:
             self.torrent_temp_dir = os.path.join(transcoder_temp_dir, self.directory_name)
         else:
@@ -324,7 +323,6 @@ class TranscodeJob(object):
         self.force_warnings = False
         self.force_v0 = False
         self.force_320 = False
-	
     def report_progress(self, progress):
         print 'Progress: {0}'.format(progress)
         if self.celery_task:
