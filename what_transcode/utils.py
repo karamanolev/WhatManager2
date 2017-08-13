@@ -36,8 +36,6 @@ def fix_pathname(path):
 def get_mp3_ids(what_group, what_torrent):
     res = {}
     for t in what_group['torrents']:
-        if t['format'] != 'MP3':
-            continue
         check_keys = ['remastered', 'media', 'remasterCatalogueNumber', 'remasterRecordLabel',
                       'remasterTitle', 'remasterYear']
         if all(t[k] == what_torrent['torrent'][k] for k in check_keys):
@@ -47,6 +45,9 @@ def get_mp3_ids(what_group, what_torrent):
                 res['V0'] = t['id']
             elif t['encoding'] == 'V2 (VBR)':
                 res['V2'] = t['id']
+	    elif t['encoding'] == 'Lossless':
+		print 'found lossless release'
+		res['Lossless'] = t['id']
     return res
 
 
@@ -165,7 +166,7 @@ def check_directory_tags_filenames(dir_path):
 
     if sorted(flac_tracks, key=lambda x: x[0]) != sorted(flac_tracks, key=lambda x: x[1]):
         print flac_tracks
-        raise Exception('Filenames and track numbers do not sort the same way')
+        print 'Filenames and track numbers do not sort the same way'
 
 
 def safe_retrieve_new_torrent(what_client, info_hash):

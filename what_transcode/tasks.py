@@ -61,7 +61,7 @@ class TranscodeSingleJob(object):
         self.source_dir = source_dir
         self.bitrate = bitrate
         self.format = format
-
+	print 'format is ', format
         if torrent_temp_dir is None:
             self.torrent_temp_dir = os.path.join(transcoder_temp_dir, self.directory_name)
         else:
@@ -324,7 +324,7 @@ class TranscodeJob(object):
         self.force_warnings = False
         self.force_v0 = False
         self.force_320 = False
-
+	
     def report_progress(self, progress):
         print 'Progress: {0}'.format(progress)
         if self.celery_task:
@@ -384,7 +384,11 @@ class TranscodeJob(object):
             if bitrate not in mp3_ids:
 		dest_format = "MP3"
 		if bitrate == '16BITFLAC':
-		    dest_format = 'FLAC'
+		    if 'Lossless' in mp3_ids:
+                        print '16bit FLAC already exists, skipping'
+			continue
+		    else:
+		        dest_format = 'FLAC'
                 single_job = TranscodeSingleJob(self.what, self.what_torrent, self.report_progress,
                                                 self.source_dir,
                                                 bitrate, dest_format, transcoder_temp_dir=temp_dir)
