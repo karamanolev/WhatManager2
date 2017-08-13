@@ -63,7 +63,7 @@ def transcode_file(source_file, dest_file, source_media, bitrate):
     elif bitrate == 'V0':
         lame_options += ['-V', '0']
     elif bitrate == 'V2':
-	lame_options += ['-V', '2']
+        lame_options += ['-V', '2']
     elif bitrate == '16BITFLAC':
         lame_options = []
     else:
@@ -80,7 +80,7 @@ def transcode_file(source_file, dest_file, source_media, bitrate):
         sox_options = ['sox', '-t', 'wav', '-', '-b', '16', '-t', 'wav', '-', 'rate', '-v', '-L',
                        str(target_samplerate), 'dither']
 	if bitrate=='16BITFLAC':
-	    chain_options = [flac_options, sox_options, flac_24bit_options]
+            chain_options = [flac_options, sox_options, flac_24bit_options]
 	else:
             chain_options = [flac_options, sox_options, lame_options]
 
@@ -93,14 +93,14 @@ def transcode_file(source_file, dest_file, source_media, bitrate):
     flacfile = FLAC(source_file)
 
     if bitrate == '16BITFLAC':
-	destFlacFile = FLAC(dest_file)
-	for tag in flacfile:
-	    destFlacFile[tag] = flacfile[tag]
-	destFlacFile.save()
+        destFlacFile = FLAC(dest_file)
+        for tag in flacfile:
+            destFlacFile[tag] = flacfile[tag]
+        destFlacFile.save()
     else:
-    	try:
+        try:
             mp3file = EasyID3(dest_file)
-    	except mutagen.id3.ID3NoHeaderError:
+        except mutagen.id3.ID3NoHeaderError:
             mp3file = mutagen.File(dest_file, easy=True)
             mp3file.add_tags()
     	for tag in flacfile:

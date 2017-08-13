@@ -189,7 +189,7 @@ class TranscodeSingleJob(object):
             'V2': 'V2 (VBR)',
             '320': '320',
             'Lossless': 'Lossless',
-	    '16BITFLAC': 'Lossless',
+            '16BITFLAC': 'Lossless',
         }[self.bitrate]
         payload['media'] = torrent['torrent']['media']
         payload[
