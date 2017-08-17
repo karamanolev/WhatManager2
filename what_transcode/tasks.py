@@ -7,7 +7,7 @@ sys.setdefaultencoding( 'utf-8' )
 import os
 import shutil
 import time
-from subprocess import call
+import subprocess
 
 import requests
 from celery import task
@@ -192,11 +192,17 @@ class TranscodeSingleJob(object):
             '16BITFLAC': 'Lossless',
         }[self.bitrate]
         payload['media'] = torrent['torrent']['media']
-        payload[
-            'release_desc'] = 'Made with LAME 3.99.3 with -h using karamanolev\'s auto transcoder' \
-                              ' from RED Torrent ID {0}.'.format(
-            torrent['torrent']['id']) + ' Resampling or bit depth change (if needed) ' \
-                                        'was done using SoX.'
+
+        if self.format != 'MP3':
+            flac_version = subprocess.check_output("flac -v", shell=True)
+            payload['release_desc'] = 'Made with ' + flac_version.rstrip()
+        else:
+            lame_version = subprocess.check_output("lame -? | grep -oP '([0-9]+\.[0-9]+\.[0-9]+)'", shell=True)
+            payload['release_desc'] = 'Made with LAME ' + lame_version.rstrip() + ' with -h'
+
+        payload['release_desc'] += ' using karamanolev\'s auto transcoder' \
+                                   ' from https://redacted.ch/torrents.php?torrentid={0}'.format(torrent['torrent']['id'])
+
 
         if torrent['torrent']['remastered']:
             payload['remaster'] = 'on'
