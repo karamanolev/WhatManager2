@@ -78,7 +78,7 @@ class TranscodeSingleJob(object):
             '-o', self.torrent_file_path,
             self.torrent_temp_dir,
         ]
-        if call(['mktorrent'] + args) != 0:
+        if subprocess.call(['mktorrent'] + args) != 0:
             raise Exception('mktorrent returned non-zero')
         with open(self.torrent_file_path, 'rb') as f:
             torrent_data = f.read()
