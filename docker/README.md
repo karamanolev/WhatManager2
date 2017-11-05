@@ -472,10 +472,9 @@ different physical machine and/or offline storage.
 
 Let's verify that we get a functional system when restoring.
 
-You might want to note torrent counts on the web interface at WhatManager ->
-Stats, and also torrent counts reported when you connect to Transmission
-instances directly, so you can verify that everything's present after the
-restore.
+You might want to note torrent counts on the web interface at Stats, and also
+torrent counts reported when you connect to Transmission instances directly, so
+you can verify that everything's present after the restore.
 
 We're going to spin up a whole new stack of the application. This means
 starting a fresh copy of all containers, networks, volumes. Instead of the

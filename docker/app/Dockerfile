@@ -11,7 +11,7 @@ RUN addgroup -g "$UWSGI_GID" uwsgi \
                                                                               \
 && apk upgrade --update-cache \
                                                                               \
-# Install permanent runtime dependencies
+# Install permanent runtime dependencies.
 && apk add \
 	flac \
 	lame \
@@ -25,7 +25,7 @@ RUN addgroup -g "$UWSGI_GID" uwsgi \
 	libjpeg-turbo \
 	uwsgi-python \
                                                                               \
-# Install build dependencies required to install the PyPI packages below
+# Install build dependencies required to install the PyPI packages below.
 && apk add --virtual build-deps \
 	python2-dev \
 	mariadb-dev \
@@ -37,14 +37,14 @@ RUN addgroup -g "$UWSGI_GID" uwsgi \
 	musl-dev \
 	linux-headers \
                                                                               \
-# Fix numpy compilation
+# Fix numpy compilation.
 && ln -s /usr/include/locale.h /usr/include/xlocale.h \
                                                                               \
-# Install permanent runtime dependencies from PyPI
+# Install permanent runtime dependencies from PyPI.
 && pip --disable-pip-version-check --no-cache-dir \
        install --requirement /srv/wm/requirements.txt \
                                                                               \
-# Clean up
+# Clean up.
 && rm -v /usr/include/xlocale.h \
 && apk del build-deps \
 && rm -v /var/cache/apk/*
