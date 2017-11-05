@@ -1,0 +1,7 @@
+#!/bin/sh
+
+while true; do
+	curl --silent --user "$SYNC_USER":"$SYNC_PASS" --connect-timeout 60 \
+	     --max-time 120 "$SYNC_URL"
+	sleep "$SYNC_INTERVAL"
+done
