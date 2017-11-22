@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name What.CD / WM Integrator
 // @namespace https://karamanolev.com
-// @version 1.2.2
+// @version 1.2.3
 // @description Integration between WM and What.CD
 // @match https://redacted.ch/*
-// @grant GM_xmlhttpRequest
+// @grant GM.xmlHttpRequest
 // @updateURL {{ root }}/userscript/what.cd.user.js
 // @require https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
 // @require {{ root }}/static/js/jquery.noty.packaged.min.js
+// @require https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
 // ==/UserScript==
 
 var torrentsInfoUrl = '{{ root }}/json/torrents_info';
@@ -29,7 +30,7 @@ function submitIds(rows, callback) {
         var ids = [];
         for (var i in rows) ids.push(rows[i].whatId);
 
-        GM_xmlhttpRequest({
+        GM.xmlHttpRequest({
             method: "POST",
             url: torrentsInfoUrl,
             data: "ids=" + ids.join(','),
@@ -52,7 +53,7 @@ function submitIds(rows, callback) {
 
 function addTorrent(whatId, callback) {
     setTimeout(function () {
-        GM_xmlhttpRequest({
+        GM.xmlHttpRequest({
             method: "POST",
             url: addTorrentUrl,
             data: 'id=' + whatId,
@@ -74,7 +75,7 @@ function addTorrent(whatId, callback) {
 
 function addTranscodeRequest(whatId, callback) {
     setTimeout(function () {
-        GM_xmlhttpRequest({
+        GM.xmlHttpRequest({
             method: "POST",
             url: transcodeRequestUrl,
             data: 'what_id=' + whatId,
