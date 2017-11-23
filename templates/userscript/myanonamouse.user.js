@@ -6,6 +6,7 @@
 // @match http://*.myanonamouse.net/*
 // @match https://*.myanonamouse.net/*
 // @grant GM.xmlHttpRequest
+// @grant GM_xmlhttpRequest
 // @updateURL {{ root }}/userscript/bibliotik.user.js
 // @require https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
 // @require {{ root }}/static/js/jquery.noty.packaged.min.js

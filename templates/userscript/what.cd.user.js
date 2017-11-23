@@ -5,6 +5,7 @@
 // @description Integration between WM and What.CD
 // @match https://redacted.ch/*
 // @grant GM.xmlHttpRequest
+// @grant GM_xmlhttpRequest
 // @updateURL {{ root }}/userscript/what.cd.user.js
 // @require https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
 // @require {{ root }}/static/js/jquery.noty.packaged.min.js

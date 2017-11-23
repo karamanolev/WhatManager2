@@ -6,6 +6,7 @@
 // @match http://localhost/*
 // @match http://*.overdrive.com/*
 // @grant GM.xmlHttpRequest
+// @grant GM_xmlhttpRequest
 // @updateURL {{ root }}/userscript/overdrive.user.js
 // @require http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
 // @require https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
