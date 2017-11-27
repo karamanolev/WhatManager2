@@ -46,10 +46,10 @@ class TorrentMaker(object):
             logger.debug('Executing mktorrent: {0}'.format(args))
             if call([q_enc(a) for a in args]) != 0:
                 raise Exception('mktorrent returned non-zero')
-            with open(torrent_path, 'rb') as f:
+            with open(q_enc(torrent_path), 'rb') as f:
                 torrent_data = f.read()
             torrent_data = pthify_torrent(torrent_data)
-            with open(torrent_path, 'wb') as f:
+            with open(q_enc(torrent_path), 'wb') as f:
                 f.write(torrent_data)
         finally:
             self.unstash_func()
