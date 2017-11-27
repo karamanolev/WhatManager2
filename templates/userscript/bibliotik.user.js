@@ -1,14 +1,16 @@
 // ==UserScript==
 // @name Bibliotik.me / WM Integrator
 // @namespace https://karamanolev.com
-// @version 0.2.4
+// @version 0.2.5
 // @description Integration between WM and Bibliotik.me
 // @match http://bibliotik.me/*
 // @match https://bibliotik.me/*
+// @grant GM.xmlHttpRequest
 // @grant GM_xmlhttpRequest
 // @updateURL {{ root }}/userscript/bibliotik.user.js
 // @require https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
 // @require {{ root }}/static/js/jquery.noty.packaged.min.js
+// @require https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
 // ==/UserScript==
 
 var torrentsInfoUrl = '{{ root }}/books/bibliotik/json/torrents_info';
@@ -30,7 +32,7 @@ function submitIds(rows, callback) {
         var ids = [];
         for (var i in rows) ids.push(rows[i].whatId);
         var idsString = 'ids=' + encodeURIComponent(ids.join(','));
-        GM_xmlhttpRequest({
+        GM.xmlHttpRequest({
             method: "GET",
             url: torrentsInfoUrl + '?' + idsString,
             onload: function (response) {
@@ -70,7 +72,7 @@ function addTorrent(torrentId, callback) {
     stealBibliotikSessionId(function (sessionId) {
         var params = encodeURIComponent(torrentId) + '?';
         params += 'bibliotik_id=' + encodeURIComponent(sessionId);
-        GM_xmlhttpRequest({
+        GM.xmlHttpRequest({
             method: "GET",
             url: addTorrentUrl + params,
             onload: function (response) {

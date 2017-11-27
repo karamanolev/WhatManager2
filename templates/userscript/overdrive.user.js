@@ -1,13 +1,15 @@
 // ==UserScript==
 // @name OverDrive Tracker Search
 // @namespace https://karamanolev.com
-// @version 0.0.3
+// @version 0.0.4
 // @description Integration between OverDrive and torrent trackers
 // @match http://localhost/*
 // @match http://*.overdrive.com/*
+// @grant GM.xmlHttpRequest
 // @grant GM_xmlhttpRequest
 // @updateURL {{ root }}/userscript/overdrive.user.js
 // @require http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
+// @require https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
 // ==/UserScript==
 
 var bibliotikSearchProxyUrl = '{{ root }}/books/bibliotik/json/search';
@@ -77,7 +79,7 @@ function detailsWindowMaker($this) {
 }
 
 function whatSearchHandler(query, callback) {
-    GM_xmlhttpRequest({
+    GM.xmlHttpRequest({
         method: 'GET',
         url: whatSearchProxyUrl + '?action=browse&filter_cat%5B3%5D=1&searchstr=' + encodeURIComponent(query),
         onload: function (response) {
@@ -108,7 +110,7 @@ function bibliotikSearchHandler(query, callback) {
         var url = bibliotikSearchProxyUrl;
         url += '?query=' + encodeURIComponent(query);
         url += '&bibliotik_id=' + encodeURIComponent(sessionId);
-        GM_xmlhttpRequest({
+        GM.xmlHttpRequest({
             method: 'GET',
             url: url,
             onload: function (response) {

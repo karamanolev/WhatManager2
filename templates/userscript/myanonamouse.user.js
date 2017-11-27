@@ -1,14 +1,16 @@
 // ==UserScript==
 // @name MyAnonaMouse / WM Integrator
 // @namespace https://karamanolev.com
-// @version 0.1.1
+// @version 0.1.2
 // @description Integration between WM and MyAnonaMouse.net
 // @match http://*.myanonamouse.net/*
 // @match https://*.myanonamouse.net/*
+// @grant GM.xmlHttpRequest
 // @grant GM_xmlhttpRequest
 // @updateURL {{ root }}/userscript/bibliotik.user.js
 // @require https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js
 // @require {{ root }}/static/js/jquery.noty.packaged.min.js
+// @require https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
 // ==/UserScript==
 
 var torrentsInfoUrl = '{{ root }}/myanonamouse/json/torrents_info';
@@ -31,7 +33,7 @@ function submitIds(rows, callback) {
             ids.push(row.whatId);
         });
         var idsString = 'ids=' + encodeURIComponent(ids.join(','));
-        GM_xmlhttpRequest({
+        GM.xmlHttpRequest({
             method: "GET",
             url: torrentsInfoUrl + '?' + idsString,
             onload: function (response) {
@@ -50,7 +52,7 @@ function submitIds(rows, callback) {
 
 function addTorrent(torrentId, callback) {
     var params = encodeURIComponent(torrentId);
-    GM_xmlhttpRequest({
+    GM.xmlHttpRequest({
         method: "GET",
         url: addTorrentUrl + params,
         onload: function (response) {
