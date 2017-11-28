@@ -135,10 +135,10 @@ class WhatUploader(object):
                 what_artist = self.what_api.request('artist', artistname=artist.name)
                 assert what_artist['status'] == 'success'
             except:
-                raise Exception('Artist {0} not found in What.CD'.format(artist.name))
+                raise Exception('Artist {0} not found on Redacted'.format(artist.name))
             if what_artist['response']['name'] != artist.name:
-                raise Exception('Artist {0} is named {1} in What.CD'.format(
-                    what_artist['response']['name'], artist.name
+                raise Exception('Artist {0} is named {1} on Redacted'.format(
+                    artist.name, what_artist['response']['name']
                 ))
 
     def upload_new_group(self, release_type_id, tags, title=None, force_artists=False,
