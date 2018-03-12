@@ -118,9 +118,10 @@ profile and copy-paste it there.
 
 ### Nginx configuration
 
-Go to `docker/webserver/conf.d/`, copy `default.orig.conf` to `default.conf`.
+Go to `docker/webserver/conf/`, copy `default.orig.conf.template` to
+`default.conf.template`.
 
-Edit `default.conf` to suit your needs.
+Edit `default.conf.template` to suit your needs.
 
 The two commented sections are the main area of focus here. If you leave it as
 it is, you'll be able to access WhatManager on the /wm/ location later (e.g.
@@ -198,12 +199,10 @@ Any  additional images that it needs will be pulled from Docker Hub.
 
     docker-compose up -d
 
-Docker Compose will prepend the project name that is defined in the
+Docker Compose will by default prepend the project name that is defined in the
 [.env](.env) file to network and volume names used in the configuration file.
-Container names have a hard-coded `wm_` name defined in the Docker Compose
-file, because these names are mentioned in configuration files and the
-database, and thus need to be unchanging. For example, when you list running
-containers using `docker ps`, you'll see `wm_app`, `wm_db`.
+For example, when you list running containers using `docker ps`, you'll see
+`wm_app`, `wm_db`.
 
 You should see the containers spin up, you can check if any of them have crashed
 by listing all containers on the host:
@@ -524,7 +523,7 @@ docker run --rm \
 
 ``` Shell
 # Bring up only the database service.
-docker-compose -p wmtest up -d --no-deps db
+COMPOSE_PROJECT_NAME=wmtest docker-compose up -d --no-deps db
 
 # Restore the database.
 docker run --rm \
@@ -542,7 +541,7 @@ docker run --rm \
 
 Start the app:
 
-    docker-compose -p wmtest up -d
+    COMPOSE_PROJECT_NAME=wmtest docker-compose up -d
 
 Every service should be `Up` when you list cointainers with `docker ps -a`.
 
@@ -566,4 +565,4 @@ Next, populate the wmtest_static volume:
 Once everything looks good, let's bring down the service and delete the test
 volumes. Be careful to include `-p wmtest`, or you'll delete your real volumes.
 
-    docker-compose -p wmtest down --volumes
+    COMPOSE_PROJECT_NAME=wmtest docker-compose down --volumes

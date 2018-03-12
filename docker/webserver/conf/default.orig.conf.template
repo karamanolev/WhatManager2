@@ -1,13 +1,14 @@
 server {
 	listen 80;
 
-	location /wm/static {
-		alias /mnt/static;
+	location /wm/static/ {
+		alias /mnt/static/;
 	}
 
-	location /wm {
+	location /wm/ {
 		include uwsgi_params;
-		uwsgi_pass uwsgi://wm_app:3031;
+		uwsgi_pass uwsgi://${COMPOSE_PROJECT_NAME}_app:3031;
+		absolute_redirect off;
 
 		# Needed if WM is hosted on a custom location instead of root.
 		uwsgi_param SCRIPT_NAME /wm;

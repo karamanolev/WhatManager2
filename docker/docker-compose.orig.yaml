@@ -4,7 +4,7 @@ services:
 
     # MariaDB server, hosts the database that is backing the Django web app.
     db:
-        container_name: wm_db
+        container_name: '${COMPOSE_PROJECT_NAME}_db'
         image: mariadb:10.2
         networks:
             - app
@@ -26,7 +26,7 @@ services:
 
     # WhatManager Django web application, served by uWSGI.
     app:
-        container_name: wm_app
+        container_name: '${COMPOSE_PROJECT_NAME}_app'
         build:
             context: ../
             dockerfile: docker/app/Dockerfile
@@ -84,11 +84,13 @@ services:
 
     # Nginx reverse proxy.
     webserver:
-        container_name: wm_webserver
+        container_name: '${COMPOSE_PROJECT_NAME}_webserver'
         image: nginx:alpine
         networks:
             - internet
             - app
+        environment:
+            - COMPOSE_PROJECT_NAME
         ports:
 
             # 'published' is the port the service will be exposed on,
@@ -99,8 +101,8 @@ services:
 
         volumes:
             - type: bind
-              source: ./webserver/conf/conf.d
-              target: /etc/nginx/conf.d
+              source: ./webserver/conf
+              target: /mnt/config
               read_only: true
             - type: bind
               source: ./webserver/log
@@ -112,10 +114,15 @@ services:
         depends_on:
             - app
         restart: unless-stopped
+        command: >
+            sh -c 'envsubst
+            < /mnt/config/default.conf.template
+            > /etc/nginx/conf.d/default.conf
+            && nginx -g "daemon off;"'
 
     # Request a synchronization periodically from the app.
     sync:
-        container_name: wm_sync
+        container_name: '${COMPOSE_PROJECT_NAME}_sync'
         build: sync
         image: wm_sync
         networks:
@@ -128,7 +135,7 @@ services:
             # 'wm_webserver' in this example is the container name of the
             # 'webserver' service. It's resolved to an IP via Docker Embedded
             # DNS.  /wm is the path where WhatManager is hosted.
-            SYNC_URL: 'http://wm_webserver/wm/json/sync'
+            SYNC_URL: 'http://${COMPOSE_PROJECT_NAME}_webserver/wm/json/sync'
 
             # User name and password to request torrent client status and
             # profile synchronization from the app. This might be your Django
@@ -144,7 +151,7 @@ services:
 
     # Transmission daemon instance.
     red1:
-        container_name: ${COMPOSE_PROJECT_NAME}_red1
+        container_name: '${COMPOSE_PROJECT_NAME}_red1'
         image: dperson/transmission
         networks:
             - internet
