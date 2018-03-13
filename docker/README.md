@@ -166,6 +166,7 @@ DATABASES = {
 ALLOWED_HOSTS = ['example.com', '<some-ip>', 'wm_app']
 TIME_ZONE
 STATIC_ROOT = '/mnt/static'
+SECRET_KEY
 ```
 
 Also set the following if hosting on e.g. the /wm/ location instead of root:
@@ -173,7 +174,7 @@ Also set the following if hosting on e.g. the /wm/ location instead of root:
 ``` Python
 USERSCRIPT_WM_ROOT = 'https://example.com/wm'
 STATIC_URL = '/wm/static/'
-LOGIN_URL = '/wm/user/login/'
+LOGIN_URL = '/wm/user/login'
 ```
 
 "example.com" can be "localhost" if this is a local installation only.
@@ -292,7 +293,7 @@ profile synchronization hasn't run yet.
 1. Django Administration (/admin/ or e.g. /wm/admin/) 
 2. Download locations: Add
 3. Zone: redacted.ch 
-4. Path: /mnt/music-dl (as set in the Docker Compose file)
+4. Path: e.g. /mnt/music-dl (as set in the Docker Compose file)
 5. Preferred: Check 
 6. Save
 
@@ -361,7 +362,7 @@ If you feel like you made a mess of it and want to start over clean, you can
 delete everything created by docker-compose as simply as this:
 
     docker-compose down
-    docker volume rm wm_mariadb_data wm_static
+    docker volume rm wm_db_data wm_static
 	docker volume rm wm_red{1,2,3} # Optionally remove Transmission data.
 
 ## Backups
@@ -442,7 +443,7 @@ tar czf "$BACKUP_DIR/$BACKUP_NAME_PREFIX-settings.tar.gz" \
 	--exclude .gitignore \
 	'docker/docker-compose.yaml' \
 	'docker/app/conf/' \
-	'docker/webserver/conf'
+	'docker/webserver/conf/'
 ```
 
 You can save the above to a file, say `/usr/local/bin/backup-wm`, and make it
@@ -547,7 +548,7 @@ Every service should be `Up` when you list cointainers with `docker ps -a`.
 
 Next, populate the wmtest_static volume:
 
-    docker exec -it wm_app ash
+    docker exec -it wmtest_app ash
     python /srv/wm/manage.py collectstatic
     exit
 
