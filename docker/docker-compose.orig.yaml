@@ -83,8 +83,8 @@ services:
         restart: unless-stopped
 
     # Nginx reverse proxy.
-    webserver:
-        container_name: '${COMPOSE_PROJECT_NAME}_webserver'
+    web:
+        container_name: '${COMPOSE_PROJECT_NAME}_web'
         image: nginx:alpine
         networks:
             - internet
@@ -101,11 +101,11 @@ services:
 
         volumes:
             - type: bind
-              source: ./webserver/conf
+              source: ./web/conf
               target: /mnt/config
               read_only: true
             - type: bind
-              source: ./webserver/log
+              source: ./web/log
               target: /var/log/nginx
             - type: volume
               source: static
@@ -132,10 +132,10 @@ services:
             # Profile update interval, parameter of the 'sleep' command.
             SYNC_INTERVAL: '15m'
 
-            # 'wm_webserver' in this example is the container name of the
-            # 'webserver' service. It's resolved to an IP via Docker Embedded
+            # 'wm_web' in this example is the container name of the
+            # 'web' service. It's resolved to an IP via Docker Embedded
             # DNS.  /wm is the path where WhatManager is hosted.
-            SYNC_URL: 'http://${COMPOSE_PROJECT_NAME}_webserver/wm/json/sync'
+            SYNC_URL: 'http://${COMPOSE_PROJECT_NAME}_web/wm/json/sync'
 
             # User name and password to request torrent client status and
             # profile synchronization from the app. This might be your Django
@@ -146,7 +146,7 @@ services:
 
         depends_on:
             - app
-            - webserver
+            - web
         restart: unless-stopped
 
     # Transmission daemon instance.

@@ -118,7 +118,7 @@ profile and copy-paste it there.
 
 ### Nginx configuration
 
-Go to `docker/webserver/conf/`, copy `default.orig.conf.template` to
+Go to `docker/web/conf/`, copy `default.orig.conf.template` to
 `default.conf.template`.
 
 Edit `default.conf.template` to suit your needs.
@@ -253,9 +253,9 @@ point. Start with launching a shell inside the running wm_app container:
 Next, populate the wm_static volume with WhatManager's static data. These are
 non-changing files like images, CSS and JavaScript files, which will be served
 directly from the webserver, and not by WhatManager.  We'll use the wm_static
-docker volume to share this content from the wm_app container with the
-wm_webserver container. It will ask for confirmation, make sure the export
-directory is "/mnt/static", like we set earlier in "settings.py":
+docker volume to share this content from the wm_app container with the wm_web
+container. It will ask for confirmation, make sure the export directory is
+"/mnt/static", like we set earlier in "settings.py":
 
     python /srv/wm/manage.py collectstatic
 
@@ -276,11 +276,11 @@ Exit the shell running inside the container:
 
 Log in with your superuser, take a look around.
 
-URL depends on how you set it up. If you exposed the `webserver` service on TCP
-port 8080 in `docker-compose.yaml`, you've set up your location as /wm/ in
-`webserver/conf/conf.d/default.conf` and in `settings.py` you either defined
-`DEBUG = True` or added `'localhost'` to `ALLOWED_HOSTS`, then it should be
-available here:
+URL depends on how you set it up. If you exposed the `web` service on TCP port
+8080 in `docker-compose.yaml`, you've set up your location as /wm/ in
+`web/conf/conf.d/default.conf` and in `settings.py` you either defined `DEBUG =
+True` or added `'localhost'` to `ALLOWED_HOSTS`, then it should be available
+here:
 
 http://localhost:8080/wm/
 
@@ -443,7 +443,7 @@ tar czf "$BACKUP_DIR/$BACKUP_NAME_PREFIX-settings.tar.gz" \
 	--exclude .gitignore \
 	'docker/docker-compose.yaml' \
 	'docker/app/conf/' \
-	'docker/webserver/conf/'
+	'docker/web/conf/'
 ```
 
 You can save the above to a file, say `/usr/local/bin/backup-wm`, and make it
