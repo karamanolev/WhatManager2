@@ -160,7 +160,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'FvvhvjFKYRxKR9Y7xSt883Ww'
+SECRET_KEY = '${DJANGO_SECRET_KEY}'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
