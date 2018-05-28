@@ -16,22 +16,37 @@ the `docker` group, as described
 You also might want to enable the Docker service to start on boot. WhatManager
 is configured to automatically start with the Docker service.
 
-	sudo systemctl enable docker
+    sudo systemctl enable docker
 
 ## Installation
 
 First of all, clone the repository:
 
-	git clone https://github.com/karamanolev/WhatManager2.git
+    git clone https://github.com/karamanolev/WhatManager2.git
 
 ### Docker Compose configuration
 
-Go to the [docker](.) directory in the cloned repository, and copy
-[docker-compose.orig.yaml](docker-compose.orig.yaml) to `docker-compose.yaml`,
-then edit it. This is the file that the `docker-compose` command reads by
-default.
+Go to the [docker](.) directory in the cloned repository, edit
+[docker-compose.yaml](docker-compose.yaml).  This is the file that the
+`docker-compose` command reads by default.
 
-Every setting that has a comment before it should be configured.
+Configure every setting in the `x-settings` section. Other stuff doesn't need
+to be modified.
+
+You can choose to place an existing `settings.py` file in `conf/app/` by
+changing this:
+
+```
+              source: ./conf/app/settings.template.py
+              target: /srv/wm/WhatManager2/settings.template.py
+```
+
+to:
+
+```
+              source: ./conf/app/settings.py
+              target: /srv/wm/WhatManager2/settings.py
+```
 
 #### Transmission configuration
 
@@ -54,137 +69,81 @@ there aren't going to be any Transmission daemons running in that container,
 listening on that interface. Entries in the Docker host's `/etc/hosts` work
 inside containers, and you can also define hostname mappings using
 [extra_hosts](https://docs.docker.com/compose/compose-file/#extra_hosts) in the
-Compose file. In this example later on we're going to use Docker's embedded DNS
-to resolve running Transmission containers' names (wm_red1, wm_red2, wm_red3)
-to their IP address.
+Compose file.
 
-Go to the service named `red1` in your `docker-compose.yaml` file, this is a
-service definition for a single Transmission daemon.  All [Transmission
-options](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files#options)
+In this example we're going to set up dockerized instances and use Docker's
+embedded DNS to resolve running Transmission containers' names (e.g. wm_red_1,
+wm_red_2, wm_red_3) to their IP address. These Transmission instances are
+independent from the WhatManager stack and will have their own Compose file.
+
+Go to the `transmission` directory and edit `red-config.yaml`.  All
+[Transmission options](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files#options)
 are configurable as environment variables by uppercasing them, replacing dashes
-with underscores and prepending them with `TR_`, as you can see in your YAML
-file which we're going to customize now.
+with underscores and prepending them with `TR_`, as seen in the YAML file.
 
-Make sure you configure these when editing your first instance:
-- 2nd entry in `volumes`: your download directory.
-- `TRPASSWD`: management password, also to be entered later in the app's
-`settings.py`.
-- `USERID`, `GROUPID`: must have read/write access to the download directory.
-- `TZ`: timezone, same as with the `db` service before.
-- `TR_DOWNLOAD_DIR`: your download directory path inside of the container,
-  doesn't really matter if you set this or not because WhatManager will specify
-  the exact path when adding torrents instead of using the default one, but
-  it's good to keep track of what directory this client's supposed to use.
-- `TR_RPC_PORT`: in this example, 9001 is the management port you can connect
-  to with a Transmission client.
-- `ports`, `TR_PEER_PORT`: 20001 is the BitTorrent port that your torrent peers
-  can initiate connections to. You can leave them as is, if you like.
-- Speed limits, alt speed limits, queue size to your liking, or you can delete
-  any line to use defaults.
+The values in the `x-settings` section need to be copied from the WhatManager
+`docker-compose.yaml` file. `music-path` will not be directly used by
+Transmission, because WhatManager will specify the exact path when adding
+torrents. Transmission still needs access to the directory, so it's mentioned
+here as a reminder.
 
-You can go ahead and use just the one instance for now and add more later, or
-you can add some more right now by copy-pasting the entire `red1` entry in
-`docker-compose.yaml`.
+Configure the rest of the settings to your liking.
 
-Note that port numbers don't have to be sequential or systematic at all, they
-can be any random port.
+The current Transmission instance count can be saved to a file.
 
-Checklist when copying a Transmission service definition to add a new torrent
-client:
-- Increment "red1" everywhere (red2, red3), 3 replacements total
-- Increment "9001" everywhere (9002, 9003), 3 replacements total
-- Increment "20001" everywhere (20002, 20003), 5 replacements total
-- Add new volumes (red2, red3) to `volumes` at the very end of the file.
+    echo 3 > red-count.txt
 
-Once they are configured, issue `docker-compose up -d --no-deps red1 red2 red3`
-in the [docker](.) directory to start up only these services for testing.
+Generate the Compose file for RED Transmission instances.
+
+    ./generate-compose -n "$(< red-count.txt)" -c red.config.yaml -t red.template.yaml > red-transmission.yaml
+
+Start up the instances for testing.
+
+    docker-compose up -d red-transmission.yaml
 
 `transmission-remote-gtk` can be set up to connect to the daemons and verify
 they're working. Also, the current way to delete torrents from WhatManager is
 to remove them from Transmission, so setting this up will come in handy later.
 
 1. Options -> Local Preferences
-2. Name: red1
+2. Name: e.g. red_1
 3. Host: localhost
-4. Port: 9001
+4. Port: e.g. 9001
 5. Username: transmission
-6. Password: `TRPASSWD`'s value from the Docker Compose YAML file
+6. Password: `TRPASSWD`'s value from the `red-config.yaml` file
 
-Click on "Connect", in the statusbar you should see "Connected: red1".  Repeat
-for the other clients, create a new profile for each of them so you can easily
-switch between them later on.  You can also edit
+Click on "Connect", in the statusbar you should see "Connected: red_1".  Repeat
+for the other clients, create a new profile for each of them in Transmission
+Remote so you can easily switch between them later on.  You can also edit
 `~/.config/transmission-remote-gtk/config.json` after creating your first
 profile and copy-paste it there.
-
-### Nginx configuration
-
-Go to `docker/web/conf/`, copy `default.orig.conf.template` to
-`default.conf.template`.
-
-Edit `default.conf.template` to suit your needs.
-
-The two commented sections are the main area of focus here. If you leave it as
-it is, you'll be able to access WhatManager on the /wm/ location later (e.g.
-http://localhost:8080/wm/).
 
 ### App configuration
 
 #### Initialize config files
 
-You don't need to edit the unused ones, but copying them is necessary.
+You don't need to unused ones, but copying them is necessary.
 
 ``` Shell
 cd WhatManager2 # Repository's root directory.
-cp WhatManager2/settings.example.py docker/app/conf/settings.py
 cp bibliotik/settings.example.py docker/app/conf/bibliotik-settings.py
 cp myanonamouse/settings.example.py docker/app/conf/myanonamouse-settings.py
 cp qobuz2/settings.example.py docker/app/conf/qobuz2-settings.py
 ```
 
-#### settings.py
+This one's only necessary if you want to customize stuff beyond what the
+`wm2-env` section of `docker-compose.yaml` allows.
 
-Edit `docker/app/conf/settings.py`.
-
-Variables that need configuring at a minimum to get going:
-
-``` Python
-WHAT_USER_ID
-WHAT_USERNAME
-WHAT_PASSWORD # 2FA needs to be disabled so that WhatManager can log in.
-TRANSMISSION_PASSWORD # From docker-compose.yaml.
-# Rest of the TRANSMISSION variables aren't used at all in the Docker version.
-USERSCRIPT_WM_ROOT = 'https://example.com' # Or plain 'http://'.
-DEBUG = False # Only ever set to True if the server isn't available publicly.
-DATABASES = {
-  'default': {
-    'NAME' = 'wm' # Used later for the 'CREATE DATABASE' SQL command.
-    'PASSWORD' = '<mysql-password>' # From docker-compose.yaml.
-    'HOST' = 'wm_db' # This is the hostname of the database container.
-  }
-}
-# It's necessary to allow "wm_app" because the "sync" service will use that.
-ALLOWED_HOSTS = ['example.com', '<some-ip>', 'wm_app']
-TIME_ZONE
-STATIC_ROOT = '/mnt/static'
-SECRET_KEY
+``` Shell
+cp WhatManager2/settings.example.py docker/app/conf/settings.py
 ```
-
-Also set the following if hosting on e.g. the /wm/ location instead of root:
-
-``` Python
-USERSCRIPT_WM_ROOT = 'https://example.com/wm'
-STATIC_URL = '/wm/static/'
-LOGIN_URL = '/wm/user/login'
-```
-
-"example.com" can be "localhost" if this is a local installation only.
 
 ### Starting up containers
 
 TL;DR `cd docker; docker-compose up -d`
 
-We could start up everything by the command above, but we can also take a more
-step-by-step approach to see what's happening.
+We could start up everything with the command above, but we can also take a
+more step-by-step approach to see what's happening.
 
 First, let's build the images that need to be built locally:
 
@@ -210,38 +169,11 @@ by listing all containers on the host:
 
     docker ps -a
 
-If the "STATUS" column doesn't say "Up" for a container, that's not good, you
+If the `STATUS` column doesn't say `Up` for a container, that's not good, you
 should investigate why the program running inside it has stopped. You can refer
-to the container by its "CONTAINER ID" or "NAME".
+to the container by its `CONTAINER ID` or `NAME`.
 
     docker logs <name>
-
-### SQL database initial setup (wm_db container)
-
-The database container is running and listening for commands. We're going to
-create an empty database that the WhatManager webapp will then use to store
-persistent data.
-
-Launch a new container which will be used as a temporary MariaDB client to
-connect to the wm_db container. It will ask for a password, enter
-MYSQL_ROOT_PASSWORD defined in the docker-compose file earlier.
-
-``` Shell
-docker run --rm -it --network wm_app mariadb:10.2 \
-sh -c 'exec mysql -h wm_db -uroot -p'
-```
-
-Issue these commands, `CREATE DATABASE` needs the database name we chose
-earlier in `settings.py`.
-
-``` SQL
-SET character_set_server = 'utf8';
-SET collation_server = 'utf8_unicode_ci';
-CREATE DATABASE wm;
-QUIT;
-```
-
-That's it, the container will self-destruct after you exit the mysql client.
 
 ### WhatManager initial setup (wm_app container)
 
@@ -293,7 +225,7 @@ profile synchronization hasn't run yet.
 1. Django Administration (/admin/ or e.g. /wm/admin/) 
 2. Download locations: Add
 3. Zone: redacted.ch 
-4. Path: e.g. /mnt/music-dl (as set in the Docker Compose file)
+4. Path: e.g. /mnt/music-dl (as set in `docker-compose.yaml`)
 5. Preferred: Check 
 6. Save
 
@@ -304,15 +236,16 @@ shell inside the wm_app container:
 
     docker exec -it wm_app ash
 
-Then add each Transmission instance to WhatManager:
+Then add each Transmission instance to WhatManager using the port ranges you
+specified in `red-transmission.yaml`:
 
     python /srv/wm/manage.py transmission_new <zone> <ip> <management-port> <bittorrent-port>
 
 For example:
 
-    python /srv/wm/manage.py transmission_new redacted.ch wm_red1 9001 20001
-    python /srv/wm/manage.py transmission_new redacted.ch wm_red2 9002 20002
-    python /srv/wm/manage.py transmission_new redacted.ch wm_red3 9003 20003
+    python /srv/wm/manage.py transmission_new redacted.ch wm_red_1 9001 20001
+    python /srv/wm/manage.py transmission_new redacted.ch wm_red_2 9002 20002
+    python /srv/wm/manage.py transmission_new redacted.ch wm_red_3 9003 20003
 
 Now, after getting WhatManager to syncronize information with the Transmission
 instances manually by visiting /json/sync (e.g.
@@ -336,6 +269,10 @@ When you're done, exit the shell running inside the container:
 
 Found at the "Userscripts" menu entry, set this up, it enhances user experience
 dramatically. Needs the Greasemonkey / Tampermonkey browser extension.
+
+## Management tasks, debugging
+
+The project name is the default `wm` in these examples.
 
 ### How to stop and start the app
 
@@ -363,7 +300,21 @@ delete everything created by docker-compose as simply as this:
 
     docker-compose down
     docker volume rm wm_db_data wm_static
-	docker volume rm wm_red{1,2,3} # Optionally remove Transmission data.
+    docker volume rm wm_red_{1,2,3} # Optionally remove Transmission data.
+
+### SQL database access
+
+You can access the database by launching a new container which will be used as
+a temporary MariaDB client to connect to the wm_db container. It will ask for a
+password, enter MYSQL_ROOT_PASSWORD defined in the docker-compose file earlier.
+
+``` Shell
+docker run --rm -it --network wm_app \
+-v "$PWD/conf/db/charset.cnf:/etc/mysql/conf.d/charset.cnf:ro" \
+mariadb:10 sh -c 'exec mysql -h wm_db -uroot -p'
+```
+
+The container will self-destruct after you exit the mysql client.
 
 ## Backups
 
@@ -397,6 +348,7 @@ BACKUP_NAME_PREFIX="$(date +%H-%M-%S)"
 WM_DIR='/home/user/WhatManager2'
 MYSQL_ROOT_PASSWORD='<mysql-password>'
 TZ='<timezone>'
+TRANSMISSION_COUNT='3' # Specify 0 to disable Transmission backup.
 
 backup_transmission_volume() {
 	if [ -z "$1" ]; then
@@ -420,7 +372,7 @@ fi
 # Database backup.
 # This command starts up a temporary container based on the "mariadb" image.
 # It then executes the "mysqldump" command, which connects to the database
-# server running on the "wm_db" host, and saves its current state into a file.
+# server running on the database host, and saves its current state into a file.
 docker run --rm \
 	--network wm_app \
 	--mount type=bind,src="$BACKUP_DIR",dst=/backup \
@@ -430,20 +382,19 @@ docker run --rm \
 	sh -c \
 		'mysqldump -h wm_db -u root -p"$MYSQL_ROOT_PASSWORD" \
 		--single-transaction --routines --triggers --all-databases |
-		gzip > '"/backup/$BACKUP_NAME_PREFIX-wm_db_data.sql.gz"
-
-# Torrent clients backup.
-backup_transmission_volume 'wm_red1'
-backup_transmission_volume 'wm_red2'
-backup_transmission_volume 'wm_red3'
+		gzip > '"/backup/$BACKUP_NAME_PREFIX-db-data.sql.gz"
 
 # Configuration files backup.
 tar czf "$BACKUP_DIR/$BACKUP_NAME_PREFIX-settings.tar.gz" \
 	-C "$WM_DIR" \
 	--exclude .gitignore \
 	'docker/docker-compose.yaml' \
-	'docker/app/conf/' \
-	'docker/web/conf/'
+	'docker/conf/'
+
+# Torrent clients backup.
+for i in $(seq "$TRANSMISSION_COUNT"); do
+	backup_transmission_volume "red-$i"
+done
 ```
 
 You can save the above to a file, say `/usr/local/bin/backup-wm`, and make it
@@ -452,11 +403,11 @@ executable: `chmod +x /usr/local/bin/backup-wm`.
 Now the backup script should be tested: `backup-wm`
 
 It should create the files in the "/mnt/backup/YYYY-mm-dd" directory:
-- HH-MM-SS-red1.tar.gz
-- HH-MM-SS-red2.tar.gz
-- HH-MM-SS-red3.tar.gz
+- HH-MM-SS-red-1.tar.gz
+- HH-MM-SS-red-2.tar.gz
+- HH-MM-SS-red-3.tar.gz
 - HH-MM-SS-settings.tar.gz
-- HH-MM-SS-wm_db_data.sql.gz
+- HH-MM-SS-db-data.sql.gz
 
 It's good practice to create a cron entry so the script runs periodically
 without supervision. Edit your user's crontab by issuing `crontab -e`.  This
@@ -503,23 +454,6 @@ cd WhatManager2-master
 tar xf /mnt/backup/YYYY-mm-dd/HH-MM-SS-settings.tar.gz
 ```
 
-#### Transmission restore
-
-Next we'll restore Transmission daemons' data (includes settings, torrent
-files, torrent statistics). For each of your Transmission instances, do:
-
-``` Shell
-# Name it "wmtest_" + volume's name from end of your Compose file.
-docker volume create wmtest_red1
-
-# Restore data to the volume.
-docker run --rm \
-	--mount type=volume,src=wmtest_red1,dst=/var/lib/transmission-daemon \
-	--mount type=bind,src=/mnt/backup,dst=/backup,readonly \
-	alpine \
-	tar xvzf '/backup/YYYY-mm-dd/HH-MM-SS-wm_red1.tar.gz' -C /
-```
-
 #### Database restore
 
 ``` Shell
@@ -538,19 +472,23 @@ docker run --rm \
 		mysql -h wm_db -u root -p"$MYSQL_ROOT_PASSWORD"'
 ```
 
-#### Populate "static" volume
+#### Transmission restore
 
-Start the app:
+Next we'll restore Transmission daemons' data (includes settings, torrent
+files, torrent statistics).
 
-    COMPOSE_PROJECT_NAME=wmtest docker-compose up -d
+``` Shell
+for i in $(seq "$TRANSMISSION_COUNT"); do
+	docker volume create "wmtest_red_$i"
 
-Every service should be `Up` when you list cointainers with `docker ps -a`.
-
-Next, populate the wmtest_static volume:
-
-    docker exec -it wmtest_app ash
-    python /srv/wm/manage.py collectstatic
-    exit
+	# Restore data to the volume.
+	docker run --rm \
+		--mount type=volume,src=wmtest_red_1,dst=/var/lib/transmission-daemon \
+		--mount type=bind,src=/mnt/backup,dst=/backup,readonly \
+		alpine \
+		tar xvzf "/backup/YYYY-mm-dd/HH-MM-SS-wm-red-$i.tar.gz" -C /
+done
+```
 
 #### Verify
 

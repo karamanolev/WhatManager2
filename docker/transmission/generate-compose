@@ -1,0 +1,104 @@
+#!/bin/sh
+
+set -eu -o pipefail
+
+print_usage() {
+	echo "Usage: $(basename "$0") -n <instance-count>" \
+		'[-c <config-yaml-file>] -t <template-yaml-file>' \
+		>&2
+}
+
+check_args() {
+	if ! echo "$INSTANCE_COUNT" | grep -Eq '^[0-9]+$' ||
+			[ "$INSTANCE_COUNT" -lt 1 ]; then
+		return 1
+	else
+		return 0
+	fi
+}
+
+parse_args() {
+	INSTANCE_COUNT=
+	TEMPLATE_YAML_FILE=
+	CONFIG_YAML_FILE=
+	while getopts 'n:c:f:h' 'name'; do
+		case "$name" in
+			'n')
+				INSTANCE_COUNT=$OPTARG
+				continue
+				;;
+			'c')
+				CONFIG_YAML_FILE=$OPTARG
+				continue
+				;;
+			't')
+				TEMPLATE_YAML_FILE=$OPTARG
+				continue
+				;;
+			'h')
+				print_usage
+				exit
+				;;
+			'?' | *)
+				return 1
+				;;
+		esac
+	done
+	return 0
+}
+
+# Prints shortest of line beginning space character strings.
+find_indent() {
+	indent=''
+	while IFS= read -r line; do
+		if echo "$line" | grep -q '^ '; then
+			spaces=$(echo "$line" | sed -E 's/^( +).*/\1/')
+			if [ -n "$spaces" ]; then
+				if [ -z "$indent" ] || [ "${#spaces}" -lt "${#indent}" ]; then
+					indent=$spaces
+				fi
+			fi
+		fi
+	done <"$1"
+	echo "$indent"
+}
+
+# Prints multiplied Compose file.
+generate_compose() {
+	name=$(head -n1 "$TEMPLATE_YAML_FILE" | cut -d: -f1)
+
+	INDENT=$(find_indent "$TEMPLATE_YAML_FILE")
+
+	if [ -n "$CONFIG_YAML_FILE" ]; then
+		cat "$CONFIG_YAML_FILE"
+	fi
+
+	echo 'services:'
+	echo
+
+	for i in $(seq "$INSTANCE_COUNT"); do
+		while IFS= read -r line; do
+			if echo "$line" | grep -q "^${name}:$"; then
+				line="${name}_${i}:"
+			elif echo "$line" | grep -Eq "\s+['\"]?container_name['\"]?\s*:"; then
+				line=$(echo "$line" | sed -E "s/(['\"]?)$/$i\1/")
+			elif echo "$line" | grep -Eq "\s+source: $name$"; then
+				line=$(echo "$line" | sed "s/$/_$i/")
+			fi
+			echo "${INDENT}${line}"
+		done <"$TEMPLATE_YAML_FILE"
+		echo
+	done
+
+	echo 'volumes:'
+	for i in $(seq "$INSTANCE_COUNT"); do
+		echo "${INDENT}${name}_${i}:"
+	done
+}
+
+if ! parse_args "$@" || ! check_args; then
+	print_usage
+	exit 1
+else
+	generate_compose
+fi

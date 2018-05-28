@@ -1,3 +1,7 @@
-docker-compose.yaml
-web/conf/default.conf.template
-web/log/*
+conf/app/*
+!conf/app/settings.template.py
+conf/db/*
+!conf/db/charset.cnf
+conf/web/*
+!conf/web/default.template.conf
+log/web/*

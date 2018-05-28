@@ -1,0 +1,61 @@
+version: '3.2'
+
+x-settings:
+    - &timezone 'GMT'
+    - &userid 1000
+    - &groupid 1000
+    - &transmission-password ''
+    - &music-path '/mnt/music-dl'
+
+x-red-ports:
+    # FIXME: This would be the desirable syntax, but Docker CLI and Compose
+    # don't support declaring port ranges in the long 'ports' format yet:
+    # https://github.com/docker/compose/issues/5613
+    #- &red-rpc-target-port 9091
+    #- &red-peer-target-port 51413
+    #- &red-rpc-published-port '9001-9999'
+    #- &red-peer-published-port '20001-20999'
+
+    # Configure the port ranges, e.g. 9001-9999 and 20001-20999 to your liking.
+    # Don't change the rest.
+    # For management:
+    - &red-rpc-ports '9001-9999:9091/tcp'
+    # For incoming Bittorrent connections:
+    - &red-peer-ports '20001-20999:51413'
+
+x-red-settings: &red-settings
+    # For a list of all available options see:
+    # https://github.com/transmission/transmission/wiki/Editing-Configuration-Files#options
+    TRUSER: 'transmission'
+    TRPASSWD: *transmission-password
+    USERID: *userid
+    GROUPID: *groupid
+    # FIXME: Until Compose issue #5613 is resolved, implicitly use the image's
+    # default ports:
+    #   - TCP 9091 for management.
+    #   - TCP and UDP ports 51413 for incoming Bittorrent connections.
+    #TR_RPC_PORT: *red-rpc-target-port
+    #TR_PEER_PORT: *red-peer-target-port
+    TZ: *timezone
+    TR_BLOCKLIST_URL: 'http://127.0.0.1'
+    TR_MAX_PEERS_GLOBAL: 300
+    TR_DHT_ENABLED: 'false'
+    TR_PEX_ENABLED: 'false'
+    TR_RATIO_LIMIT_ENABLED: 'false'
+    TR_DOWNLOAD_DIR: *music-path
+    TR_INCOMPLETE_DIR_ENABLED: 'false'
+    TR_SPEED_LIMIT_DOWN: 1024
+    TR_SPEED_LIMIT_DOWN_ENABLED: 'true'
+    TR_SPEED_LIMIT_UP: 1024
+    TR_SPEED_LIMIT_UP_ENABLED: 'true'
+    TR_ALT_SPEED_DOWN: 2048
+    TR_ALT_SPEED_UP: 2048
+    TR_ALT_SPEED_TIME_ENABLED: 'false'
+    TR_ALT_SPEED_TIME_BEGIN: 420 #  7:00, minutes from midnight
+    TR_ALT_SPEED_TIME_END: 1380  # 23:00
+    TR_ALT_SPEED_TIME_DAY: 127   # All days: 127, Weekdays: 62, Weekends: 65
+    TR_START_ADDED_TORRENTS: 'false'
+    TR_DOWNLOAD_QUEUE_ENABLED: 'true'
+    TR_DOWNLOAD_QUEUE_SIZE: 2
+    TR_SCRAPE_PAUSED_TORRENTS_ENABLED: 'false'
+

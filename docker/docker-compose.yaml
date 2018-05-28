@@ -1,0 +1,220 @@
+version: '3.4'
+
+
+x-settings:
+
+    # Choose from the TZ column:
+    # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+    # e.g. America/Chicago, GMT, EST5EDT
+    - &timezone 'GMT'
+
+    # The user and group ID that uWSGI will run as.
+    # Needs read/write access to the download directories.
+    - &userid 1000
+    - &groupid 1000
+
+    # Choose secure passwords.
+    - &mysql-root-password ''
+    - &transmission-password ''
+
+    # External URL's, 'http' or 'https'.
+    - &url-scheme 'http'
+    # Optional external domain name.
+    # Emtpy string ('') or null if you don't want to set it.
+    # The service will still be available under 'localhost'.
+    - &url-domain 'example.com'
+    # The port on which the HTTP service will be exposed on the Docker host.
+    - &web-port 8080
+    # You can specify a different port number for generated URLs.
+    # This can be useful if the incoming connection is HTTP proxied or NATed.
+    # Set to null if you don't want to set a special port for
+    # this.  In this case web-port defined above will be used.
+    - &url-port null
+    # To set a custom path enter e.g. /wm or /my/custom/path.
+    # No trailing slash.
+    - &url-path '/'
+
+    - &wm2-env
+        # e.g. '12345'
+        RED_USERID: ''
+        # Your RED username.
+        RED_USERNAME: ''
+        # 2FA needs to be disabled.
+        RED_PASSWORD: ''
+        # Seconds, Python expression.
+        RED_PROFILE_SNAPSHOT_INTERVAL: '10*60'
+        # If ratio goes below this, queued torrents won't be downloaded.
+        RED_MIN_RATIO: '0.7'
+        # Can be left empty or null if you don't upload from WhatManager.
+        # Optionally, tick the "Use HTTPS Tracker" on your RED settings page.
+        # You can obtain the setting at the "Upload" page under
+        # "Your personal announce URL is:".
+        RED_ANNOUNCE_URL: ''
+        # Ratio of disk space guaranteed to be left empty by WhatManager.
+        MIN_FREE_DISK_SPACE: '0.1'
+        # Django debug mode, 'False' or 'True'
+        # Never set to 'True' if the server is publicly available.
+        DEBUG: 'False'
+        # Use a random string.
+        DJANGO_SECRET_KEY: ''
+
+    # Download directories to be made accessible to WhatManager.
+    #
+    # Transmission daemons must also have read/write access to the
+    # 'target' directories below, available to them on the same path.
+    - &music-path '/mnt/music-dl'
+    - &book-path '/mnt/book-dl'
+
+    # Syncing your profile is non-essential, safe to skip and set later.
+    #
+    # Profile update interval, parameter of a 'sleep' command.
+    - &sync-interval '15m'
+    # User name and password to request torrent client status and
+    # profile synchronization from the app. This might be your Django
+    # superuser, or you can choose to create a dedicated user for this
+    # later on.
+    - &sync-user 'user'
+    - &sync-password ''
+
+
+services:
+
+    # MariaDB server, hosts the database that is backing the Django web app.
+    db:
+        container_name: '${COMPOSE_PROJECT_NAME}_db'
+        image: mariadb:10
+        networks:
+            - app
+        volumes:
+            - type: volume
+              source: db_data
+              target: /var/lib/mysql
+            - type: bind
+              source: ./conf/db/charset.cnf
+              target: /etc/mysql/conf.d/charset.cnf
+        environment:
+            MYSQL_DATABASE: wm
+            MYSQL_ROOT_PASSWORD: *mysql-root-password
+            TZ: *timezone
+        restart: unless-stopped
+
+    # WhatManager Django web application, served by uWSGI.
+    app:
+        container_name: '${COMPOSE_PROJECT_NAME}_app'
+        build:
+            context: ../
+            dockerfile: docker/images/app/Dockerfile
+            args:
+                UWSGI_UID: *userid
+                UWSGI_GID: *groupid
+        image: wm_app
+        networks:
+            - internet
+            - app
+        environment:
+            <<: *wm2-env
+            DB_HOST: ${COMPOSE_PROJECT_NAME}_db
+            DB_NAME: 'wm'
+            DB_ROOT_PASSWORD: *mysql-root-password
+            HOSTNAME_INTERNAL: ${COMPOSE_PROJECT_NAME}_app
+            URL_SCHEME: *url-scheme
+            URL_DOMAIN: *url-domain
+            URL_PORT: *url-port
+            URL_PATH: *url-path
+            UWSGI_UID: *userid
+            UWSGI_GID: *groupid
+            TIMEZONE: *timezone
+            TRANSMISSION_PASSWORD: *transmission-password
+        volumes:
+            - type: bind
+              source: ./conf/app/settings.template.py
+              target: /srv/wm/WhatManager2/settings.template.py
+              read_only: true
+            - type: bind
+              source: ./conf/app/bibliotik-settings.py
+              target: /srv/wm/bibliotik/settings.py
+              read_only: true
+            - type: bind
+              source: ./conf/app/myanonamouse-settings.py
+              target: /srv/wm/myanonamouse/settings.py
+              read_only: true
+            - type: bind
+              source: ./conf/app/qobuz2-settings.py
+              target: /srv/wm/qobuz2/settings.py
+              read_only: true
+            - type: volume
+              source: static
+              target: /mnt/static
+            - type: bind
+              source: *music-path
+              target: *music-path
+            - type: bind
+              source: *book-path
+              target: *book-path
+        depends_on:
+            - db
+        restart: unless-stopped
+
+    # Nginx reverse proxy.
+    web:
+        container_name: '${COMPOSE_PROJECT_NAME}_web'
+        image: nginx:alpine
+        networks:
+            - internet
+            - app
+        environment:
+            COMPOSE_PROJECT_NAME: $COMPOSE_PROJECT_NAME
+            URL_SCHEME: *url-scheme
+            URL_PATH: *url-path
+        ports:
+            - target: 80
+              published: *web-port
+              protocol: tcp
+        volumes:
+            - type: bind
+              source: ./conf/web
+              target: /mnt/config
+              read_only: true
+            - type: bind
+              source: ./log/web
+              target: /var/log/nginx
+            - type: volume
+              source: static
+              target: /mnt/static
+              read_only: true
+        depends_on:
+            - app
+        restart: unless-stopped
+        command: >
+            sh -c '/mnt/config/generate-nginx-config && nginx -g "daemon off;"'
+
+    # Request synchronization periodically from the app.
+    sync:
+        container_name: '${COMPOSE_PROJECT_NAME}_sync'
+        build: images/sync
+        image: wm_sync
+        networks:
+            - app
+        environment:
+            URL_SCHEME: 'http'
+            URL_PROJECT_NAME: $COMPOSE_PROJECT_NAME
+            URL_PORT: *url-port
+            URL_PATH: *url-path
+            SYNC_INTERVAL: *sync-interval
+            SYNC_USER: *sync-user
+            SYNC_PASS: *sync-password
+        depends_on:
+            - app
+            - web
+        restart: unless-stopped
+
+
+networks:
+    internet:
+    app:
+        internal: true
+
+
+volumes:
+    db_data:
+    static:

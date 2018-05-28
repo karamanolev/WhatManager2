@@ -1,0 +1,27 @@
+red:
+    container_name: '${COMPOSE_PROJECT_NAME}_red_'
+    image: dperson/transmission
+    networks:
+        - internet
+    volumes:
+        - type: volume
+          source: red
+          target: /var/lib/transmission-daemon
+        - type: bind
+          source: *music-path
+          target: *music-path
+    ports:
+        # FIXME: After Compose issue #5613 is fixed
+        #- target: *red-rpc-target-port
+        #  published: *red-rpc-published-port
+        #  protocol: tcp
+        #- target: *red-peer-target-port
+        #  published: *red-peer-published-port
+        #  protocol: tcp
+        #- target: *red-peer-target-port
+        #  published: *red-peer-published-port
+        #  protocol: udp
+        - *red-rpc-ports
+        - *red-peer-ports
+    environment: *red-settings
+    restart: unless-stopped

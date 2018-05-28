@@ -5,5 +5,4 @@ deps/
 docker/
 setup.sh
 setup_transmission-2.92.sh
-!docker/app/external-transmission.patch
-!docker/app/uwsgi.ini
+!docker/images/app/

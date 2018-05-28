@@ -1,0 +1,39 @@
+#!/bin/sh
+
+set -e
+
+APP_DIR='/srv/wm'
+
+# Do nothing if there's a custom config file.
+if [ -r "$APP_DIR/WhatManager2/settings.py" ]; then
+	exit
+fi
+
+if [ -z "$WEB_PORT" ]; then
+	WEB_PORT='80'
+fi
+
+if ([ "$URL_SCHEME" = 'http' ] && [ "$URL_PORT" = '80' ]) \
+	|| ([ "$URL_SCHEME" = 'https' ] && [ "$URL_PORT" = '443' ]); then
+		URL_PORT=
+elif [ -z "$URL_PORT" ]; then
+	URL_PORT=":$WEB_PORT"
+else
+	URL_PORT=":$URL_PORT"
+fi
+
+if [ -z "$URL_DOMAIN" ]; then
+	URL_DOMAIN='localhost'
+fi
+
+if [ "$URL_PATH" = '/' ]; then
+	URL_PATH=
+fi
+
+URL="${URL_SCHEME}://${URL_DOMAIN}${URL_PORT}${URL_PATH}"
+
+export URL URL_PATH
+
+envsubst \
+	< "$APP_DIR/WhatManager2/settings.template.py" \
+	> "$APP_DIR/WhatManager2/settings.py"
