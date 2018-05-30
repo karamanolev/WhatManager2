@@ -32,7 +32,7 @@ fi
 
 URL="${URL_SCHEME}://${URL_DOMAIN}${URL_PORT}${URL_PATH}"
 
-export URL URL_PATH
+export URL URL_DOMAIN URL_PATH
 
 envsubst \
 	< "$APP_DIR/WhatManager2/settings.template.py" \

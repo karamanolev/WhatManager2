@@ -125,6 +125,7 @@ services:
             UWSGI_GID: *groupid
             TIMEZONE: *timezone
             TRANSMISSION_PASSWORD: *transmission-password
+            WEB_PORT: *web-port
         volumes:
             - type: bind
               source: ./conf/app/settings.template.py
