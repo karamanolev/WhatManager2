@@ -2,6 +2,6 @@
 generate-wm-config
 python /srv/wm/manage.py collectstatic --clear --noinput --verbosity 0
 while ! python /srv/wm/manage.py migrate; do
-	sleep 2
+	sleep 2  # Wait for DB to come online.
 done
 uwsgi --uid "$UWSGI_UID" --gid "$UWSGI_GID" --ini /srv/wm/uwsgi.ini

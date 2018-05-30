@@ -27,8 +27,8 @@ x-settings:
     - &web-port 8080
     # You can specify a different port number for generated URLs.
     # This can be useful if the incoming connection is HTTP proxied or NATed.
-    # Set to null if you don't want to set a special port for
-    # this.  In this case web-port defined above will be used.
+    # Set to null if you don't want to set a special port for this.
+    # In that case "web-port" defined above will be used.
     - &url-port null
     # To set a custom path enter e.g. /wm or /my/custom/path.
     # No trailing slash.
@@ -60,8 +60,8 @@ x-settings:
 
     # Download directories to be made accessible to WhatManager.
     #
-    # Transmission daemons must also have read/write access to the
-    # 'target' directories below, available to them on the same path.
+    # Transmission daemons must also have read/write access to these,
+    # under the same path.
     - &music-path '/mnt/music-dl'
     - &book-path '/mnt/book-dl'
 

@@ -99,7 +99,7 @@ Generate the Compose file for RED Transmission instances.
 
 Start up the instances for testing.
 
-    docker-compose up -d red-transmission.yaml
+    docker-compose -f red-transmission.yaml up -d
 
 `transmission-remote-gtk` can be set up to connect to the daemons and verify
 they're working. Also, the current way to delete torrents from WhatManager is
@@ -122,7 +122,7 @@ profile and copy-paste it there.
 
 #### Initialize config files
 
-You don't need to unused ones, but copying them is necessary.
+You don't need to edit unused ones, but copying them is necessary.
 
 ``` Shell
 cd WhatManager2 # Repository's root directory.
@@ -175,46 +175,17 @@ to the container by its `CONTAINER ID` or `NAME`.
 
     docker logs <name>
 
-### WhatManager initial setup (wm_app container)
+### Create WhatManager superuser
 
-We have a running container of the Django app and a working database at this
-point. Start with launching a shell inside the running wm_app container:
-
-    docker exec -it wm_app ash
-
-Next, populate the wm_static volume with WhatManager's static data. These are
-non-changing files like images, CSS and JavaScript files, which will be served
-directly from the webserver, and not by WhatManager.  We'll use the wm_static
-docker volume to share this content from the wm_app container with the wm_web
-container. It will ask for confirmation, make sure the export directory is
-"/mnt/static", like we set earlier in "settings.py":
-
-    python /srv/wm/manage.py collectstatic
-
-Now we're going to have the WhatManager app create its database schema inside
-the database we created earlier:
-
-    python /srv/wm/manage.py migrate
-
-Create a superuser:
-
-    python /srv/wm/manage.py createsuperuser
-
-Exit the shell running inside the container:
-
-    exit
+    docker exec -it wm_app python /srv/wm/manage.py createsuperuser
 
 ### Log in
 
 Log in with your superuser, take a look around.
 
-URL depends on how you set it up. If you exposed the `web` service on TCP port
-8080 in `docker-compose.yaml`, you've set up your location as /wm/ in
-`web/conf/conf.d/default.conf` and in `settings.py` you either defined `DEBUG =
-True` or added `'localhost'` to `ALLOWED_HOSTS`, then it should be available
-here:
+URL depends on how you set it up, e.g.:
 
-http://localhost:8080/wm/
+http://localhost:8080/
 
 There isn't very much to see yet, Stats page is empty because we don't have any
 torrent clients added yet, Profile page might be empty because a successful user
@@ -222,7 +193,7 @@ profile synchronization hasn't run yet.
 
 ### Add a download location
 
-1. Django Administration (/admin/ or e.g. /wm/admin/) 
+1. Django Administration (e.g. /admin/ or /wm/admin/) 
 2. Download locations: Add
 3. Zone: redacted.ch 
 4. Path: e.g. /mnt/music-dl (as set in `docker-compose.yaml`)
@@ -249,7 +220,7 @@ For example:
 
 Now, after getting WhatManager to syncronize information with the Transmission
 instances manually by visiting /json/sync (e.g.
-http://localhost:8080/wm/json/sync) in your web browser, you should see no
+http://localhost:8080/json/sync) in your web browser, you should see no
 recent errors when you click on "Log" on the web interface, and the torrent
 clients should show up as "redacted01", "redacted02" and "redacted03" when
 clicking on "Stats".
