@@ -4,4 +4,3 @@ conf/db/*
 !conf/db/charset.cnf
 conf/web/*
 !conf/web/default.template.conf
-log/web/*
