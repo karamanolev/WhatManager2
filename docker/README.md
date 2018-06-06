@@ -126,16 +126,16 @@ You don't need to edit unused ones, but copying them is necessary.
 
 ``` Shell
 cd WhatManager2 # Repository's root directory.
-cp bibliotik/settings.example.py docker/app/conf/bibliotik-settings.py
-cp myanonamouse/settings.example.py docker/app/conf/myanonamouse-settings.py
-cp qobuz2/settings.example.py docker/app/conf/qobuz2-settings.py
+cp bibliotik/settings.example.py docker/conf/app/bibliotik-settings.py
+cp myanonamouse/settings.example.py docker/conf/app/myanonamouse-settings.py
+cp qobuz2/settings.example.py docker/conf/app/qobuz2-settings.py
 ```
 
 This one's only necessary if you want to customize stuff beyond what the
 `wm2-env` section of `docker-compose.yaml` allows.
 
 ``` Shell
-cp WhatManager2/settings.example.py docker/app/conf/settings.py
+cp WhatManager2/settings.example.py docker/conf/app/settings.py
 ```
 
 ### Starting up containers
