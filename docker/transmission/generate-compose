@@ -21,7 +21,7 @@ parse_args() {
 	INSTANCE_COUNT=
 	TEMPLATE_YAML_FILE=
 	CONFIG_YAML_FILE=
-	while getopts 'n:c:f:h' 'name'; do
+	while getopts 'n:c:t:h' 'name'; do
 		case "$name" in
 			'n')
 				INSTANCE_COUNT=$OPTARG

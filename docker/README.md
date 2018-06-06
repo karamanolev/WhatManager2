@@ -76,7 +76,7 @@ embedded DNS to resolve running Transmission containers' names (e.g. wm_red_1,
 wm_red_2, wm_red_3) to their IP address. These Transmission instances are
 independent from the WhatManager stack and will have their own Compose file.
 
-Go to the `transmission` directory and edit `red-config.yaml`.  All
+Go to the `transmission` directory and edit `red.config.yaml`.  All
 [Transmission options](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files#options)
 are configurable as environment variables by uppercasing them, replacing dashes
 with underscores and prepending them with `TR_`, as seen in the YAML file.
@@ -110,7 +110,7 @@ to remove them from Transmission, so setting this up will come in handy later.
 3. Host: localhost
 4. Port: e.g. 9001
 5. Username: transmission
-6. Password: `TRPASSWD`'s value from the `red-config.yaml` file
+6. Password: `TRPASSWD`'s value from the `red.config.yaml` file
 
 Click on "Connect", in the statusbar you should see "Connected: red_1".  Repeat
 for the other clients, create a new profile for each of them in Transmission
@@ -473,6 +473,7 @@ done
 #### Clean up
 
 Once everything looks good, let's bring down the service and delete the test
-volumes. Be careful to include `-p wmtest`, or you'll delete your real volumes.
+volumes. Be careful to include the project name, or you'll delete your real
+volumes.
 
     COMPOSE_PROJECT_NAME=wmtest docker-compose down --volumes
