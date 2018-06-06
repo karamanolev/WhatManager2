@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eu -o pipefail
+set -eu
 
 print_usage() {
 	echo "Usage: $(basename "$0") -n <instance-count>" \
