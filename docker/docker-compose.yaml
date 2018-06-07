@@ -111,6 +111,7 @@ services:
         networks:
             - internet
             - app
+            - trans_mgmt
         environment:
             <<: *wm2-env
             DB_HOST: ${COMPOSE_PROJECT_NAME}_db
@@ -214,6 +215,8 @@ networks:
     internet:
     app:
         internal: true
+    trans_mgmt:
+        external: true
 
 
 volumes:

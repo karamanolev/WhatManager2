@@ -72,9 +72,10 @@ inside containers, and you can also define hostname mappings using
 Compose file.
 
 In this example we're going to set up dockerized instances and use Docker's
-embedded DNS to resolve running Transmission containers' names (e.g. wm_red_1,
-wm_red_2, wm_red_3) to their IP address. These Transmission instances are
-independent from the WhatManager stack and will have their own Compose file.
+embedded DNS to resolve running Transmission containers' names (e.g.
+trans_red_1, trans_red_2, trans_red_3) to their IP address. These Transmission
+instances are independent from the WhatManager stack and will have their own
+Compose file.
 
 Go to the `transmission` directory and edit `red.config.yaml`.  All
 [Transmission options](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files#options)
@@ -97,9 +98,13 @@ Generate the Compose file for RED Transmission instances.
 
     ./generate-compose -n "$(< red-count.txt)" -c red.config.yaml -t red.template.yaml > red-transmission.yaml
 
+Manually create the Transmission management network.
+
+    docker network create --internal trans_mgmt
+
 Start up the instances for testing.
 
-    docker-compose -f red-transmission.yaml up -d
+    docker-compose -p trans -f red-transmission.yaml up -d
 
 `transmission-remote-gtk` can be set up to connect to the daemons and verify
 they're working. Also, the current way to delete torrents from WhatManager is
@@ -214,9 +219,9 @@ specified in `red-transmission.yaml`:
 
 For example:
 
-    python /srv/wm/manage.py transmission_new redacted.ch wm_red_1 9001 20001
-    python /srv/wm/manage.py transmission_new redacted.ch wm_red_2 9002 20002
-    python /srv/wm/manage.py transmission_new redacted.ch wm_red_3 9003 20003
+    python /srv/wm/manage.py transmission_new redacted.ch trans_red_1 9001 20001
+    python /srv/wm/manage.py transmission_new redacted.ch trans_red_2 9002 20002
+    python /srv/wm/manage.py transmission_new redacted.ch trans_red_3 9003 20003
 
 Now, after getting WhatManager to syncronize information with the Transmission
 instances manually by visiting /json/sync (e.g.

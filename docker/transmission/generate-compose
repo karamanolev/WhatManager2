@@ -94,6 +94,12 @@ generate_compose() {
 	for i in $(seq "$INSTANCE_COUNT"); do
 		echo "${INDENT}${name}_${i}:"
 	done
+
+	echo
+	echo 'networks:'
+	echo "${INDENT}trans_mgmt:"
+	echo "${INDENT}${INDENT}external: true"
+
 }
 
 if ! parse_args "$@" || ! check_args; then

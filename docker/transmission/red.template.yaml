@@ -1,8 +1,9 @@
 red:
-    container_name: '${COMPOSE_PROJECT_NAME}_red_'
+    container_name: 'trans_red_'
     image: dperson/transmission
     networks:
-        - internet
+        - default
+        - trans_mgmt
     volumes:
         - type: volume
           source: red

@@ -22,6 +22,9 @@ WHAT_UPLOAD_URL = 'https://{0}/upload.php'.format(WHAT_CD_DOMAIN)
 # Only for uploading
 WHAT_ANNOUNCE = '${RED_ANNOUNCE_URL}'
 
+# Set this to something reasonable that only you know.
+TRANSMISSION_PASSWORD = '${TRANSMISSION_PASSWORD}'
+
 # You only need these if you are uploading books
 WHATIMG_USERNAME = 'whatimg username'
 WHATIMG_PASSWORD = 'whatimg password'
