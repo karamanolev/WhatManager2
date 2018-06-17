@@ -7,22 +7,6 @@ x-settings:
     - &transmission-password ''
     - &music-path '/mnt/music-dl'
 
-x-red-ports:
-    # FIXME: This would be the desirable syntax, but Docker CLI and Compose
-    # don't support declaring port ranges in the long 'ports' format yet:
-    # https://github.com/docker/compose/issues/5613
-    #- &red-rpc-target-port 9091
-    #- &red-peer-target-port 51413
-    #- &red-rpc-published-port '9001-9999'
-    #- &red-peer-published-port '20001-20999'
-
-    # Configure the port ranges, e.g. 9001-9999 and 20001-20999 to your liking.
-    # Don't change the rest.
-    # For management:
-    - &red-rpc-ports '9001-9999:9091/tcp'
-    # For incoming Bittorrent connections:
-    - &red-peer-ports '20001-20999:51413'
-
 x-red-settings: &red-settings
     # For a list of all available options see:
     # https://github.com/transmission/transmission/wiki/Editing-Configuration-Files#options
@@ -30,12 +14,6 @@ x-red-settings: &red-settings
     TRPASSWD: *transmission-password
     USERID: *userid
     GROUPID: *groupid
-    # FIXME: Until Compose issue #5613 is resolved, implicitly use the image's
-    # default ports:
-    #   - TCP 9091 for management.
-    #   - TCP and UDP ports 51413 for incoming Bittorrent connections.
-    #TR_RPC_PORT: *red-rpc-target-port
-    #TR_PEER_PORT: *red-peer-target-port
     TZ: *timezone
     TR_BLOCKLIST_URL: 'http://127.0.0.1'
     TR_MAX_PEERS_GLOBAL: 300

@@ -5,6 +5,7 @@ set -eu
 print_usage() {
 	echo "Usage: $(basename "$0") -n <instance-count>" \
 		'[-c <config-yaml-file>] -t <template-yaml-file>' \
+		'-r <rpc-ports> -p <peer-ports>' \
 		>&2
 }
 
@@ -17,11 +18,63 @@ check_args() {
 	fi
 }
 
+# Get n-th element in a string of space-separated strings.
+# e.g.
+#   Call: get_element 2 '123 200 300'
+#   Prints: 200
+get_element() {
+	n=$1
+	string=$2
+
+	count=1
+	for i in $string; do
+		if [ "$count" -eq "$n" ]; then
+			echo "$i"
+			break
+		fi
+		count=$((count+1))
+	done
+}
+
+# Converts a port specification string into a space separated string of
+# port numbers.
+# e.g.
+#   Call: parse_ports '8080,9000,80-83'
+#   Prints: '8080 9000 80 81 82 83'
+parse_ports() {
+	spec=$1
+
+	# Not a proper format check, it's only to avoid whitespace.
+	if echo "$spec" | grep -q '[^-0-9,]'; then
+		echo "Bad port specification: $spec" >&2
+		exit 1
+	fi
+
+	for i in $(echo "$spec" | tr , ' '); do
+		if echo "$i" | grep -q '^[0-9]*$'; then
+			printf '%s ' "$i"
+		else
+			first=$(echo "$i" | sed -En 's/^([0-9]+)-.*$/\1/p')
+			last=$(echo "$i" | sed -En 's/^.*-([0-9]+)$/\1/p')
+			if [ -z "$first" ] || [ -z "$last" ] || [ "$first" -gt "$last" ]; then
+				echo "Invalid port range: '$first' - '$last'" >&2
+				exit 1
+			fi
+			for j in $(seq "$first" "$last"); do
+				printf '%s ' "$j"
+			done
+		fi
+	done
+	exit
+}
+
 parse_args() {
 	INSTANCE_COUNT=
 	TEMPLATE_YAML_FILE=
 	CONFIG_YAML_FILE=
-	while getopts 'n:c:t:h' 'name'; do
+	RPC_PORTS=
+	PEER_PORTS=
+	while getopts 'n:c:t:r:p:h' 'name'; do
 		case "$name" in
 			'n')
 				INSTANCE_COUNT=$OPTARG
@@ -33,6 +86,14 @@ parse_args() {
 				;;
 			't')
 				TEMPLATE_YAML_FILE=$OPTARG
+				continue
+				;;
+			'r')
+				RPC_PORTS=$(parse_ports "$OPTARG")
+				continue
+				;;
+			'p')
+				PEER_PORTS=$(parse_ports "$OPTARG")
 				continue
 				;;
 			'h')
@@ -63,6 +124,18 @@ find_indent() {
 	echo "$indent"
 }
 
+# Prints arbitrary levels of indentation.
+indent() {
+	if [ "$#" -le 0 ]; then
+		level=1
+	else
+		level=$1
+	fi
+	for i in $(seq "$level"); do
+		printf '%s' "$INDENT"
+	done
+}
+
 # Prints multiplied Compose file.
 generate_compose() {
 	name=$(head -n1 "$TEMPLATE_YAML_FILE" | cut -d: -f1)
@@ -76,8 +149,30 @@ generate_compose() {
 	echo 'services:'
 	echo
 
+	# Print the template multiple times with variable content substituted.
 	for i in $(seq "$INSTANCE_COUNT"); do
+		rpc_port=$(get_element "$i" "$RPC_PORTS")
+		peer_port=$(get_element "$i" "$PEER_PORTS")
 		while IFS= read -r line; do
+			if echo "$line" | grep -Eq "\s+ports:"; then
+				echo "$(indent)${line}"
+				echo "$(indent 3)- '${rpc_port}:${rpc_port}/tcp'"
+				echo "$(indent 3)- '${peer_port}:${peer_port}/tcp'"
+				echo "$(indent 3)- '${peer_port}:${peer_port}/udp'"
+				continue
+			fi
+
+			# sed matches e.g. the line: '    environment: *red-settings'
+			# $env_ref will contain: '*red-settings'
+			env_ref=$(echo "$line" | sed -E "s/^\s+environment: (\*.+)$/\1/")
+			if [ "$line" != "$env_ref" ]; then
+				echo "$(indent 2)environment:"
+				echo "$(indent 3)<<: $env_ref"
+				echo "$(indent 3)TR_RPC_PORT: $rpc_port"
+				echo "$(indent 3)TR_PEER_PORT: $peer_port"
+				continue
+			fi
+
 			if echo "$line" | grep -q "^${name}:$"; then
 				line="${name}_${i}:"
 			elif echo "$line" | grep -Eq "\s+['\"]?container_name['\"]?\s*:"; then
@@ -85,20 +180,22 @@ generate_compose() {
 			elif echo "$line" | grep -Eq "\s+source: $name$"; then
 				line=$(echo "$line" | sed "s/$/_$i/")
 			fi
-			echo "${INDENT}${line}"
+
+			echo "$(indent)${line}"
+
 		done <"$TEMPLATE_YAML_FILE"
 		echo
 	done
 
 	echo 'volumes:'
 	for i in $(seq "$INSTANCE_COUNT"); do
-		echo "${INDENT}${name}_${i}:"
+		echo "$(indent)${name}_${i}:"
 	done
 
 	echo
 	echo 'networks:'
-	echo "${INDENT}trans_mgmt:"
-	echo "${INDENT}${INDENT}external: true"
+	echo "$(indent)trans_mgmt:"
+	echo "$(indent 2)external: true"
 
 }
 

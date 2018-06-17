@@ -90,13 +90,14 @@ here as a reminder.
 
 Configure the rest of the settings to your liking.
 
-The current Transmission instance count can be saved to a file.
+Generate the Compose file for RED Transmission instances.  `-r` is management
+ports, `-p` is for the ports that Bittorrent peers connect to.  Ports and port
+ranges will always be used in the order you specified them in. It's okay to
+specify more ports than needed. Non-sequential example:
+`20001,20005,12300-12305,20100`
 
-    echo 3 > red-count.txt
-
-Generate the Compose file for RED Transmission instances.
-
-    ./generate-compose -n "$(< red-count.txt)" -c red.config.yaml -t red.template.yaml > red-transmission.yaml
+    ./generate-compose -n 3 -c red.config.yaml -t red.template.yaml \
+    	-r 9001-9200 -p 20001-20200 >red-transmission.yaml
 
 Manually create the Transmission management network.
 
