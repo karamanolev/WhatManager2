@@ -77,7 +77,7 @@ trans_red_1, trans_red_2, trans_red_3) to their IP address. These Transmission
 instances are independent from the WhatManager stack and will have their own
 Compose file.
 
-Go to the `transmission` directory and edit `red.config.yaml`.  All
+Go to the `transmission` directory and edit `red-config.yaml`.  All
 [Transmission options](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files#options)
 are configurable as environment variables by uppercasing them, replacing dashes
 with underscores and prepending them with `TR_`, as seen in the YAML file.
@@ -96,8 +96,8 @@ ranges will always be used in the order you specified them in. It's okay to
 specify more ports than needed. Non-sequential example:
 `20001,20005,12300-12305,20100`
 
-    ./generate-compose -n 3 -c red.config.yaml -t red.template.yaml \
-    	-r 9001-9200 -p 20001-20200 >red-transmission.yaml
+    ./generate-compose -n 3 -c red-config.yaml -t red-template.yaml \
+    	-r 9001-9200 -p 20001-20200 >red.yaml
 
 Manually create the Transmission management network.
 
@@ -105,7 +105,20 @@ Manually create the Transmission management network.
 
 Start up the instances for testing.
 
-    docker-compose -p trans -f red-transmission.yaml up -d
+    docker-compose -p trans -f red.yaml up -d
+
+This creates 3 containers: `trans_red_1`, `trans_red_2`, `trans_red_3`, each
+with its own data volume.
+
+The instances can later be destroyed like this.
+
+    docker-compose -p trans -f red.yaml down
+
+Persistent data related to torrents is not harmed by this, everything will
+continue as normal the next time you bring up the stack. Be aware that settings
+you alter manually on the running instances may get overwritten the next time
+the instances are brought up. It's best to use `red-config.yaml` to store all
+settings.
 
 `transmission-remote-gtk` can be set up to connect to the daemons and verify
 they're working. Also, the current way to delete torrents from WhatManager is
@@ -116,7 +129,7 @@ to remove them from Transmission, so setting this up will come in handy later.
 3. Host: localhost
 4. Port: e.g. 9001
 5. Username: transmission
-6. Password: `TRPASSWD`'s value from the `red.config.yaml` file
+6. Password: `TRPASSWD`'s value from the `red-config.yaml` file
 
 Click on "Connect", in the statusbar you should see "Connected: red_1".  Repeat
 for the other clients, create a new profile for each of them in Transmission
