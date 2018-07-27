@@ -139,9 +139,9 @@ def delete_torrent(request, what_id):
     if not t_torrent:
         return HttpResponse('Could not find that torrent.')
 
-    # Removes torrent from transmission
-    # TODO: Still need to delete directory / data
-    # Does WM db need to sync to notice the change?
     t_torrent.instance.client().remove_torrent(t_torrent.info_hash)
-    WhatTorrent.objects.get(info_hash=t_torrent.info_hash).delete()
+    try:
+        WhatTorrent.objects.get(info_hash=t_torrent.info_hash).delete()
+    except DoesNotExist:
+        pass
     shutil.rmtree(t_torrent.path)
