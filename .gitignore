@@ -65,3 +65,4 @@ transmission-*/*
 
 # Vagrant
 .vagrant
+python2.7
