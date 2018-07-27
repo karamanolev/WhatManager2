@@ -1,5 +1,6 @@
 import StringIO
 import os
+import shutil
 import zipfile
 
 from django.contrib.auth.decorators import login_required, permission_required
@@ -9,7 +10,7 @@ from django.template.defaultfilters import filesizeformat
 
 from WhatManager2.utils import build_url, get_user_token, auth_username_token
 from bibliotik.models import BibliotikTransTorrent
-from home.models import TransTorrent, ReplicaSet, LogEntry
+from home.models import TransTorrent, WhatTorrent, ReplicaSet, LogEntry
 from player.player_utils import get_playlist_files
 
 
@@ -125,3 +126,22 @@ def download_pls(request, playlist_path):
                                        playlist_name + '.pls"')
     response['Content-Type'] = 'audio/x-scpls'
     return response
+
+@login_required
+@permission_required('home.delete_whattorrent', raise_exception=True)
+def delete_torrent(request, what_id):
+    t_torrent = None
+    for instance in ReplicaSet.get_what_master().transinstance_set.all():
+        try:
+            t_torrent = TransTorrent.objects.get(instance=instance, what_torrent_id=what_id)
+        except TransTorrent.DoesNotExist:
+            pass
+    if not t_torrent:
+        return HttpResponse('Could not find that torrent.')
+
+    # Removes torrent from transmission
+    # TODO: Still need to delete directory / data
+    # Does WM db need to sync to notice the change?
+    t_torrent.instance.client().remove_torrent(t_torrent.info_hash)
+    WhatTorrent.objects.get(info_hash=t_torrent.info_hash).delete()
+    shutil.rmtree(t_torrent.path)
