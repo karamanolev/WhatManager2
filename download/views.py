@@ -139,9 +139,8 @@ def delete_torrent(request, what_id):
     if not t_torrent:
         return HttpResponse('Could not find that torrent.')
 
+    path = t_torrent.path
+    WhatTorrent.objects.get(info_hash=t_torrent.info_hash).delete()
     t_torrent.instance.client.remove_torrent(t_torrent.info_hash)
-    try:
-        WhatTorrent.objects.get(info_hash=t_torrent.info_hash).delete()
-    except DoesNotExist:
-        pass
-    shutil.rmtree(t_torrent.path)
+    shutil.rmtree(path)
+    return redirect('home.views.torrents')
