@@ -65,3 +65,6 @@ transmission-*/*
 
 # Vagrant
 .vagrant
+python2.7
+.venv/share
+pip-selfcheck.json
