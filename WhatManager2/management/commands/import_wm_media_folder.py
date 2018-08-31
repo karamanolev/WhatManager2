@@ -23,6 +23,7 @@ def safe_makedirs(p):
 
 
 class Command(BaseCommand):
+    args = '<wm_media>'
     help = u'Scans previous WM media folder and imports available torrents + data'
 
     def __init__(self):
@@ -44,6 +45,7 @@ class Command(BaseCommand):
             return False
         if not os.path.isdir(args[0]):
             return False
+        return True
 
     def get_unicode_torrent_files(self):
         files = []
@@ -70,8 +72,12 @@ class Command(BaseCommand):
                 return False
         print u'Creating destination directory...'
         self.dest_path = os.path.join(self.download_location.path, unicode(self.what_torrent.id))
-        os.makedirs(wm_str(self.dest_path))
-        os.chmod(self.dest_path, 0777)
+        try:
+            os.makedirs(wm_str(self.dest_path))
+            os.chmod(self.dest_path, 0777)
+        except:
+            print u'Error: Could not create destination directory "{}"'.format(self.dest_path)
+            return False
         if 'files' in self.torrent_info['info']:
             self.dest_path = os.path.join(self.dest_path, wm_unicode(
                 self.torrent_info['info']['name']))
@@ -93,9 +99,10 @@ class Command(BaseCommand):
                 self.torrent_info['info']['name']))
             safe_makedirs(os.path.dirname(f_dest_path))
             shutil.move(wm_str(f_path), wm_str(f_dest_path))
-        print u'..Success! Moving data directory to "imported" folder..'
+        print u'Moving old data directory to "imported" folder..'
         safe_makedirs(os.path.dirname(os.path.join(self.wm_media, 'imported')))
-        shutil.move(wm_str(self.data_path), os.path.join(self.wm_media, 'imported', self.base_dir))
+        shutil.move(os.path.join(self.wm_media, self.base_dir), os.path.join(
+            self.wm_media, 'imported', self.base_dir))
 
     def handle(self, *args, **options):
         if not self.check_args(args):
@@ -116,6 +123,8 @@ class Command(BaseCommand):
                 print u'Error: No torrent files found in "{}". Skipping..'.format(self.data_path)
                 continue
             self.torrent_path = wm_unicode(glob(os.path.join(self.data_path, '*.torrent'))[0])
+
+            print u'Found torrent! [{}]'.format(self.torrent_path)
 
             with open(wm_str(self.torrent_path), 'rb') as f:
                 try:
