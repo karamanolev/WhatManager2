@@ -29,7 +29,7 @@ class Command(BaseCommand):
     def __init__(self):
         super(Command, self).__init__()
         self.pseudo_request = lambda: None
-        self.trans_instance = ReplicaSet.get_what_master().get_preferred_instance()
+        self.trans_instance = None
         self.download_location = DownloadLocation.get_what_preferred()
         self.wm_media = None
         self.data_path = None
@@ -149,6 +149,7 @@ class Command(BaseCommand):
                 continue
             self.move_files()
             print u'Adding torrent to WM...'
+            self.trans_instance = ReplicaSet.get_what_master().get_preferred_instance()
             manage_torrent.add_torrent(self.pseudo_request, self.trans_instance,
                                     self.download_location, self.what_torrent.id)
             print u'Done!'
