@@ -1,6 +1,5 @@
 from optparse import make_option
 from glob import glob
-import hashlib
 import os
 import os.path
 import errno
@@ -8,11 +7,12 @@ import shutil
 
 import bencode
 from django.core.management.base import BaseCommand
+from django.db.utils import OperationalError
 
 from WhatManager2 import manage_torrent
 from WhatManager2.utils import wm_unicode, wm_str
-from home.models import WhatTorrent, DownloadLocation, ReplicaSet, TransTorrent
-
+from home.models import WhatTorrent, DownloadLocation, ReplicaSet, TransTorrent, RequestException
+from what_transcode.utils import get_info_hash
 
 def safe_makedirs(p):
     try:
@@ -31,14 +31,22 @@ class Command(BaseCommand):
         self.pseudo_request = lambda: None
         self.trans_instance = None
         self.download_location = DownloadLocation.get_what_preferred()
-        self.wm_media = None
-        self.data_path = None
-        self.base_dir = None
-        self.torrent_path = None
-        self.torrent_info = None
-        self.info_hash = None
-        self.dest_path = None
+        self.data_path = None # folder containing files listed in torrent file
+        self.torrent_path = None # path to torrent file
+        self.torrent_info = None # torrent data
+        self.torrent_id = None # torrent ID
+        self.info_hash = None # hash of torrent data
+        self.dest_path = None # path where transmission expects files to be
         self.what_torrent = None
+
+    def base_dir(self):
+        return os.path.join(self.wm_media, self.torrent_id)
+
+    def subfolder_move(self, subfolder, torrent_id):
+        s = wm_str(os.path.join(self.wm_media, torrent_id)) # source
+        d = wm_str(os.path.join(self.wm_media, subfolder, torrent_id)) # dest
+        safe_makedirs(os.path.dirname(d))
+        shutil.move(s, d)
 
     def check_args(self, args):
         if len(args) != 1:
@@ -100,52 +108,88 @@ class Command(BaseCommand):
             safe_makedirs(os.path.dirname(f_dest_path))
             shutil.move(wm_str(f_path), wm_str(f_dest_path))
         print u'Moving old data directory to "imported" folder..'
-        safe_makedirs(os.path.dirname(os.path.join(self.wm_media, 'imported')))
-        shutil.move(os.path.join(self.wm_media, self.base_dir), os.path.join(
-            self.wm_media, 'imported', self.base_dir))
+        self.subfolder_move('imported', self.torrent_id)  
 
     def handle(self, *args, **options):
         if not self.check_args(args):
             print u'Pass the directory containing your torrent directories from a previous WM' \
                   u' install. Subfolders of this directory should be named by torrent ID.'
             return
+
         self.wm_media = wm_unicode(args[0])
 
-        for self.base_dir in next(os.walk(self.wm_media))[1]:
-            self.data_path = wm_unicode(os.path.join(args[0], self.base_dir))
-            if not os.path.isdir(self.data_path):
-                print u'"{}" is not a valid directory. Skipping..'.format(self.data_path)
+        for self.torrent_id in next(os.walk(self.wm_media))[1]:
+            try:
+                if not os.path.isdir(self.base_dir()):
+                    print u'"{}" is not a valid directory. Skipping..'.format(self.base_dir())
+                    continue
+                torrents = []
+                for p in os.listdir(self.base_dir()):
+                    if p.endswith('.torrent'):
+                        torrents.append(p)
+                if len(torrents) > 0:
+                    for t in torrents:
+                        try:
+                            self.torrent_path = os.path.join(self.base_dir(), wm_unicode(torrents[0]))
+                            self.info_hash = get_info_hash(self.torrent_path)
+                            break
+                        except IOError:
+                            self.torrent_path = None
+                            self.info_hash = None
+                            pass
+                    if len(torrents) > 1:
+                        for t in torrents:
+                            try:
+                                if get_info_hash(t) != self.info_hash:
+                                    print(u'Error: Multiple unique torrent files found. Moving data and skipping..')
+                                    self.subfolder_move('multiple_torrent', self.torrent_id)  
+                                    torrents = None
+                                    break
+                            except IOError:
+                                continue
+                        if torrents == None:
+                            continue
+                else:
+                    if self.torrent_id.isdigit():
+                        print u'Error: No torrent files found in "{}". Moving data and skipping..'.format(self.base_dir())
+                        self.subfolder_move('no_torrents', self.torrent_id) 
+                    continue
+            except UnicodeDecodeError as e:
+                print u'UnicodeDecodeError: Please import manually. Skipping..'
                 continue
-            if len(glob(os.path.join(self.data_path, '*.torrent'))) > 1:
-                print u'Error: Multiple torrent files found in "{}". Skipping..'.format(self.data_path)
-                continue
-            elif len(glob(os.path.join(self.data_path, '*.torrent'))) < 1:
-                print u'Error: No torrent files found in "{}". Skipping..'.format(self.data_path)
-                continue
-            self.torrent_path = wm_unicode(glob(os.path.join(self.data_path, '*.torrent'))[0])
-
-            print u'Found torrent! [{}]'.format(self.torrent_path)
 
             with open(wm_str(self.torrent_path), 'rb') as f:
                 try:
                     self.torrent_info = bencode.bdecode(f.read())
-                    self.info_hash = hashlib.sha1(bencode.bencode(self.torrent_info['info'])).hexdigest().upper()
+                    self.info_hash = get_info_hash(self.torrent_path)
                 except:
-                    print u'Invalid torrent file. Skipping..'
+                    print u'Invalid torrent file. Moving data folder and skipping..'
+                    self.subfolder_move('invalid_torrent', self.torrent_id)
                     continue
-                self.data_path = os.path.join(self.data_path,
-                                            wm_unicode(self.torrent_info['info']['name']))
+                self.data_path = os.path.join(self.base_dir(), wm_unicode(self.torrent_info['info']['name']))
             print u'Checking to see if torrent is already loaded into WM..'
             masters = list(ReplicaSet.get_what_master().transinstance_set.all())
             try:
                 TransTorrent.objects.get(instance__in=masters, info_hash=self.info_hash)
-                print u'Torrent already added to WM. Skipping..'
+                print u'Torrent already added to WM. Moving data and skipping..'
+                self.subfolder_move('already_added', self.torrent_id)
                 continue
             except TransTorrent.DoesNotExist:
                 pass
-            self.what_torrent = WhatTorrent.get_or_create(self.pseudo_request, info_hash=self.info_hash)
+            try:
+                self.what_torrent = WhatTorrent.get_or_create(self.pseudo_request, info_hash=self.info_hash)
+            except RequestException as e:
+                if 'bad hash' in str(e):
+                    print u'Bad hash. Torrent may have been trumped/deleted. Moving data folder and skipping import..'.format(str(e))
+                    self.subfolder_move('bad_hash', self.torrent_id)
+                    continue
+                else:
+                    raise e
+            except OperationalError as e:
+                print u'{}. Skipping..'.format(str(e))
+                continue
             if not self.check_files():
-                print u'File check failed. Skipping..'
+                print u'File check failed. Skipping import..'
                 continue
             self.move_files()
             print u'Adding torrent to WM...'
