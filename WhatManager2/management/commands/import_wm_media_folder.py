@@ -24,8 +24,9 @@ def safe_makedirs(p):
 
 class Command(BaseCommand):
     args = '<wm_media>'
-    help = u'Scans previous WM media folder and imports available torrents + data'
-
+    help = u'Scans WM media folder from a previous installation and imports available torrents + data.'\
+           u' Sorts and groups errored torrents into folders for easy post-import fixing/debugging'
+            
     def __init__(self):
         super(Command, self).__init__()
         self.pseudo_request = lambda: None
@@ -117,7 +118,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if not self.check_args(args):
             print u'Pass the directory containing your torrent directories from a previous WM' \
-                  u' install. Subfolders of this directory should be named by torrent ID.'
+                  u' install. Subfolders of this directory should be named by torrent ID. After' \
+                  u' import, all errored torrent/data sets will be organized into subfolders for' \
+                  u' manual inspection/import.'
             return
 
         self.wm_media = wm_unicode(args[0])
