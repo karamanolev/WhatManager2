@@ -190,8 +190,12 @@ class Command(BaseCommand):
                 else:
                     raise e
             except OperationalError as e:
-                print u'{}. Skipping..'.format(str(e))
-                continue
+                if 'MySQL' in str(e):
+                    print u'{}. Please check {} manually. Moving data and skipping..'.format(str(e), self.torrent_id)
+                    self.subfolder_move('mysql_error', self.torrent_id)
+                    continue
+                else:
+                    raise e
             if not self.check_files():
                 print u'File check failed. Moving data and skipping import..'
                 try:
