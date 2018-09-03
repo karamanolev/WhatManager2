@@ -46,7 +46,11 @@ class Command(BaseCommand):
         s = wm_str(os.path.join(self.wm_media, torrent_id)) # source
         d = wm_str(os.path.join(self.wm_media, subfolder, torrent_id)) # dest
         safe_makedirs(os.path.dirname(d))
-        shutil.move(s, d)
+        try:
+            shutil.move(s, d)
+        except Exception as e:
+            shutil.rmtree(d)
+            raise e
 
     def check_args(self, args):
         if len(args) != 1:
@@ -189,7 +193,11 @@ class Command(BaseCommand):
                 print u'{}. Skipping..'.format(str(e))
                 continue
             if not self.check_files():
-                print u'File check failed. Skipping import..'
+                print u'File check failed. Moving data and skipping import..'
+                try:
+                    self.subfolder_move('file_check_fail', self.torrent_id)
+                except UnicodeDecodeError as e:
+                    print u'UnicodeDecodeError. Move failed. Please manually check {} Skipping..'.format(self.torrent_id)
                 continue
             self.move_files()
             print u'Adding torrent to WM...'
