@@ -6,6 +6,7 @@ import errno
 import shutil
 
 import bencode
+from bencode.BTL import BTFailure
 from django.core.management.base import BaseCommand
 from django.db.utils import OperationalError
 
@@ -40,7 +41,6 @@ class Command(BaseCommand):
         self.trans_instance = None
         self.download_location = DownloadLocation.get_what_preferred()
         self.data_path = None # folder containing files listed in torrent file
-        self.torrent_path = None # path to torrent file
         self.torrent_info = None # torrent data
         self.torrent_id = None # torrent ID
         self.info_hash = None # hash of torrent data
@@ -140,48 +140,48 @@ class Command(BaseCommand):
 
         for self.torrent_id in next(os.walk(self.wm_media))[1]:
             try:
+                # Is this actually a directory?
                 if not os.path.isdir(self.base_dir()):
                     print u'"{}" is not a valid directory. Skipping..'.format(self.base_dir())
                     continue
+
+                # Get all torrents
                 torrents = []
+                hashes = []
                 for p in os.listdir(self.base_dir()):
-                    if p.endswith('.torrent'):
-                        torrents.append(p)
-                if len(torrents) > 0:
-                    for t in torrents:
+                    if p.endswith('.torrent') and not p.startswith('._'):
                         try:
-                            self.torrent_path = os.path.join(self.base_dir(), wm_unicode(torrents[0]))
-                            self.info_hash = get_info_hash(self.torrent_path)
-                            break
+                            p = os.path.join(self.base_dir(), wm_unicode(p))
+                            hashes.append(get_info_hash(p))
+                            torrents.append(p)
                         except IOError:
-                            self.torrent_path = None
-                            self.info_hash = None
-                            pass
-                    if len(torrents) > 1:
-                        for t in torrents:
-                            try:
-                                if get_info_hash(t) != self.info_hash:
-                                    print(u'Error: Multiple unique torrent files found.')
-                                    self.subfolder_move('multiple_torrent', self.torrent_id)  
-                                    torrents = None
-                                    break
-                            except IOError:
-                                continue
-                        if torrents == None:
+                            print('Warning: Invalid torrent found in {}'.format(self.torrent_id))
                             continue
-                else:
+                        except  BTFailure as e:
+                            print('Warning: {}. Invalid torrent found in {}'.format(str(e), self.torrent_id))
+                            continue
+    
+                # Are there any valid torrents?
+                if len(torrents) == 0:
                     if self.torrent_id.isdigit():
-                        print u'Error: No torrent files found in "{}".'.format(self.base_dir())
-                        self.subfolder_move('no_torrents', self.torrent_id) 
+                        print u'Error: No valid torrent files found in "{}".'.format(self.base_dir())
+                        self.subfolder_move('no_torrents', self.torrent_id)
                     continue
+
+                # Are there multiple unique torrents?
+                if len(set(hashes)) > 1:
+                    print u'Error: Multiple unique torrents found'
+                    self.subfolder_move('multiple_torrent', self.torrent_id)
+                    continue
+
             except UnicodeDecodeError as e:
                 print u'UnicodeDecodeError: Please import manually. Skipping..'
                 continue
 
-            with open(wm_str(self.torrent_path), 'rb') as f:
+            with open(wm_str(torrents[0]), 'rb') as f:
                 try:
                     self.torrent_info = bencode.bdecode(f.read())
-                    self.info_hash = get_info_hash(self.torrent_path)
+                    self.info_hash = get_info_hash(torrents[0])
                 except:
                     print u'Error: Invalid torrent file.'
                     self.subfolder_move('invalid_torrent', self.torrent_id)
