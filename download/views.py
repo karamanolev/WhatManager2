@@ -5,7 +5,7 @@ import zipfile
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http.response import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template.defaultfilters import filesizeformat
 
 from WhatManager2.utils import build_url, get_user_token, auth_username_token
