@@ -7,6 +7,9 @@ import hmac
 import ujson
 import re
 import urllib
+import stat
+import os
+import errno
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -210,3 +213,13 @@ def read_text(path):
 def write_text(path, text):
     with open(path, 'wb') as f:
         f.write(text)
+
+def attemptFixPermissions(func, path, exc):
+    excvalue = exc[1]
+    if func in (os.rmdir, os.remove) and excvalue.errno == errno.EACCES:
+        # change the file to be readable,writable,executable: 0777
+        os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)  
+        # retry
+        func(path)
+    else:
+        raise exc[1]
