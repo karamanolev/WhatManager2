@@ -144,7 +144,7 @@ def delete_torrent(request, what_id):
     WhatTorrent.objects.get(info_hash=t_torrent.info_hash).delete()
     t_torrent.instance.client.remove_torrent(t_torrent.info_hash)
     try:
-        shutil.rmtree("/mnt/redmanager/testing", onerror=attemptFixPermissions)
+        shutil.rmtree(path, onerror=attemptFixPermissions)
         return redirect('home.views.torrents')
     except OSError as e:
         if e.errno == errno.EPERM: # Operation not permitted
