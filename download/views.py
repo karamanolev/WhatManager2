@@ -2,13 +2,14 @@ import StringIO
 import os
 import shutil
 import zipfile
+import errno
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http.response import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template.defaultfilters import filesizeformat
 
-from WhatManager2.utils import build_url, get_user_token, auth_username_token
+from WhatManager2.utils import build_url, get_user_token, auth_username_token, wm_str, attemptFixPermissions
 from bibliotik.models import BibliotikTransTorrent
 from home.models import TransTorrent, WhatTorrent, ReplicaSet, LogEntry
 from player.player_utils import get_playlist_files
@@ -139,8 +140,16 @@ def delete_torrent(request, what_id):
     if not t_torrent:
         return HttpResponse('Could not find that torrent.')
 
-    path = t_torrent.path
+    path = wm_str(t_torrent.path) # Save this because t_torrent won't exist before rmtree is called
     WhatTorrent.objects.get(info_hash=t_torrent.info_hash).delete()
     t_torrent.instance.client.remove_torrent(t_torrent.info_hash)
-    shutil.rmtree(path)
-    return redirect('home.views.torrents')
+    try:
+        shutil.rmtree(path, onerror=attemptFixPermissions)
+        return redirect('home.views.torrents')
+    except OSError as e:
+        if e.errno == errno.EPERM: # Operation not permitted
+            return HttpResponse('Error removing folder "{}". Permission denied. Please remove folder '
+                                'manually. The torrent and database entry has been successfully removed '
+                                'from Transmission and WM.'.format(path))
+        else:
+            raise e
