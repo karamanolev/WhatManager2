@@ -9,7 +9,7 @@ from WhatManager2.settings import MIN_FREE_DISK_SPACE, MIN_WHAT_RATIO
 from WhatManager2.templatetags.custom_filters import filesizeformat
 from WhatManager2.utils import json_return_method, html_unescape, get_artists
 from home.models import DownloadLocation, LogEntry, ReplicaSet, WhatTorrent, get_what_client
-from queue.models import QueueItem, filter_group, filter_torrent, is_existing
+from wmqueue.models import QueueItem, filter_group, filter_torrent, is_existing
 from what_profile.models import WhatUserSnapshot
 
 
