@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+
 import logging
 import os
 import os.path
@@ -35,10 +35,10 @@ class SpectralManager(object):
         basename = os.path.splitext(track.filename)[0]
         return (
             (
-                os.path.join(self.spectrals_dir, u'{0}.full.png'.format(basename)),
-                os.path.join(self.spectrals_dir, u'{0}.zoom.png'.format(basename)),
+                os.path.join(self.spectrals_dir, '{0}.full.png'.format(basename)),
+                os.path.join(self.spectrals_dir, '{0}.zoom.png'.format(basename)),
             ),
-            os.path.join(self.spectrals_dir, u'{0}.png'.format(basename))
+            os.path.join(self.spectrals_dir, '{0}.png'.format(basename))
         )
 
     def _generate_temp_spectral(self, track, filenames):
@@ -78,7 +78,7 @@ class SpectralManager(object):
 
     @staticmethod
     def _merge_spectrals(paths, dest_path):
-        images = map(Image.open, [q_enc(p) for p in paths])
+        images = list(map(Image.open, [q_enc(p) for p in paths]))
         try:
             result_width = max(i.size[0] for i in images)
             result_height = sum(i.size[1] for i in images)

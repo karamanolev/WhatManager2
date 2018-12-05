@@ -85,7 +85,7 @@ def download_torrent_group(request, group_id):
     except Exception as ex:
         return {
             'success': False,
-            'error': unicode(ex),
+            'error': str(ex),
             'traceback': traceback.format_exc(),
         }
     return {
@@ -116,7 +116,7 @@ def random_torrent_groups(request):
         'rand': 'RAND()'
     }, order_by=['rand']).values_list('id', flat=True)[:count])
     torrent_groups = WhatTorrentGroup.objects.in_bulk(torrent_group_ids)
-    return [get_torrent_group_dict(g) for g in torrent_groups.itervalues()]
+    return [get_torrent_group_dict(g) for g in torrent_groups.values()]
 
 
 @login_required

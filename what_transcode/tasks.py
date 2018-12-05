@@ -1,7 +1,8 @@
-from __future__ import unicode_literals
+
 
 import sys
-reload( sys )
+import imp
+imp.reload( sys )
 sys.setdefaultencoding( 'utf-8' )
 
 import os
@@ -70,7 +71,7 @@ class TranscodeSingleJob(object):
         self.new_torrent_info_hash = None
 
     def create_torrent(self):
-        print 'Creating .torrent file...'
+        print('Creating .torrent file...')
         args = [
             '-a', WHAT_ANNOUNCE,
             '-p',
@@ -88,7 +89,7 @@ class TranscodeSingleJob(object):
 
     def _add_to_wm(self):
         new_id = self.new_torrent['torrent']['id']
-        print 'Adding {0} to wm'.format(new_id)
+        print('Adding {0} to wm'.format(new_id))
         post_data = {
             'id': new_id,
             'tags': 'my',
@@ -106,7 +107,7 @@ class TranscodeSingleJob(object):
                 self._add_to_wm()
                 return
             except Exception:
-                print 'Error adding to wm, trying again in 5 sec...'
+                print('Error adding to wm, trying again in 5 sec...')
                 time.sleep(5)
         self._add_to_wm()
 
@@ -131,7 +132,7 @@ class TranscodeSingleJob(object):
         self.new_torrent = safe_retrieve_new_torrent(self.what, info_hash)
 
     def move_torrent_to_dest(self):
-        print 'Moving data to target location'
+        print('Moving data to target location')
 
         os.remove(self.torrent_file_path)
 
@@ -144,7 +145,7 @@ class TranscodeSingleJob(object):
             raise Exception('Dest torrent directory already exists.')
         shutil.move(self.torrent_temp_dir, dest_path)
 
-        recursive_chmod(dest_path, 0777)
+        recursive_chmod(dest_path, 0o777)
 
     @cached_property
     def directory_name(self):
@@ -172,7 +173,7 @@ class TranscodeSingleJob(object):
 
     def upload_torrent(self):
         torrent = self.what_torrent
-        print 'Sending request for upload to Redacted'
+        print('Sending request for upload to Redacted')
 
         payload_files = dict()
         payload_files['file_input'] = ('torrent.torrent', open(self.torrent_file_path, 'rb'))
@@ -233,13 +234,13 @@ class TranscodeSingleJob(object):
         dest_path = os.path.join(self.torrent_temp_dir, dest_rel_path)
 
         try:
-            os.makedirs(os.path.dirname(dest_path), 0777)
+            os.makedirs(os.path.dirname(dest_path), 0o777)
         except OSError:
             pass
-        os.chmod(os.path.dirname(dest_path), 0777)
+        os.chmod(os.path.dirname(dest_path), 0o777)
 
         shutil.copyfile(source_path, dest_path)
-        os.chmod(dest_path, 0777)
+        os.chmod(dest_path, 0o777)
 
     def transcode_flac(self, source_path):
         num_channels = get_channels_number(source_path)
@@ -254,9 +255,9 @@ class TranscodeSingleJob(object):
         dest_path = os.path.join(self.torrent_temp_dir, dest_rel_path)
         dest_path = os.path.join(os.path.dirname(dest_path),
                                  fix_pathname(os.path.basename(dest_path)))
-        print 'Transcode'
-        print ' ', source_path
-        print ' ', dest_path
+        print('Transcode')
+        print(' ', source_path)
+        print(' ', dest_path)
         transcode_file(source_path, dest_path, self.what_torrent['torrent']['media'], self.bitrate)
 
     def transcode_torrent(self):
@@ -286,8 +287,8 @@ class TranscodeSingleJob(object):
         if (len(flac_paths) <= 1) and (self.what_torrent['group']['releaseType'] != 9) and \
                 (self.what_torrent['group']['releaseType'] != 13):  # 9 is Single, # 13 is Remix
             if self.force_warnings:
-                print 'Warning: This is a single audio file torrent that is not a single or a ' \
-                      'remix in Redacted. Will not transcode.'
+                print('Warning: This is a single audio file torrent that is not a single or a ' \
+                      'remix in Redacted. Will not transcode.')
             else:
                 raise Exception('This is a single audio file torrent that is not a single or a '
                                 'remix in Redacted. Will not transcode.')
@@ -322,7 +323,7 @@ class TranscodeJob(object):
         self.force_320 = False
 
     def report_progress(self, progress):
-        print 'Progress: {0}'.format(progress)
+        print('Progress: {0}'.format(progress))
         if self.celery_task:
             self.celery_task.update_state(state='PROGRESS', meta={'status_message': progress})
 
@@ -355,7 +356,7 @@ class TranscodeJob(object):
                 pass
 
     def transcode_upload_lossless(self, temp_dir):
-        print 'Will transcode {0}'.format(self.what_id)
+        print('Will transcode {0}'.format(self.what_id))
 
         self.what_torrent = self.what.request('torrent', id=self.what_id)['response']
         what_group_id = self.what_torrent['group']['id']
@@ -383,7 +384,7 @@ class TranscodeJob(object):
                                                 bitrate, transcoder_temp_dir=temp_dir)
                 single_job.force_warnings = self.force_warnings
                 single_job.run()
-                print 'Uploaded {0}'.format(bitrate.upper())
+                print('Uploaded {0}'.format(bitrate.upper()))
 
 
 @task(bind=True, track_started=True)

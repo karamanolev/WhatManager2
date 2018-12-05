@@ -1,4 +1,4 @@
-import StringIO
+import io
 import os
 import shutil
 import zipfile
@@ -16,7 +16,7 @@ from player.player_utils import get_playlist_files
 
 
 def download_zip_handler(download_filename, paths):
-    buffer = StringIO.StringIO()
+    buffer = io.StringIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_STORED, True) as zip:
         for rel_path, file in paths:
             zip.write(file, rel_path, zipfile.ZIP_STORED)
@@ -63,10 +63,10 @@ def download_zip(request, what_id):
                 rel_path = os.path.join(rel_path.encode('utf-8'), file)
                 torrent_files.append((rel_path, os.path.join(root, file)))
 
-    download_filename = u'[{0}] {1}.zip'.format(what_id, torrent_file).encode('utf-8')
+    download_filename = '[{0}] {1}.zip'.format(what_id, torrent_file).encode('utf-8')
 
     response = download_zip_handler(download_filename, torrent_files)
-    LogEntry.add(request.user, u'action', u'Downloaded {0} - {1}'.format(
+    LogEntry.add(request.user, 'action', 'Downloaded {0} - {1}'.format(
         t_torrent, filesizeformat(response['Content-Length'])
     ))
     return response
@@ -95,10 +95,10 @@ def download_bibliotik_zip(request, bibliotik_id):
             rel_path = os.path.join(rel_path.encode('utf-8'), file)
             torrent_files.append((rel_path, os.path.join(root, file)))
 
-    download_filename = u'[{0}] {1}.zip'.format(bibliotik_id, b_torrent.torrent_name)
+    download_filename = '[{0}] {1}.zip'.format(bibliotik_id, b_torrent.torrent_name)
 
     response = download_zip_handler(download_filename, torrent_files)
-    LogEntry.add(request.user, u'action', u'Downloaded {0} - {1}'
+    LogEntry.add(request.user, 'action', 'Downloaded {0} - {1}'
                  .format(b_torrent, filesizeformat(response['Content-Length'])))
     return response
 

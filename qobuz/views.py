@@ -116,7 +116,7 @@ def upload_cover_to_whatimg(request, upload_id):
 
 
 def _add_to_wm_transcode(what_id):
-    print 'Adding {0} to wm'.format(what_id)
+    print('Adding {0} to wm'.format(what_id))
     post_data = {
         'what_id': what_id,
     }
@@ -133,7 +133,7 @@ def add_to_wm_transcode(what_id):
             _add_to_wm_transcode(what_id)
             return
         except Exception:
-            print 'Error adding to wm, trying again in 2 sec...'
+            print('Error adding to wm, trying again in 2 sec...')
             time.sleep(3)
     _add_to_wm_transcode(what_id)
 
@@ -143,7 +143,7 @@ def start_seeding(request, upload_id):
     qobuz_upload = QobuzUpload.objects.get(id=upload_id)
     dest_upload_dir = DownloadLocation.get_what_preferred().path
     torrent_file_path = os.path.join(qobuz_upload.temp_media_path,
-                                     qobuz_upload.torrent_name + u'.torrent')
+                                     qobuz_upload.torrent_name + '.torrent')
     info_hash = get_info_hash(torrent_file_path)
     what_torrent = WhatTorrent.get_or_create(request, info_hash=info_hash)
     qobuz_upload.what_torrent = what_torrent
@@ -155,7 +155,7 @@ def start_seeding(request, upload_id):
         os.makedirs(wm_str(dest_path))
     except OSError:
         raise Exception('Dest torrent directory already exists.')
-    os.chmod(wm_str(dest_path), 0777)
+    os.chmod(wm_str(dest_path), 0o777)
     shutil.move(wm_str(qobuz_upload.temp_media_path), wm_str(dest_path))
     add_to_wm_transcode(str(what_torrent.id))
     return redirect(edit_upload, upload_id)

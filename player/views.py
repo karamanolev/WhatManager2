@@ -47,7 +47,7 @@ def get_file(request):
     response['Content-Length'] = os.path.getsize(path.encode('utf-8'))
 
     if request.method == 'HEAD':
-        print 'head'
+        print('head')
         return response
 
     file = open(path.encode('utf-8'), 'rb')

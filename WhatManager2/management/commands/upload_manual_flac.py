@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import unicode_literals
+
 import time
 
 from django.core.management.base import BaseCommand
@@ -14,7 +14,7 @@ from what_transcode.tasks import TranscodeSingleJob
 
 
 def _add_to_wm_transcode(what_id):
-    print 'Adding {0} to wm'.format(what_id)
+    print('Adding {0} to wm'.format(what_id))
     post_data = {
         'what_id': what_id,
     }
@@ -31,13 +31,13 @@ def add_to_wm_transcode(what_id):
             _add_to_wm_transcode(what_id)
             return
         except Exception:
-            print 'Error adding to wm, trying again in 2 sec...'
+            print('Error adding to wm, trying again in 2 sec...')
             time.sleep(3)
     _add_to_wm_transcode(what_id)
 
 
 def report_progress(msg):
-    print msg
+    print(msg)
 
 
 class Command(BaseCommand):
@@ -45,7 +45,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if len(args) != 1:
-            print u'Pass only the source directory.'
+            print('Pass only the source directory.')
             return 1
         source_dir = wm_unicode(args[0])
         if source_dir.endswith('/'):
@@ -54,6 +54,6 @@ class Command(BaseCommand):
         what = get_what_client(lambda: None)
         job = TranscodeSingleJob(what, None, report_progress, None, None, source_dir)
         job.create_torrent()
-        raw_input('Please upload the torrent and press enter...')
+        input('Please upload the torrent and press enter...')
         job.move_torrent_to_dest()
         add_to_wm_transcode(job.new_torrent['torrent']['id'])

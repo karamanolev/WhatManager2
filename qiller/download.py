@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+
 from contextlib import closing
 import logging
 import os

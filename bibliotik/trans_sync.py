@@ -12,7 +12,7 @@ def sync_instance_db(instance):
     b_torrents = instance.get_b_torrents_by_hash()
     t_torrents = instance.get_t_torrents_by_hash(BibliotikTransTorrent.sync_t_arguments)
 
-    for c_hash, b_torrent in b_torrents.items():
+    for c_hash, b_torrent in list(b_torrents.items()):
         if c_hash not in t_torrents:
             b_torrent_path = b_torrent.path.encode('utf-8')
 
@@ -25,19 +25,19 @@ def sync_instance_db(instance):
                     if os.path.exists(b_torrent_path):
                         files = os.listdir(b_torrent_path)
                         if len(files):
-                            messages.append(u'There are other files so leaving in place.')
+                            messages.append('There are other files so leaving in place.')
                         else:
-                            messages.append(u'No other files. Deleting directory.')
+                            messages.append('No other files. Deleting directory.')
                             os.rmdir(b_torrent_path)
                     else:
-                        messages.append(u'Path does not exist.')
+                        messages.append('Path does not exist.')
 
-            LogEntry.add(None, u'action',
-                         u'Bibliotik torrent {0} deleted from instance {1}. {2}'
+            LogEntry.add(None, 'action',
+                         'Bibliotik torrent {0} deleted from instance {1}. {2}'
                          .format(b_torrent, instance, ' '.join(messages)))
 
     with transaction.atomic():
-        for c_hash, t_torrent in t_torrents.items():
+        for c_hash, t_torrent in list(t_torrents.items()):
             if c_hash not in b_torrents:
                 torrent_id = int(os.path.basename(t_torrent.downloadDir))
                 w_torrent = BibliotikTorrent.get_or_create(None, torrent_id)
@@ -45,8 +45,8 @@ def sync_instance_db(instance):
                 m_torrent = manage_bibliotik.add_bibliotik_torrent(w_torrent.id, instance,
                                                                    d_location, None, False)
                 b_torrents[m_torrent.info_hash] = m_torrent
-                LogEntry.add(None, u'action',
-                             u'Bibliotik torrent {0} appeared in instance {1}.'
+                LogEntry.add(None, 'action',
+                             'Bibliotik torrent {0} appeared in instance {1}.'
                              .format(t_torrent.name, instance))
             else:
                 b_torrent = b_torrents[c_hash]
@@ -63,7 +63,7 @@ def init_sync_instance_db(instance):
     t_torrents = instance.get_t_torrents_by_hash(BibliotikTransTorrent.sync_t_arguments)
 
     with transaction.atomic():
-        for c_hash, t_torrent in t_torrents.items():
+        for c_hash, t_torrent in list(t_torrents.items()):
             if c_hash not in b_torrents:
                 try:
                     bibliotik_torrent = BibliotikTorrent.objects.get(info_hash=c_hash)
@@ -77,8 +77,8 @@ def init_sync_instance_db(instance):
                     )
                     b_torrents[b_torrent.info_hash] = b_torrent
                 except BibliotikTorrent.DoesNotExist:
-                    raise Exception(u'Could not find hash {0} for name {1} in '
-                                    u'DB during initial sync.'
+                    raise Exception('Could not find hash {0} for name {1} in '
+                                    'DB during initial sync.'
                                     .format(c_hash, t_torrent.name))
 
             b_torrent = b_torrents[c_hash]

@@ -1,4 +1,4 @@
-import HTMLParser
+import html.parser
 import hashlib
 import os
 import subprocess
@@ -25,7 +25,7 @@ def get_bit_depth(file_path):
 
 
 def html_unescape(value):
-    h = HTMLParser.HTMLParser()
+    h = html.parser.HTMLParser()
     return h.unescape(value)
 
 
@@ -114,22 +114,22 @@ def recursive_chmod(dest_path, mode):
 def check_flac_tags(flac_path):
     flac = FLAC(flac_path)
     if not flac.get('artist'):
-        raise Exception(u'Missing artist tag on {0}'.format(flac_path))
+        raise Exception('Missing artist tag on {0}'.format(flac_path))
     if not flac.get('album'):
-        raise Exception(u'Missing album tag on {0}'.format(flac_path))
+        raise Exception('Missing album tag on {0}'.format(flac_path))
     if not flac.get('title'):
-        raise Exception(u'Missing title tag on {0}'.format(flac_path))
+        raise Exception('Missing title tag on {0}'.format(flac_path))
 
     track = flac.get('tracknumber') or flac.get('track')
-    if type(track) in [str, unicode] and '/' in track:
+    if type(track) in [str, str] and '/' in track:
         track = track.split('/')
     if type(track) is list:
         track = track[0]
     if not track:
-        raise Exception(u'Missing track tag on {0}'.format(flac_path))
+        raise Exception('Missing track tag on {0}'.format(flac_path))
 
     disc = flac.get('discnumber') or flac.get('disc')
-    if type(disc) in [str, unicode] and '/' in disc:
+    if type(disc) in [str, str] and '/' in disc:
         disc = disc.split('/')
     if type(disc) is list:
         disc = disc[0]
@@ -151,7 +151,7 @@ def intify_tuple(t):
 
 
 def check_directory_tags_filenames(dir_path):
-    print 'Check tags in ', dir_path
+    print('Check tags in ', dir_path)
     flac_tracks = []
     for child in os.listdir(dir_path):
         child_path = os.path.join(dir_path, child)
@@ -164,7 +164,7 @@ def check_directory_tags_filenames(dir_path):
     flac_tracks = [(path, intify_tuple(track)) for path, track in flac_tracks]
 
     if sorted(flac_tracks, key=lambda x: x[0]) != sorted(flac_tracks, key=lambda x: x[1]):
-        print flac_tracks
+        print(flac_tracks)
         raise Exception('Filenames and track numbers do not sort the same way')
 
 
@@ -173,6 +173,6 @@ def safe_retrieve_new_torrent(what_client, info_hash):
         try:
             return what_client.request('torrent', hash=info_hash)['response']
         except Exception:
-            print 'Error retrieving new torrent, will try again in 10 sec...'
+            print('Error retrieving new torrent, will try again in 10 sec...')
             time.sleep(10)
     return what_client.request('torrent', hash=info_hash)['response']

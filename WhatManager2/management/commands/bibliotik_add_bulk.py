@@ -26,7 +26,7 @@ class Command(BaseCommand):
         for item in cache_items:
             t = BibliotikTorrent(id=item.id, html_page=item.body)
             try:
-                print 'Parsing', item.id
+                print('Parsing', item.id)
                 t.parse_html_page()
                 if t.category != 'Ebooks':
                     continue
@@ -34,11 +34,11 @@ class Command(BaseCommand):
                 #     continue
                 if t.bibliotiktranstorrent_set.count() > 0:
                     continue
-                print 'Will download:'
-                print ' {' + str(t.id) + '}', t.title
-                print t.torrent_size
+                print('Will download:')
+                print(' {' + str(t.id) + '}', t.title)
+                print(t.torrent_size)
                 manage_bibliotik.add_bibliotik_torrent(t.id, bibliotik_client=client)
-                print 'Added'
+                print('Added')
                 sleep(1.5)
             except AssertionError:
                 pass

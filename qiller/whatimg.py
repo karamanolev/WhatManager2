@@ -23,7 +23,7 @@ def upload_image_from_memory(username, password, album_id, data):
     }
     r = session.post('https://ptpimg.me/upload.php', files=files, data=payload)
     if r.status_code != requests.codes.ok:
-        raise Exception(u'Error during uploading: error code {0}'.format(r.status_code))
+        raise Exception('Error during uploading: error code {0}'.format(r.status_code))
     j = json.loads(r.text)
     link = 'https://ptpimg.me/{}.{}'.format(j[0]['code'], j[0]['ext'])
     return link

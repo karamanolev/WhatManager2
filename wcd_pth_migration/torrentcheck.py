@@ -29,7 +29,7 @@ def main():
     try:
         args = parser.parse_args()
         if not os.path.isdir(args.directory):
-            print '{} is not a directory'.format(args.directory)
+            print('{} is not a directory'.format(args.directory))
             return 2
         if args.delete or args.list_delete:
             cmd = delete_cmd
@@ -44,7 +44,7 @@ def main():
                     ok = cmd(info, torrent_path, args)
                 except Exception:
                     ok = False
-                    print '{}: ERROR'.format(torrent_path)
+                    print('{}: ERROR'.format(torrent_path))
                     if args.debug:
                         raise
                 all_ok = all_ok and ok
@@ -65,23 +65,23 @@ def delete_cmd(info, torrent_path, args):
             if p not in paths:
                 count += 1
                 if args.list_delete:
-                    print '{}: {}'.format(torrent_path, p)
+                    print('{}: {}'.format(torrent_path, p))
                 if args.delete:
                     os.unlink(p)
     if count == 0:
-        print '{}: OK'.format(torrent_path)
+        print('{}: OK'.format(torrent_path))
     else:
         verb = 'deleted' if args.delete else 'found'
-        print '{}: {} extra file(s) {}'.format(torrent_path, count, verb)
+        print('{}: {} extra file(s) {}'.format(torrent_path, count, verb))
     return True
 
 
 def verify_cmd(info, torrent_path, args):
     ok = verify(info, args.directory)
     if ok:
-        print '{}: OK'.format(torrent_path)
+        print('{}: OK'.format(torrent_path))
     else:
-        print '{}: FAILED'.format(torrent_path)
+        print('{}: FAILED'.format(torrent_path))
     return ok
 
 
@@ -120,8 +120,8 @@ def compare_checksum(info, f):
             yield hashlib.sha1(chunk).digest()
 
     calc = getchunks(f, info['piece length'])
-    ref = (pieces[i:i + 20] for i in xrange(0, len(pieces), 20))
-    for expected, actual in itertools.izip(calc, ref):
+    ref = (pieces[i:i + 20] for i in range(0, len(pieces), 20))
+    for expected, actual in zip(calc, ref):
         if expected != actual:
             return False
     return ensure_empty(calc) and ensure_empty(ref)

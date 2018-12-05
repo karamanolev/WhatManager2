@@ -1,5 +1,5 @@
 # Create your views here.
-from __future__ import unicode_literals
+
 import traceback
 
 from celery import states
@@ -247,7 +247,7 @@ def run_request_transcode(request, what_id):
                 log_user = request.user
             else:
                 log_user = None
-            LogEntry.add(log_user, u'action', u'Transcode What.CD user {0} added {1} to {2}'
+            LogEntry.add(log_user, 'action', 'Transcode What.CD user {0} added {1} to {2}'
                          .format(request_what_user, m_torrent, m_torrent.instance))
 
         return {
@@ -259,7 +259,7 @@ def run_request_transcode(request, what_id):
             current_user = request.user
         else:
             current_user = None
-        LogEntry.add(current_user, u'error', u'What user {0} tried adding what_id {1}. Error: {2}'
+        LogEntry.add(current_user, 'error', 'What user {0} tried adding what_id {1}. Error: {2}'
                      .format(request_what_user, what_id, ex), tb)
         return {
             'message': 'Error adding request: ' + str(ex)

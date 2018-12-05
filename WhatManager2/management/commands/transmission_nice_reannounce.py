@@ -37,7 +37,7 @@ class Command(BaseCommand):
 
     def reannounce_zone(self, replica_set):
         for instance in replica_set.transinstance_set.all():
-            print 'Reannouncing {0}'.format(instance)
+            print('Reannouncing {0}'.format(instance))
             client = instance.client
             torrents = client.get_torrents(arguments=[
                 'id', 'name', 'error', 'errorString', 'status', 'trackerStats'])
@@ -45,8 +45,8 @@ class Command(BaseCommand):
             batch_start = 0
             while batch_start < len(error_torrents):
                 batch = error_torrents[batch_start:batch_start + BATCH_SIZE]
-                print 'Processing batch from {0} to {1} / {2}'.format(
-                    batch_start, batch_start + len(batch), len(error_torrents))
+                print('Processing batch from {0} to {1} / {2}'.format(
+                    batch_start, batch_start + len(batch), len(error_torrents)))
                 batch_start += len(batch)
                 client.reannounce_torrent([t.id for t in batch])
                 time.sleep(self.sleep_time)
@@ -58,5 +58,5 @@ class Command(BaseCommand):
             self.reannounce_zone(master)
         else:
             for master in ReplicaSet.objects.filter(name='master'):
-                print 'Reannouncing zone {0}'.format(master.zone)
+                print('Reannouncing zone {0}'.format(master.zone))
                 self.reannounce_zone(master)

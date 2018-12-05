@@ -44,5 +44,5 @@ def refresh_whattorrent(what_client, what_torrent=None):
         'success': True,
         'id': what_torrent.id,
         'status': 'refreshed',
-        'retrieved': unicode(old_retrieved),
+        'retrieved': str(old_retrieved),
     }

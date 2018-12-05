@@ -1,4 +1,4 @@
-import HTMLParser
+import html.parser
 import base64
 from contextlib import contextmanager
 from functools import wraps
@@ -6,7 +6,7 @@ import hashlib
 import hmac
 import ujson
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import stat
 import os
 import errno
@@ -40,7 +40,7 @@ def json_return_method(fn):
 
 
 def html_unescape(data):
-    html_parser = HTMLParser.HTMLParser()
+    html_parser = html.parser.HTMLParser()
     return html_parser.unescape(data)
 
 
@@ -75,7 +75,7 @@ def build_url(*args, **kwargs):
     get = kwargs.pop('get', {})
     url = reverse(*args, **kwargs)
     if get:
-        url += '?' + urllib.urlencode(get)
+        url += '?' + urllib.parse.urlencode(get)
     return url
 
 
@@ -101,13 +101,13 @@ def auth_username_token(fn):
 def wm_unicode(s):
     if isinstance(s, str):
         return s.decode('utf-8')
-    elif isinstance(s, unicode):
+    elif isinstance(s, str):
         return s
     raise Exception('Unknown string type: {0}'.format(type(s)))
 
 
 def wm_str(s):
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         return s.encode('utf-8')
     elif isinstance(s, str):
         return s
@@ -124,22 +124,22 @@ class JoinedArtistsBuilder(object):
     def append_joined(self, join_string, artists):
         for a in artists:
             self.result.append({
-                u'id': a['id'],
-                u'name': a['name'],
-                u'join': join_string,
+                'id': a['id'],
+                'name': a['name'],
+                'join': join_string,
             })
         self.result[-1]['join'] = ''
 
     def append_artist(self, artist):
         self.result.append({
-            u'id': artist['id'],
-            u'name': html_unescape(artist['name']),
-            u'join': '',
+            'id': artist['id'],
+            'name': html_unescape(artist['name']),
+            'join': '',
         })
 
     def append_join(self, join_string):
-        assert not self.result[-1][u'join'], 'Last join should be empty before adding a new join'
-        self.result[-1][u'join'] = join_string
+        assert not self.result[-1]['join'], 'Last join should be empty before adding a new join'
+        self.result[-1]['join'] = join_string
 
     def clear(self):
         self.result = []
@@ -157,41 +157,41 @@ def get_artists_list(group):
     builder = JoinedArtistsBuilder()
 
     if len(a_composers) and len(a_composers) < 3:
-        builder.append_joined(u' & ', a_composers)
+        builder.append_joined(' & ', a_composers)
         if len(a_composers) < 3 and len(a_main) > 0:
-            builder.append_join(u' performed by ')
+            builder.append_join(' performed by ')
 
     composer_builder = JoinedArtistsBuilder(builder)
 
     if len(a_main):
         if len(a_main) <= 2:
-            builder.append_joined(u' & ', a_main)
+            builder.append_joined(' & ', a_main)
         else:
-            builder.append_artist({u'id': -1, u'name': u'Various Artists'})
+            builder.append_artist({'id': -1, 'name': 'Various Artists'})
 
     if len(a_conductors):
         if (len(a_main) or len(a_composers)) and (len(a_composers) < 3 or len(a_main)):
-            builder.append_join(u' under ')
+            builder.append_join(' under ')
         if len(a_conductors) <= 2:
-            builder.append_joined(u' & ', a_conductors)
+            builder.append_joined(' & ', a_conductors)
         else:
-            builder.append_artist({u'id': -1, u'name': u'Various Conductors'})
+            builder.append_artist({'id': -1, 'name': 'Various Conductors'})
 
     if len(a_composers) and len(a_main) + len(a_conductors) > 3 and len(a_main) > 1 and len(
             a_conductors) > 1:
         builder = composer_builder
-        builder.append_artist({u'id': -1, u'name': u'Various Artists'})
+        builder.append_artist({'id': -1, 'name': 'Various Artists'})
     elif len(a_composers) > 2 and len(a_main) + len(a_conductors) == 0:
         builder.clear()
-        builder.append_artist({u'id': -1, u'name': u'Various Composers'})
+        builder.append_artist({'id': -1, 'name': 'Various Composers'})
 
     if len(a_djs):
         if len(a_djs) <= 2:
             builder.clear()
-            builder.append_joined(u' & ', a_djs)
+            builder.append_joined(' & ', a_djs)
         else:
             builder.clear()
-            builder.append_artist({u'id': -1, u'name': u'Various DJs'})
+            builder.append_artist({'id': -1, 'name': 'Various DJs'})
 
     return builder.result
 
@@ -202,7 +202,7 @@ def get_artists(group):
     for a in artists_list:
         result.append(a['name'])
         result.append(a['join'])
-    return u''.join(result)
+    return ''.join(result)
 
 
 def read_text(path):

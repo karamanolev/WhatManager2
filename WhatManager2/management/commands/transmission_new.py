@@ -12,14 +12,14 @@ from home import models
 
 class Command(BaseCommand):
     option_list = transmission_provision.Command.option_list
-    args = u'<zone_name>'
-    help = u'Provisions transmission instances'
+    args = '<zone_name>'
+    help = 'Provisions transmission instances'
 
     def handle(self, *args, **options):
         apply_options(options)
         ensure_root()
         if len(args) != 1:
-            print u'Pass only the zone name.'
+            print('Pass only the zone name.')
             return 1
         zone = args[0]
         ensure_replica_sets_exist()
@@ -41,7 +41,7 @@ class Command(BaseCommand):
                 raise Exception('Unknown zone')
             old_instance = models.TransInstance(
                 replica_set=replica_set,
-                name=u'{0}00'.format(replica_set.zone
+                name='{0}00'.format(replica_set.zone
                                      .replace('.cd', '')
                                      .replace('.org', '')
                                      .replace('.net', '')
@@ -55,22 +55,22 @@ class Command(BaseCommand):
             )
         new_instance = models.TransInstance(
             replica_set=old_instance.replica_set,
-            name=u'{0}{1:02}'.format(old_instance.name[:-2], int(old_instance.name[-2:]) + 1),
+            name='{0}{1:02}'.format(old_instance.name[:-2], int(old_instance.name[-2:]) + 1),
             host=old_instance.host,
             port=old_instance.port + 1,
             peer_port=old_instance.peer_port + 1,
             username=old_instance.username,
             password=settings.TRANSMISSION_PASSWORD,
         )
-        print new_instance.full_description()
-        print u'Is this OK?'
+        print(new_instance.full_description())
+        print('Is this OK?')
         confirm()
         with transaction.atomic():
             instance_manager = TransInstanceManager(new_instance)
             instance_manager.sync()
             new_instance.save()
 
-        print 'Starting daemon...'
+        print('Starting daemon...')
         instance_manager.start_daemon()
 
-        print u'Instance synced and saved.'
+        print('Instance synced and saved.')

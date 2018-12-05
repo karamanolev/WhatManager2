@@ -22,15 +22,15 @@ def download_album(celery_task, qobuz_album_id):
         qobuz_upload = QobuzUpload.objects.get(id=qobuz_album_id)
         assert len(qobuz_upload.album_data['tracks']['items']) == len(qobuz_upload.track_data)
         os.makedirs(qobuz_upload.temp_media_path)
-        print 'Downloading images'
+        print('Downloading images')
         if qobuz_upload.album_data['image']['back']:
             download_image(qobuz_upload, qobuz_upload.album_data['image']['back'], 'back.jpg')
         download_image(qobuz_upload, qobuz_upload.album_data['image']['large'], 'folder.jpg')
-        print 'Download goodies'
+        print('Download goodies')
         if 'goodies' in qobuz_upload.album_data:
-            for i in xrange(len(qobuz_upload.album_data['goodies'])):
+            for i in range(len(qobuz_upload.album_data['goodies'])):
                 download_goodie(qobuz_upload, i)
-        print 'Downloading tracks'
+        print('Downloading tracks')
         track_number = 0
         media_number = 0
         for i, track in enumerate(qobuz_upload.album_data['tracks']['items']):
@@ -39,14 +39,14 @@ def download_album(celery_task, qobuz_album_id):
                 media_number = track['media_number']
             download_track(qobuz_client, qobuz_upload, i, track_number)
             track_number += 1
-        print 'Generating torrent'
+        print('Generating torrent')
         generate_torrents(qobuz_upload)
-        print 'Generating spectrals'
+        print('Generating spectrals')
         os.makedirs(qobuz_upload.spectrals_path)
-        for i in xrange(len(qobuz_upload.album_data['tracks']['items'])):
+        for i in range(len(qobuz_upload.album_data['tracks']['items'])):
             generate_spectrals(qobuz_upload, i)
         qobuz_upload.track_data_json = ujson.dumps(qobuz_upload.track_data)
-        recursive_chmod(qobuz_upload.temp_media_path, 0777)
+        recursive_chmod(qobuz_upload.temp_media_path, 0o777)
     finally:
         connection.close()
 
@@ -57,7 +57,7 @@ def download_image(qobuz_upload, url, filename):
     else:
         raise Exception('Unexpected image url: ' + url)
     file_path = os.path.join(qobuz_upload.temp_media_path, filename)
-    print 'Downloading', url
+    print('Downloading', url)
     response = requests.get(url)
     assert response.headers['Content-Type'] == 'image/jpeg'
     with open(file_path, 'wb') as f:
@@ -66,18 +66,18 @@ def download_image(qobuz_upload, url, filename):
 
 def generate_spectrals(qobuz_upload, i):
     track = qobuz_upload.track_data[i]
-    full_dest_path = os.path.join(qobuz_upload.spectrals_path, u'{0:02}.full.png'.format(i + 1))
-    zoom_dest_path = os.path.join(qobuz_upload.spectrals_path, u'{0:02}.zoom.png'.format(i + 1))
+    full_dest_path = os.path.join(qobuz_upload.spectrals_path, '{0:02}.full.png'.format(i + 1))
+    zoom_dest_path = os.path.join(qobuz_upload.spectrals_path, '{0:02}.zoom.png'.format(i + 1))
     args = [
         'sox', track['path'], '-n', 'remix', '1', 'spectrogram', '-x', '3000', '-y', '513', '-w',
-        'Kaiser', '-S', '0:40', '-d', '0:04', '-h', '-t', u'{0} Zoom'.format(track['title']),
+        'Kaiser', '-S', '0:40', '-d', '0:04', '-h', '-t', '{0} Zoom'.format(track['title']),
         '-o', zoom_dest_path
     ]
     if call(args) != 0:
         raise Exception('sox returned non-zero')
     args = [
         'sox', track['path'], '-n', 'remix', '1', 'spectrogram', '-x', '3000', '-y', '513', '-w',
-        'Kaiser', '-h', '-t', u'{0} Full'.format(track['title']), '-o', full_dest_path
+        'Kaiser', '-h', '-t', '{0} Full'.format(track['title']), '-o', full_dest_path
     ]
     if call(args) != 0:
         raise Exception('sox returned non-zero')
@@ -100,7 +100,7 @@ def download_goodie(qobuz_upload, index):
     goodie_path = os.path.join(qobuz_upload.temp_media_path, '{0}.pdf'.format(
         fix_filepath(goodie['description'])
     ))
-    print 'Downloading', goodie['original_url']
+    print('Downloading', goodie['original_url'])
     response = requests.get(goodie['original_url'])
     response.raise_for_status()
     assert len(response.content) > 1000
@@ -115,19 +115,19 @@ def download_track(qobuz_client, qobuz_upload, index, track_number):
     total_tracks = sum(qobuz_track['media_number'] == t['media_number'] for t in
                        qobuz_upload.album_data['tracks']['items'])
     if total_medias > 1:
-        file_name = u'{0}.{1:02d}. {2}.flac'.format(
+        file_name = '{0}.{1:02d}. {2}.flac'.format(
             qobuz_track['media_number'],
             track_number,
             fix_filepath(track['title'])
         )
     else:
-        file_name = u'{0:02d}. {1}.flac'.format(track_number, fix_filepath(track['title']))
+        file_name = '{0:02d}. {1}.flac'.format(track_number, fix_filepath(track['title']))
     file_path = os.path.join(qobuz_upload.temp_media_path, file_name)
     track['path'] = file_path
     # Download
     track_info = qobuz_client.get_file_url(qobuz_track['id'], '6')
-    assert track_info['mime_type'] == u'audio/flac'
-    print 'Downloading', track_info['url']
+    assert track_info['mime_type'] == 'audio/flac'
+    print('Downloading', track_info['url'])
     response = requests.get(track_info['url'])
     response.raise_for_status()
     assert len(response.content) > 100000

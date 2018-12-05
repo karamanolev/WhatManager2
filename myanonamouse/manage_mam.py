@@ -22,11 +22,11 @@ def add_mam_torrent(torrent_id, instance=None, location=None, mam_client=None,
     with LockModelTables(MAMTransTorrent):
         try:
             MAMTransTorrent.objects.get(info_hash=mam_torrent.info_hash)
-            raise TorrentAlreadyAddedException(u'Already added.')
+            raise TorrentAlreadyAddedException('Already added.')
         except MAMTransTorrent.DoesNotExist:
             pass
 
-        download_dir = os.path.join(location.path, unicode(mam_torrent.id))
+        download_dir = os.path.join(location.path, str(mam_torrent.id))
 
         def create_b_torrent():
             new_b_torrent = MAMTransTorrent(
@@ -52,8 +52,8 @@ def add_mam_torrent(torrent_id, instance=None, location=None, mam_client=None,
 
                 if not os.path.exists(download_dir):
                     os.mkdir(download_dir)
-                if not os.stat(download_dir).st_mode & 0777 == 0777:
-                    os.chmod(download_dir, 0777)
+                if not os.stat(download_dir).st_mode & 0o777 == 0o777:
+                    os.chmod(download_dir, 0o777)
 
                 norm_t_torrent(t_torrent)
                 b_torrent.sync_t_torrent(t_torrent)

@@ -15,14 +15,14 @@ def sync_fulltext():
     fixed = False
     w_torrents = dict((w.id, w) for w in WhatTorrent.objects.all())
     w_fulltext = dict((w.id, w) for w in WhatFulltext.objects.all())
-    for id, w_t in w_torrents.items():
+    for id, w_t in list(w_torrents.items()):
         if id not in w_fulltext:
             WhatFulltext(id=w_t.id, info=w_t.info).save()
             fixed = True
         elif not w_fulltext[id].match(w_t):
             w_fulltext[id].update(w_t)
             fixed = True
-    for id, w_f in w_fulltext.items():
+    for id, w_f in list(w_fulltext.items()):
         if id not in w_torrents:
             w_f.delete()
             fixed = True
@@ -33,7 +33,7 @@ def sync_instance_db(request, instance):
     m_torrents = instance.get_m_torrents_by_hash()
     t_torrents = instance.get_t_torrents_by_hash(TransTorrent.sync_t_arguments)
 
-    for hash, m_torrent in m_torrents.items():
+    for hash, m_torrent in list(m_torrents.items()):
         if hash not in t_torrents:
             m_torrent_path = m_torrent.path.encode('utf-8')
 
@@ -46,25 +46,25 @@ def sync_instance_db(request, instance):
                     if os.path.exists(m_torrent_path):
                         files = os.listdir(m_torrent_path)
                         if any(f for f in files if '.torrent' not in f and 'ReleaseInfo2.txt' != f):
-                            messages.append(u'There are other files so leaving in place.')
+                            messages.append('There are other files so leaving in place.')
                         else:
-                            messages.append(u'No other files. Deleting directory.')
+                            messages.append('No other files. Deleting directory.')
                             shutil.rmtree(m_torrent_path)
                     else:
-                        messages.append(u'Path does not exist.')
+                        messages.append('Path does not exist.')
 
-            LogEntry.add(None, u'action', u'Torrent {0} deleted from instance {1}. {2}'
+            LogEntry.add(None, 'action', 'Torrent {0} deleted from instance {1}. {2}'
                          .format(m_torrent, instance, ' '.join(messages)))
 
     with transaction.atomic():
-        for hash, t_torrent in t_torrents.items():
+        for hash, t_torrent in list(t_torrents.items()):
             if hash not in m_torrents:
                 w_torrent = WhatTorrent.get_or_create(request, info_hash=hash)
                 d_location = DownloadLocation.get_by_full_path(t_torrent.downloadDir)
                 m_torrent = manage_torrent.add_torrent(request, instance, d_location, w_torrent.id,
                                                        False)
                 m_torrents[m_torrent.info_hash] = m_torrent
-                LogEntry.add(None, u'action', u'Torrent {0} appeared in instance {1}. Added to DB.'
+                LogEntry.add(None, 'action', 'Torrent {0} appeared in instance {1}. Added to DB.'
                              .format(m_torrent, instance))
 
             m_torrent = m_torrents[hash]
@@ -83,23 +83,23 @@ def sync_replica_set(master, slave):
     slave_m_torrents = {}
 
     for master_instance in master.transinstance_set.all():
-        for hash, m_torrent in master_instance.get_m_torrents_by_hash().items():
+        for hash, m_torrent in list(master_instance.get_m_torrents_by_hash().items()):
             if m_torrent.torrent_done == 1:
                 master_m_torrents[hash] = m_torrent
     for slave_instance in slave.transinstance_set.all():
         slave_m_torrents.update(slave_instance.get_m_torrents_by_hash())
 
-    for hash, m_torrent in master_m_torrents.items():
+    for hash, m_torrent in list(master_m_torrents.items()):
         if hash not in slave_m_torrents:
             instance = slave.get_preferred_instance()
             manage_torrent.add_torrent(None, instance, m_torrent.location,
                                        m_torrent.what_torrent_id, True)
-            LogEntry.add(None, u'info', u'Torrent {0} added to {1} during replication.'
+            LogEntry.add(None, 'info', 'Torrent {0} added to {1} during replication.'
                          .format(m_torrent, instance))
-    for hash, m_torrent in slave_m_torrents.items():
+    for hash, m_torrent in list(slave_m_torrents.items()):
         if hash not in master_m_torrents:
             manage_torrent.remove_torrent(m_torrent)
-            LogEntry.add(None, u'info', u'Torrent {0} removed from {1} during replication'
+            LogEntry.add(None, 'info', 'Torrent {0} removed from {1} during replication'
                          .format(m_torrent, m_torrent.instance))
 
 

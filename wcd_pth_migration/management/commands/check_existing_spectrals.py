@@ -20,14 +20,14 @@ class Command(BaseCommand):
         for dl in DownloadLocation.objects.filter(zone=ReplicaSet.ZONE_WHAT):
             for torrent in os.listdir(dl.path):
                 if torrent in checked:
-                    print 'Already checked', torrent, 'skipping...'
+                    print('Already checked', torrent, 'skipping...')
                     continue
                 torrent_path = os.path.join(dl.path, torrent)
-                print 'Generating spectrals for', torrent_path
+                print('Generating spectrals for', torrent_path)
                 if not generate_spectrals_for_dir(torrent_path):
-                    print 'There are no FLACs, moving on...'
+                    print('There are no FLACs, moving on...')
                 else:
-                    raw_input('Please check the spectrals...')
+                    input('Please check the spectrals...')
                 checked.append(torrent)
                 with open('checked.json', 'w') as f:
                     f.write(json.dumps(checked))

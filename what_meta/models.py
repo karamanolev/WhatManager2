@@ -145,7 +145,7 @@ class WhatTorrentGroup(models.Model):
 
     @cached_property
     def fulltext_more_info(self):
-        return self.joined_artists + u' ' + unicode(self.year) + u' ' + self.catalogue_number
+        return self.joined_artists + ' ' + str(self.year) + ' ' + self.catalogue_number
 
     def add_artists(self, importance, artists):
         for artist in artists:

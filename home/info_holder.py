@@ -103,7 +103,7 @@ class InfoHolder(object):
         remaster_year = self.info_loads['torrent']['remasterYear']
         year = self.info_loads['group']['year']
         if self.info_remastered and remaster_year != year:
-            return u'{0} ({1})'.format(remaster_year, year)
+            return '{0} ({1})'.format(remaster_year, year)
         return year
 
     @cached_property

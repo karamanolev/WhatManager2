@@ -1,6 +1,6 @@
 import os
 import os.path
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import datetime
 import time
 
@@ -16,7 +16,7 @@ from WhatManager2.settings import MEDIA_ROOT
 
 
 def get_image_cache_path(url):
-    return os.path.join(MEDIA_ROOT, 'what_image_cache', urllib.quote(url, ''))
+    return os.path.join(MEDIA_ROOT, 'what_image_cache', urllib.parse.quote(url, ''))
 
 
 def get_image_last_modified(request):

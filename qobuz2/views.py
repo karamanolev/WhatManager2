@@ -37,7 +37,7 @@ state_data = {
     'STATE_DONE': STATE_DONE,
 }
 
-reverse_state_data = {i[1]: i[0] for i in state_data.items()}
+reverse_state_data = {i[1]: i[0] for i in list(state_data.items())}
 
 
 def get_image_files(qiller):
@@ -123,7 +123,7 @@ def new_upload(request):
                     upload = QobuzUpload(state=qiller.state)
                     upload.set_upload(qiller)
                     upload.save()
-                    os.chmod(temp_dir, 0777)
+                    os.chmod(temp_dir, 0o777)
                     return redirect(edit_upload, upload.id)
                 except RequestException:
                     form.add_error('album_id', 'Cannot fetch Qobuz album')

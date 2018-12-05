@@ -22,17 +22,17 @@ def sync(request):
         trans_sync.sync_all_instances_db(master)
     except Exception as ex:
         tb = traceback.format_exc()
-        LogEntry.add(request.user, u'error', u'Error syncing MyAnonaMouse master DB: {0}({1})'
+        LogEntry.add(request.user, 'error', 'Error syncing MyAnonaMouse master DB: {0}({1})'
                      .format(type(ex).__name__, ex), tb)
         return {
             'success': False,
-            'error': unicode(ex),
+            'error': str(ex),
             'traceback': tb
         }
 
     time_taken = time.time() - start_time
-    LogEntry.add(request.user, u'info',
-                 u'Completed MyAnonaMouse sync in {0:.3f}s.'
+    LogEntry.add(request.user, 'info',
+                 'Completed MyAnonaMouse sync in {0:.3f}s.'
                  .format(time_taken))
     return {
         'success': True
@@ -47,7 +47,7 @@ def add_torrent(request, torrent_id):
     try:
         m_torrent = manage_mam.add_mam_torrent(torrent_id, mam_client=mam_client)
         mam_torrent = m_torrent.mam_torrent
-        LogEntry.add(request.user, u'action', u'Added {0} to {1}'
+        LogEntry.add(request.user, 'action', 'Added {0} to {1}'
                      .format(m_torrent, m_torrent.instance))
         return {
             'success': True,
@@ -59,23 +59,23 @@ def add_torrent(request, torrent_id):
             mam_torrent = MAMTorrent.objects.get(id=torrent_id)
         except MAMTorrent.DoesNotExist:
             pass
-        LogEntry.add(request.user, u'info',
-                     u'Tried adding MyAnonaMouse torrent_id={0}, already added.'.format(torrent_id))
+        LogEntry.add(request.user, 'info',
+                     'Tried adding MyAnonaMouse torrent_id={0}, already added.'.format(torrent_id))
         return {
             'success': False,
-            'error_code': u'already_added',
-            'error': u'Already added.',
+            'error_code': 'already_added',
+            'error': 'Already added.',
             'title': (mam_torrent.title if mam_torrent
                       else '<<< Unable to find torrent >>>'),
         }
     except Exception as ex:
         tb = traceback.format_exc()
-        LogEntry.add(request.user, u'error',
-                     u'Tried adding MyAnonaMouse torrent_id={0}. Error: {1}'
-                     .format(torrent_id, unicode(ex)), tb)
+        LogEntry.add(request.user, 'error',
+                     'Tried adding MyAnonaMouse torrent_id={0}. Error: {1}'
+                     .format(torrent_id, str(ex)), tb)
         return {
             'success': False,
-            'error': unicode(ex),
+            'error': str(ex),
             'traceback': tb,
         }
 
@@ -102,7 +102,7 @@ def torrents_info(request):
     ids = [int(i) for i in request.GET['ids'].split(',')]
     torrents = MAMTransTorrent.objects.filter(mam_torrent_id__in=ids)
     torrents = {t.mam_torrent_id: t for t in torrents}
-    for torrent in torrents.itervalues():
+    for torrent in torrents.values():
         if torrent.torrent_done < 1:
             torrent.sync_t_torrent()
 

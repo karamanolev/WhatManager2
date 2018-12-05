@@ -76,9 +76,9 @@ class QillerUpload(object):
     def prepare(self, temp_dir):
         assert self.state == self.STATE_DOWNLOADED, 'Can\'t prepare in current state'
         preparer = Preparer(temp_dir)
-        map(preparer.prepare_goodie, self.metadata.goodies)
-        map(preparer.prepare_image, self.metadata.images)
-        map(functools.partial(preparer.prepare_track, self.metadata), self.metadata.tracks)
+        list(map(preparer.prepare_goodie, self.metadata.goodies))
+        list(map(preparer.prepare_image, self.metadata.images))
+        list(map(functools.partial(preparer.prepare_track, self.metadata), self.metadata.tracks))
         self.state = self.STATE_PREPARED
 
     def make_torrent(self, temp_dir, announce):

@@ -30,7 +30,7 @@ class Command(BaseCommand):
                     help='Pass the containing directory of the torrent instead of the directory'
                          ' itself. The name of the torrent will be automatically appended.'),
     )
-    help = u'Moves existing torrent data and import the torrent in WM.'
+    help = 'Moves existing torrent data and import the torrent in WM.'
 
     def __init__(self):
         super(Command, self).__init__()
@@ -54,7 +54,7 @@ class Command(BaseCommand):
         try:
             self.info_hash = get_info_hash(args[1])
         except Exception:
-            print u'Invalid .torrent file.'
+            print('Invalid .torrent file.')
             return False
         return True
 
@@ -67,33 +67,33 @@ class Command(BaseCommand):
         return files
 
     def check_files(self):
-        print u'Checking for existing files...'
+        print('Checking for existing files...')
         if 'files' in self.torrent_info['info']:
             for f in self.get_unicode_torrent_files():
                 f_path = os.path.join(self.data_path, *f['path'])
-                print wm_str(u'Checking {0}'.format(f_path))
+                print(wm_str('Checking {0}'.format(f_path)))
                 if not os.path.isfile(wm_str(f_path)):
-                    print wm_str(u'{0} does not exist. What are you giving me?'.format(f_path))
+                    print(wm_str('{0} does not exist. What are you giving me?'.format(f_path)))
                     return False
         else:
             f_path = os.path.join(self.data_path, self.torrent_info['info']['name'])
-            print wm_str(u'Checking {0}'.format(f_path))
+            print(wm_str('Checking {0}'.format(f_path)))
             if not os.path.isfile(wm_str(f_path)):
-                print wm_str(u'{0} does not exist. What are you giving me?'.format(f_path))
+                print(wm_str('{0} does not exist. What are you giving me?'.format(f_path)))
                 return False
-        print u'Creating destination directory...'
-        self.dest_path = os.path.join(self.download_location.path, unicode(self.what_torrent.id))
+        print('Creating destination directory...')
+        self.dest_path = os.path.join(self.download_location.path, str(self.what_torrent.id))
         os.makedirs(wm_str(self.dest_path))
-        os.chmod(self.dest_path, 0777)
+        os.chmod(self.dest_path, 0o777)
         if 'files' in self.torrent_info['info']:
             self.dest_path = os.path.join(self.dest_path, wm_unicode(
                 self.torrent_info['info']['name']))
             os.makedirs(wm_str(self.dest_path))
-        print u'All torrent data files exist.'
+        print('All torrent data files exist.')
         return True
 
     def move_files(self):
-        print u'Moving files to new directory...'
+        print('Moving files to new directory...')
         if 'files' in self.torrent_info['info']:
             for f in self.get_unicode_torrent_files():
                 f_path = os.path.join(self.data_path, *f['path'])
@@ -109,8 +109,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if not self.check_args(args):
-            print u'Pass the torrent data directory as a first argument, ' \
-                  u'a path to the .torrent file as a second.'
+            print('Pass the torrent data directory as a first argument, ' \
+                  'a path to the .torrent file as a second.')
             return
         self.data_path, self.torrent_path = [wm_unicode(i) for i in args]
         with open(wm_str(self.torrent_path), 'rb') as f:
@@ -118,11 +118,11 @@ class Command(BaseCommand):
         if options['base_dir']:
             self.data_path = os.path.join(self.data_path,
                                           wm_unicode(self.torrent_info['info']['name']))
-        print u'Checking to see if torrent is already loaded into WM..'
+        print('Checking to see if torrent is already loaded into WM..')
         masters = list(ReplicaSet.get_what_master().transinstance_set.all())
         try:
             TransTorrent.objects.get(instance__in=masters, info_hash=self.info_hash)
-            print u'Torrent already added to WM. Skipping...'
+            print('Torrent already added to WM. Skipping...')
             return False
         except TransTorrent.DoesNotExist:
             pass
@@ -130,7 +130,7 @@ class Command(BaseCommand):
         if not self.check_files():
             return
         self.move_files()
-        print 'Adding torrent to WM...'
+        print('Adding torrent to WM...')
         manage_torrent.add_torrent(self.pseudo_request, self.trans_instance,
                                    self.download_location, self.what_torrent.id)
-        print 'Done!'
+        print('Done!')

@@ -72,7 +72,7 @@ def remove_transmission_dupes(request):
             if len(dupes[m_torrent.what_torrent_id]) > 1:
                 if 'remove' in request.GET:
                     instance.client.remove_torrent(m_torrent.torrent_id)
-    return list(i for i in dupes.iteritems() if len(i[1]) > 1)
+    return list(i for i in dupes.items() if len(i[1]) > 1)
 
 
 @login_required

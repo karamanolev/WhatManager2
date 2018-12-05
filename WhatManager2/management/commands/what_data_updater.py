@@ -13,7 +13,7 @@ class Command(BaseCommand):
         what_client = get_what_client(lambda: None)
         while True:
             response = what_json.utils.refresh_whattorrent(what_client)
-            print response
+            print(response)
             if response['success']:
                 time.sleep(5)
             else:

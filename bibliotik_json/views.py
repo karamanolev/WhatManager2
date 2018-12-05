@@ -26,17 +26,17 @@ def sync(request):
         trans_sync.sync_all_instances_db(master)
     except Exception as ex:
         tb = traceback.format_exc()
-        LogEntry.add(request.user, u'error', u'Error syncing bibliotik master DB: {0}({1})'
+        LogEntry.add(request.user, 'error', 'Error syncing bibliotik master DB: {0}({1})'
                      .format(type(ex).__name__, ex), tb)
         return {
             'success': False,
-            'error': unicode(ex),
+            'error': str(ex),
             'traceback': tb
         }
 
     time_taken = time.time() - start_time
-    LogEntry.add(request.user, u'info',
-                 u'Completed bibliotik sync in {0:.3f}s.'
+    LogEntry.add(request.user, 'info',
+                 'Completed bibliotik sync in {0:.3f}s.'
                  .format(time_taken))
     return {
         'success': True
@@ -50,7 +50,7 @@ def add_torrent(request, torrent_id):
     if 'bibliotik_id' not in request.GET:
         return {
             'success': False,
-            'error': u'Missing bibliotik_id in GET.',
+            'error': 'Missing bibliotik_id in GET.',
         }
     bibliotik_client = None
     try:
@@ -59,7 +59,7 @@ def add_torrent(request, torrent_id):
         b_torrent = manage_bibliotik.add_bibliotik_torrent(torrent_id,
                                                            bibliotik_client=bibliotik_client)
         bibliotik_torrent = b_torrent.bibliotik_torrent
-        LogEntry.add(request.user, u'action', u'Added {0} to {1}'
+        LogEntry.add(request.user, 'action', 'Added {0} to {1}'
                      .format(b_torrent, b_torrent.instance))
         return {
             'success': True,
@@ -72,12 +72,12 @@ def add_torrent(request, torrent_id):
             bibliotik_torrent = BibliotikTorrent.objects.get(id=torrent_id)
         except BibliotikTorrent.DoesNotExist:
             pass
-        LogEntry.add(request.user, u'info',
-                     u'Tried adding bibliotik torrent_id={0}, already added.'.format(torrent_id))
+        LogEntry.add(request.user, 'info',
+                     'Tried adding bibliotik torrent_id={0}, already added.'.format(torrent_id))
         return {
             'success': False,
-            'error_code': u'already_added',
-            'error': u'Already added.',
+            'error_code': 'already_added',
+            'error': 'Already added.',
             'title': (bibliotik_torrent.title if bibliotik_torrent
                       else '<<< Unable to find torrent >>>'),
             'author': (bibliotik_torrent.author if bibliotik_torrent
@@ -85,12 +85,12 @@ def add_torrent(request, torrent_id):
         }
     except Exception as ex:
         tb = traceback.format_exc()
-        LogEntry.add(request.user, u'error',
-                     u'Tried adding bibliotik torrent_id={0}. Error: {1}'
-                     .format(torrent_id, unicode(ex)), tb)
+        LogEntry.add(request.user, 'error',
+                     'Tried adding bibliotik torrent_id={0}. Error: {1}'
+                     .format(torrent_id, str(ex)), tb)
         return {
             'success': False,
-            'error': unicode(ex),
+            'error': str(ex),
             'traceback': tb,
         }
 
@@ -126,7 +126,7 @@ def torrents_info(request):
     ids = [int(i) for i in request.GET['ids'].split(',')]
     torrents = BibliotikTransTorrent.objects.filter(bibliotik_torrent_id__in=ids)
     torrents = {t.bibliotik_torrent_id: t for t in torrents}
-    for torrent in torrents.itervalues():
+    for torrent in torrents.values():
         if torrent.torrent_done < 1:
             torrent.sync_t_torrent()
 

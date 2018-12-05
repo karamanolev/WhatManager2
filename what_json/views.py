@@ -34,7 +34,7 @@ def sync(request):
     except Exception as ex:
         profile_time = 0
         tb = traceback.format_exc()
-        LogEntry.add(request.user, u'error', u'Error syncing profile: {0}'.format(ex), tb)
+        LogEntry.add(request.user, 'error', 'Error syncing profile: {0}'.format(ex), tb)
 
     try:
         master = ReplicaSet.get_what_master()
@@ -43,11 +43,11 @@ def sync(request):
         part_start_time = time.time()
     except Exception as ex:
         tb = traceback.format_exc()
-        LogEntry.add(request.user, u'error', u'Error syncing master DB: {0}({1})'.format(
+        LogEntry.add(request.user, 'error', 'Error syncing master DB: {0}({1})'.format(
             type(ex).__name__, ex), tb)
         return {
             'success': False,
-            'error': unicode(ex),
+            'error': str(ex),
             'traceback': tb
         }
 
@@ -64,8 +64,8 @@ def sync(request):
     # }
 
     time_taken = time.time() - start_time
-    LogEntry.add(request.user, u'info',
-                 u'Completed what.cd sync in {0:.3f}s. Profile in {1:.3f}s. Master DB in {2:.3f}s.'
+    LogEntry.add(request.user, 'info',
+                 'Completed what.cd sync in {0:.3f}s. Profile in {1:.3f}s. Master DB in {2:.3f}s.'
                  .format(time_taken, profile_time, master_db_time))
     return {
         'success': True
@@ -87,10 +87,10 @@ def sync_replicas(request):
         replicas_dbs_time = time.time() - part_start_time
     except Exception as ex:
         tb = traceback.format_exc()
-        LogEntry.add(request.user, u'error', u'Error syncing replicas DB: {0}'.format(ex), tb)
+        LogEntry.add(request.user, 'error', 'Error syncing replicas DB: {0}'.format(ex), tb)
         return {
             'success': False,
-            'error': unicode(ex),
+            'error': str(ex),
             'traceback': tb
         }
 
@@ -98,16 +98,16 @@ def sync_replicas(request):
         trans_sync.sync_all_replicas_to_master()
     except Exception as ex:
         tb = traceback.format_exc()
-        LogEntry.add(request.user, u'error', u'Error running replica sync: {0}'.format(ex), tb)
+        LogEntry.add(request.user, 'error', 'Error running replica sync: {0}'.format(ex), tb)
         return {
             'success': False,
-            'error': unicode(ex),
+            'error': str(ex),
             'traceback': tb
         }
     time_taken = time.time() - start_time
 
-    LogEntry.add(request.user, u'info',
-                 u'Completed replica sync in {0:.3f}s. DB in {1:.3f}s.'.format(time_taken,
+    LogEntry.add(request.user, 'info',
+                 'Completed replica sync in {0:.3f}s. DB in {1:.3f}s.'.format(time_taken,
                                                                                replicas_dbs_time))
     return {
         'success': True
@@ -122,10 +122,10 @@ def checks(request):
         result = WhatManager2.checks.run_checks()
     except Exception as ex:
         tb = traceback.format_exc()
-        LogEntry.add(request.user, u'error', u'Error running checks: {0}'.format(ex), tb)
+        LogEntry.add(request.user, 'error', 'Error running checks: {0}'.format(ex), tb)
         return {
             'success': False,
-            'error': unicode(ex),
+            'error': str(ex),
             'traceback': tb
         }
     result.update({
@@ -156,14 +156,14 @@ def add_torrent(request):
     except DownloadLocation.DoesNotExist:
         return {
             'success': False,
-            'error': u'Download location does not exist.',
+            'error': 'Download location does not exist.',
         }
 
     if download_location.free_space_percent < MIN_FREE_DISK_SPACE:
-        LogEntry.add(request.user, u'error', u'Failed to add torrent. Not enough disk space.')
+        LogEntry.add(request.user, 'error', 'Failed to add torrent. Not enough disk space.')
         return {
             'success': False,
-            'error': u'Not enough free space on disk.',
+            'error': 'Not enough free space on disk.',
         }
 
     try:
@@ -171,7 +171,7 @@ def add_torrent(request):
     except (ValueError, MultiValueDictKeyError):
         return {
             'success': False,
-            'error': u'Invalid id',
+            'error': 'Invalid id',
         }
 
     instance = ReplicaSet.get_what_master().get_preferred_instance()
@@ -184,13 +184,13 @@ def add_torrent(request):
         m_torrent.what_torrent.added_by = request.user
         m_torrent.what_torrent.save()
     except TorrentAlreadyAddedException:
-        LogEntry.add(request.user, u'info',
-                     u'Tried adding what_id={0}, already added.'.format(what_id))
+        LogEntry.add(request.user, 'info',
+                     'Tried adding what_id={0}, already added.'.format(what_id))
         what_torrent = WhatTorrent.get_or_none(request, what_id=what_id)
         result = {
             'success': False,
-            'error_code': u'already_added',
-            'error': u'Already added.',
+            'error_code': 'already_added',
+            'error': 'Already added.',
             'torrent_id': m_torrent.what_torrent_id,
         }
         if m_torrent.what_torrent.info_category_id == 1:
@@ -201,11 +201,11 @@ def add_torrent(request):
         return result
     except Exception as ex:
         tb = traceback.format_exc()
-        LogEntry.add(request.user, u'error',
-                     u'Tried adding what_id={0}. Error: {1}'.format(what_id, unicode(ex)), tb)
+        LogEntry.add(request.user, 'error',
+                     'Tried adding what_id={0}. Error: {1}'.format(what_id, str(ex)), tb)
         return {
             'success': False,
-            'error': unicode(ex),
+            'error': str(ex),
             'traceback': tb,
         }
 
@@ -214,7 +214,7 @@ def add_torrent(request):
         m_torrent.what_torrent.tags = tags
         m_torrent.what_torrent.save()
 
-    LogEntry.add(request.user, u'action', u'Added {0} to {1}'.format(m_torrent, m_torrent.instance))
+    LogEntry.add(request.user, 'action', 'Added {0} to {1}'.format(m_torrent, m_torrent.instance))
 
     result = {
         'success': True,
@@ -230,7 +230,7 @@ def freeleech_add_torrent(request, master, what_id, retry=3):
     download_locations = [l for l in download_locations if
                           l.free_space_percent >= MIN_FREE_DISK_SPACE]
     if len(download_locations) == 0:
-        raise Exception(u'Unable to update freeleech: not enough space on disk.')
+        raise Exception('Unable to update freeleech: not enough space on disk.')
     download_location = choice(download_locations)
 
     instance = master.get_preferred_instance()
@@ -239,13 +239,13 @@ def freeleech_add_torrent(request, master, what_id, retry=3):
         m_torrent.what_torrent.tags = 'seed'
         m_torrent.what_torrent.added_by = request.user
         m_torrent.what_torrent.save()
-        LogEntry.add(request.user, u'action',
-                     u'Added freeleech {0} to {1} - {2}'.format(
+        LogEntry.add(request.user, 'action',
+                     'Added freeleech {0} to {1} - {2}'.format(
                          m_torrent, m_torrent.instance, download_location.path))
     except TorrentAlreadyAddedException:
         pass
     except Exception as ex:
-        LogEntry.add(request.user, u'error', u'Error adding freeleech torrent {0}'.format(what_id))
+        LogEntry.add(request.user, 'error', 'Error adding freeleech torrent {0}'.format(what_id))
         if retry > 0:
             time.sleep(3)
             freeleech_add_torrent(request, master, what_id, retry - 1)
@@ -272,20 +272,20 @@ def update_freeleech(request):
                 freeleech_add_torrent(request, master, what_id)
                 added += 1
 
-        log_type = u'action' if added > 0 else u'info'
+        log_type = 'action' if added > 0 else 'info'
 
         if added >= FREELEECH_EMAIL_THRESHOLD and socket.gethostname() == FREELEECH_HOSTNAME:
-            send_freeleech_email(u'Added {0} freeleech torrents'.format(added))
+            send_freeleech_email('Added {0} freeleech torrents'.format(added))
 
         time_taken = time.time() - start_time
         LogEntry.add(request.user, log_type,
-                     u'Successfully updated freeleech in {0:.3f}s. '
-                     u'{1} added. {2} / {3} torrents total.'.format(
+                     'Successfully updated freeleech in {0:.3f}s. '
+                     '{1} added. {2} / {3} torrents total.'.format(
                          time_taken, added, filesizeformat(total_bytes), total_torrents))
     except Exception as ex:
         tb = traceback.format_exc()
-        LogEntry.add(request.user, u'error',
-                     u'Error updating freeleech: {0}({1})'.format(type(ex).__name__, unicode(ex)),
+        LogEntry.add(request.user, 'error',
+                     'Error updating freeleech: {0}({1})'.format(type(ex).__name__, str(ex)),
                      tb)
     return {
         'success': True,
@@ -301,7 +301,7 @@ def run_load_balance(request):
     source_instance = request.GET['source']
 
     instance = TransInstance.objects.get(name=source_instance)
-    for i in xrange(torrent_count):
+    for i in range(torrent_count):
         t = choice(instance.transtorrent_set.filter(torrent_uploaded=0))
         t = manage_torrent.move_torrent(t, ReplicaSet.get_what_master().get_preferred_instance())
 
@@ -324,18 +324,18 @@ def move_torrent_to_location(request):
     if trans_torrent.location.id == new_location.id:
         raise Exception('Torrent is already there.')
 
-    print 'Source is', trans_torrent.location.path
-    print 'Destination is', new_location.path
-    print 'Instance is', trans_torrent.instance.name
-    print 'Size is', trans_torrent.torrent_size
-    print 'Name is', trans_torrent.torrent_name
+    print('Source is', trans_torrent.location.path)
+    print('Destination is', new_location.path)
+    print('Instance is', trans_torrent.instance.name)
+    print('Size is', trans_torrent.torrent_size)
+    print('Name is', trans_torrent.torrent_name)
 
     client = trans_torrent.instance.client
     client.stop_torrent(trans_torrent.torrent_id)
-    source_path = os.path.join(trans_torrent.location.path, unicode(what_torrent.id))
+    source_path = os.path.join(trans_torrent.location.path, str(what_torrent.id))
     shutil.move(source_path, new_location.path)
     client.move_torrent_data(trans_torrent.torrent_id,
-                             os.path.join(new_location.path, unicode(what_torrent.id)))
+                             os.path.join(new_location.path, str(what_torrent.id)))
     trans_torrent.location = new_location
     trans_torrent.save()
     client.verify_torrent(trans_torrent.torrent_id)
@@ -364,7 +364,7 @@ def torrents_info(request):
     ids = [int(i) for i in request.POST['ids'].split(',')]
     torrents = TransTorrent.objects.filter(what_torrent_id__in=ids)
     torrents = {t.what_torrent_id: t for t in torrents}
-    for torrent in torrents.itervalues():
+    for torrent in torrents.values():
         if torrent.torrent_done < 1:
             torrent.sync_t_torrent()
 

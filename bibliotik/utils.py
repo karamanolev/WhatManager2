@@ -18,7 +18,7 @@ from home.models import DownloadLocation
 def extract_torrents(html):
     result = []
     pq = PyQuery(html)
-    for row in pq('#torrents_table tbody tr.torrent').items():
+    for row in list(pq('#torrents_table tbody tr.torrent').items()):
         data = {
             'id': row.attr('id')[len('torrent-'):],
             'type': row('td:eq(0) img').attr('title'),
@@ -30,7 +30,7 @@ def extract_torrents(html):
             'retail': bool(row('td:eq(1) span.torRetail')),
             'tags': []
         }
-        for dlink in row('td:eq(1) > a').items():
+        for dlink in list(row('td:eq(1) > a').items()):
             href = dlink.attr('href')
             if '/creators/' in href:
                 data['authors'].append({
@@ -42,7 +42,7 @@ def extract_torrents(html):
                     'id': href[href.rfind('/') + 1:],
                     'name': dlink.text()
                 })
-        for tag in row('td:eq(1) > span.taglist > a').items():
+        for tag in list(row('td:eq(1) > span.taglist > a').items()):
             href = tag.attr('href')
             data['tags'].append({
                 'id': href[href.rfind('/') + 1:],
@@ -64,7 +64,7 @@ class BibliotikClient(object):
     def get_auth_key(self):
         if self.auth_key:
             return self.auth_key
-        for i in xrange(3):
+        for i in range(3):
             try:
                 response = self.session.get('https://bibliotik.me/upload/ebooks')
                 response.raise_for_status()
@@ -84,7 +84,7 @@ class BibliotikClient(object):
 
     def download_torrent(self, torrent_id):
         torrent_page = BIBLIOTIK_DOWNLOAD_TORRENT_URL.format(torrent_id)
-        for i in xrange(3):
+        for i in range(3):
             try:
                 r = self.session.get(torrent_page, allow_redirects=False)
                 r.raise_for_status()
@@ -95,7 +95,7 @@ class BibliotikClient(object):
                 else:
                     raise Exception('Wrong status_code or content-type')
             except Exception as ex:
-                print u'Error while download bibliotik torrent. Will retry: {0}'.format(ex)
+                print('Error while download bibliotik torrent. Will retry: {0}'.format(ex))
                 time.sleep(3)
                 download_exception = ex
         raise download_exception
@@ -104,7 +104,7 @@ class BibliotikClient(object):
         url = 'https://bibliotik.me/torrents/'
         response = self._search_request(url, query)
         if not response.url.startswith(url):
-            raise Exception(u'Search redirected to {0}. Probably invalid id. Was {1}.'.format(
+            raise Exception('Search redirected to {0}. Probably invalid id. Was {1}.'.format(
                 response.url, self.session_id
             ))
         return {
@@ -112,7 +112,7 @@ class BibliotikClient(object):
         }
 
     def _search_request(self, url, query):
-        for i in xrange(3):
+        for i in range(3):
             try:
                 response = self.session.get(url, params={
                     'search': query
@@ -126,7 +126,7 @@ class BibliotikClient(object):
 
 
 def upload_book_to_bibliotik(bibliotik_client, book_upload):
-    print 'Sending request for upload to bibliotik.me'
+    print('Sending request for upload to bibliotik.me')
 
     payload_files = dict()
     payload_files['TorrentFileField'] = ('torrent.torrent', book_upload.bibliotik_torrent_file)
@@ -169,16 +169,16 @@ def upload_book_to_bibliotik(bibliotik_client, book_upload):
 
     # Add the torrent to the client
     location = DownloadLocation.get_bibliotik_preferred()
-    download_dir = os.path.join(location.path, unicode(book_upload.bibliotik_torrent.id))
+    download_dir = os.path.join(location.path, str(book_upload.bibliotik_torrent.id))
     book_path = os.path.join(download_dir, book_upload.target_filename)
     if not os.path.exists(download_dir):
         os.mkdir(download_dir)
-    os.chmod(download_dir, 0777)
+    os.chmod(download_dir, 0o777)
     shutil.copyfile(
         book_upload.book_data.storage.path(book_upload.book_data),
         book_path
     )
-    os.chmod(book_path, 0777)
+    os.chmod(book_path, 0o777)
 
     manage_bibliotik.add_bibliotik_torrent(
         book_upload.bibliotik_torrent.id, location=location, bibliotik_client=bibliotik_client

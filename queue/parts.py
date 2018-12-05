@@ -38,7 +38,7 @@ def pop_remove(request):
 def auto_pop(request):
     front = QueueItem.get_front()
     if not front:
-        LogEntry.add(request.user, u'info', 'Auto pop: queue is empty.')
+        LogEntry.add(request.user, 'info', 'Auto pop: queue is empty.')
         return {
             'success': False,
             'error': 'Queue is empty.'
@@ -46,22 +46,22 @@ def auto_pop(request):
     try:
         ratio_delta = get_auto_pop_ratio_delta(WhatUserSnapshot.get_last())
     except WhatUserSnapshot.DoesNotExist:
-        LogEntry.add(request.user, u'info', 'Auto pop: User profile not updated, skipping pop.')
+        LogEntry.add(request.user, 'info', 'Auto pop: User profile not updated, skipping pop.')
         return {
             'success': False,
-            'error': u'User profile not updated, skipping pop.'
+            'error': 'User profile not updated, skipping pop.'
         }
     if ratio_delta >= front.torrent_size:
         return do_pop(request)
     else:
-        message = u'Auto pop: ratio delta {0} < {1}, skipping pop.'.format(
+        message = 'Auto pop: ratio delta {0} < {1}, skipping pop.'.format(
             filesizeformat(ratio_delta),
             filesizeformat(front.torrent_size)
         )
-        LogEntry.add(request.user, u'info', message)
+        LogEntry.add(request.user, 'info', message)
         return {
             'success': False,
-            'error': u'Buffer is {0}, skipping pop.'.format(message)
+            'error': 'Buffer is {0}, skipping pop.'.format(message)
         }
 
 
@@ -71,10 +71,10 @@ def auto_pop(request):
 def do_pop(request):
     download_location = DownloadLocation.get_what_preferred()
     if download_location.free_space_percent < MIN_FREE_DISK_SPACE:
-        LogEntry.add(request.user, u'error', u'Failed to add torrent. Not enough disk space.')
+        LogEntry.add(request.user, 'error', 'Failed to add torrent. Not enough disk space.')
         return {
             'success': False,
-            'error': u'Not enough free space on disk.'
+            'error': 'Not enough free space on disk.'
         }
 
     front = QueueItem.get_front()
@@ -101,15 +101,15 @@ def do_pop(request):
 
         front.delete()
 
-        LogEntry.add(request.user, u'action', u'Popped {0} from queue.'.format(m_torrent))
+        LogEntry.add(request.user, 'action', 'Popped {0} from queue.'.format(m_torrent))
     except Exception as ex:
         tb = traceback.format_exc()
-        LogEntry.add(request.user, u'error',
-                     u'Tried popping what_id={0} from queue. Error: {1}'.format(front.what_id,
-                                                                                unicode(ex)), tb)
+        LogEntry.add(request.user, 'error',
+                     'Tried popping what_id={0} from queue. Error: {1}'.format(front.what_id,
+                                                                                str(ex)), tb)
         return {
             'success': False,
-            'error': unicode(ex),
+            'error': str(ex),
             'traceback': tb
         }
 

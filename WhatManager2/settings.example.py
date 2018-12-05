@@ -44,12 +44,12 @@ EMAIL_HOST_PASSWORD = 'password at gmail'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-FREELEECH_EMAIL_FROM = u'your own email@provider.com'
-FREELEECH_EMAIL_TO = u'wherever you want to receive mail@provider.com'
+FREELEECH_EMAIL_FROM = 'your own email@provider.com'
+FREELEECH_EMAIL_TO = 'wherever you want to receive mail@provider.com'
 # Less than this and you won't get an email.
 FREELEECH_EMAIL_THRESHOLD = 2
 # The script will only send emails if the current hostname is equals this.
-FREELEECH_HOSTNAME = u'NO_EMAILS'
+FREELEECH_HOSTNAME = 'NO_EMAILS'
 
 # You only need to set that if you'll be using the userscripts. Do not put a trailing slash
 USERSCRIPT_WM_ROOT = 'http://hostname.com'
