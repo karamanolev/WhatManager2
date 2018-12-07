@@ -99,7 +99,7 @@ WantedBy=multi-user.target'''
 
 def discover_transmission():
     try:
-        return subprocess.check_output(['which', 'transmission-daemon']).strip()
+        return subprocess.check_output(['which', 'transmission-daemon']).strip().decode("utf-8")
     except subprocess.CalledProcessError:
         raise Exception('transmission-daemon was not found. '
                         'Make sure "which transmission-daemon" returns the right thing.')

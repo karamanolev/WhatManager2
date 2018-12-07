@@ -206,12 +206,12 @@ def get_artists(group):
 
 
 def read_text(path):
-    with open(path, 'rb') as f:
+    with open(path, 'r') as f:
         return f.read()
 
 
 def write_text(path, text):
-    with open(path, 'wb') as f:
+    with open(path, 'w') as f:
         f.write(text)
 
 def attemptFixPermissions(func, path, exc):
