@@ -360,9 +360,9 @@ class WhatTorrent(models.Model, InfoHolder):
     @staticmethod
     def get_or_create(request, info_hash=None, what_id=None):
         if info_hash and what_id:
-            raise Exception('Specify one.')
+            raise Exception('Specify either an infohash OR an ID, not both.')
         if not info_hash and not what_id:
-            raise Exception('Specify one.')
+            raise Exception('You must specify an infohash or an ID.')
 
         try:
             if info_hash:
@@ -444,7 +444,7 @@ class TransTorrent(TransTorrentBase):
 
     def sync_files(self):
         if os.path.exists(self.path):
-            files = [wm_unicode(f) for f in os.listdir(self.path)]
+            files = [f for f in os.listdir(self.path)]
         else:
             os.mkdir(self.path, 0o777)
             os.chmod(self.path, 0o777)
@@ -658,8 +658,7 @@ class CustomWhatAPI:
     def _login(self):
         try:
             login_cache = WhatLoginCache.objects.get()
-            for cookie in pickle.loads(login_cache.cookies):
-                self.session.cookies.set_cookie(cookie)
+            self.session.cookies.update(login_cache.cookies)
             self.authkey = login_cache.authkey
             self.passkey = login_cache.passkey
             self.request('index')
@@ -684,7 +683,7 @@ class CustomWhatAPI:
             for cache in WhatLoginCache.objects.all():
                 cache.delete()
             login_cache = WhatLoginCache(
-                cookies=pickle.dumps([c for c in self.session.cookies]),
+                cookies=self.session.cookies,
                 authkey=self.authkey,
                 passkey=self.passkey
             )
