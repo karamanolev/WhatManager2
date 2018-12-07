@@ -383,7 +383,7 @@ class WhatTorrent(models.Model, InfoHolder):
             w_torrent = WhatTorrent(
                 id=int(data['torrent']['id']),
                 info_hash=data['torrent']['infoHash'],
-                torrent_file=base64.b64encode(torrent),
+                torrent_file=base64.b64encode(torrent).decode('utf-8'),
                 torrent_file_name=filename,
                 retrieved=timezone.now(),
                 info=ujson.dumps(data)
