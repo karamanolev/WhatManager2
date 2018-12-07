@@ -27,7 +27,7 @@ class HttpBasicAuthMiddleware(object):
             if len(authorization) == 2:
                 # NOTE: We are only support basic authentication for now.
                 if authorization[0].lower() == "basic":
-                    username, password = base64.b64decode(authorization[1]).split(':')
+                    username, password = base64.b64decode(authorization[1]).decode('utf-8').split(':')
 
                     if request.user.is_authenticated():
                         if request.user.get_username() == username:
