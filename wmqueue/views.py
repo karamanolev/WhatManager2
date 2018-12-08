@@ -6,4 +6,4 @@ from django.shortcuts import render
 def index(request):
     data = {
     }
-    return render(request, 'queue/queue.html', data)
+    return render(request, 'wmqueue/queue.html', data)

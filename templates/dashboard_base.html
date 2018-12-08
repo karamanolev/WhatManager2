@@ -59,7 +59,7 @@
                 {% url 'home.views.view_log' as view_log_url %}
                 {% url 'home.views.checks' as checks_url %}
                 {% url 'what_profile.views.profile' as profile_url %}
-                {% url 'queue.views.index' as queue_url %}
+                {% url 'wmqueue.views.index' as queue_url %}
                 {% url 'home.views.stats' as stats_url %}
                 {% url 'home.views.userscripts' as userscripts_url %}
                 <li {% if request.path == home_url %}class="active"{% endif %}>
