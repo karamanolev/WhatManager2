@@ -16,7 +16,7 @@ from player.player_utils import get_playlist_files
 
 
 def download_zip_handler(download_filename, paths):
-    buffer = io.StringIO()
+    buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_STORED, True) as zip:
         for rel_path, file in paths:
             zip.write(file, rel_path, zipfile.ZIP_STORED)
@@ -24,7 +24,7 @@ def download_zip_handler(download_filename, paths):
 
     response = HttpResponse(content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename="' + download_filename + '"'
-    response['Content-Length'] = buffer.len
+    response['Content-Length'] = buffer.getbuffer().nbytes
 
     response.write(buffer.getvalue())
     buffer.close()
@@ -50,7 +50,7 @@ def download_zip(request, what_id):
     else:
         return HttpResponse('Not one .torrent in dir: ' + t_torrent.path)
 
-    target_dir = os.path.join(t_torrent.path, t_torrent.torrent_name).encode('utf-8')
+    target_dir = os.path.join(t_torrent.path, t_torrent.torrent_name)
     torrent_files = []
     if not os.path.isdir(target_dir):
         torrent_files.append((t_torrent.torrent_name, target_dir))
@@ -60,10 +60,10 @@ def download_zip(request, what_id):
                 rel_path = root.replace(target_dir, '')
                 if rel_path.startswith('/') or rel_path.startswith('\\'):
                     rel_path = rel_path[1:]
-                rel_path = os.path.join(rel_path.encode('utf-8'), file)
+                rel_path = os.path.join(rel_path, file)
                 torrent_files.append((rel_path, os.path.join(root, file)))
 
-    download_filename = '[{0}] {1}.zip'.format(what_id, torrent_file).encode('utf-8')
+    download_filename = '[{0}] {1}.zip'.format(what_id, torrent_file)
 
     response = download_zip_handler(download_filename, torrent_files)
     LogEntry.add(request.user, 'action', 'Downloaded {0} - {1}'.format(
