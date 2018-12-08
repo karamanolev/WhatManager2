@@ -40,7 +40,7 @@ class ReplicaSet(models.Model):
     zone = models.CharField(max_length=32)
     name = models.TextField()
 
-    def __unicode__(self):
+    def __str__(self):
         return 'ReplicaSet({0}, {1})'.format(self.zone, self.name)
 
     @property
@@ -76,7 +76,7 @@ class DownloadLocation(models.Model):
     path = models.TextField()
     preferred = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return 'DownloadLocation({0}, {1}{2})'.format(
             self.zone, self.path, ', preferred' if self.preferred else '')
 
@@ -146,7 +146,7 @@ class TransInstance(models.Model):
     username = models.TextField()
     password = models.TextField()
 
-    def __unicode__(self):
+    def __str__(self):
         return 'TransInstance {0}({1}@{2}:{3})'.format(self.name, self.username,
                                                         self.host, self.port)
 
@@ -267,7 +267,7 @@ class WhatFulltext(models.Model):
         self.more_info = what_torrent.info
         self.save()
 
-    def __unicode__(self):
+    def __str__(self):
         return 'WhatFulltext id={0}'.format(self.id)
 
 
@@ -311,7 +311,7 @@ class WhatTorrent(models.Model, InfoHolder):
             pass
         super(WhatTorrent, self).delete(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return 'WhatTorrent id={0} hash={1}'.format(self.id, self.info_hash)
 
     @cached_property
@@ -467,7 +467,7 @@ class TransTorrent(TransTorrentBase):
             LogEntry.add(None, 'info', 'Added files {0} to {1}'
                          .format(', '.join(files_added), self))
 
-    def __unicode__(self):
+    def __str__(self):
         return 'TransTorrent(torrent_id={0}, what_id={1}, name={2})'.format(
             self.torrent_id, self.what_torrent_id, self.torrent_name)
 

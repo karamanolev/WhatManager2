@@ -59,7 +59,7 @@ class BibliotikTorrent(models.Model):
     def publisher_list(self):
         return self.publisher.split(';')
 
-    def __unicode__(self):
+    def __str__(self):
         return 'BibliotikTorrent id={0} hash={1}'.format(self.id, self.info_hash)
 
     def import_bibliotik_data(self, bibliotik_client):
@@ -193,7 +193,7 @@ class BibliotikTransTorrent(TransTorrentBase):
     def path(self):
         return os.path.join(self.location.path, str(self.bibliotik_torrent.id))
 
-    def __unicode__(self):
+    def __str__(self):
         return 'BibliotikTransTorrent(torrent_id={0}, bibliotik_id={1}, name={2})'.format(
             self.torrent_id, self.bibliotik_torrent_id, self.torrent_name)
 

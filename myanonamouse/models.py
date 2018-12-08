@@ -45,7 +45,7 @@ class MAMTorrent(models.Model):
     torrent_file = models.BinaryField(null=True)
     torrent_size = models.BigIntegerField()
 
-    def __unicode__(self):
+    def __str__(self):
         return 'MAMTorrent id={0} hash={1}'.format(self.id, self.info_hash)
 
     def import_mam_data(self, mam_client):
@@ -129,7 +129,7 @@ class MAMTransTorrent(TransTorrentBase):
     def path(self):
         return os.path.join(self.location.path, str(self.mam_torrent_id))
 
-    def __unicode__(self):
+    def __str__(self):
         return 'MAMTransTorrent(torrent_id={0}, mam_id={1}, name={2})'.format(
             self.torrent_id, self.mam_torrent_id, self.torrent_name)
 
