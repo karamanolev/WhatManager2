@@ -7,8 +7,6 @@ from django.core.management.base import BaseCommand
 
 import requests
 
-from WhatManager2.utils import wm_unicode
-
 from home.models import get_what_client
 from what_transcode.tasks import TranscodeSingleJob
 
@@ -47,7 +45,7 @@ class Command(BaseCommand):
         if len(args) != 1:
             print('Pass only the source directory.')
             return 1
-        source_dir = wm_unicode(args[0])
+        source_dir = args[0]
         if source_dir.endswith('/'):
             source_dir = source_dir[:-1]
 

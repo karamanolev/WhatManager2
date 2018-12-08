@@ -11,7 +11,6 @@ from django.core.management.base import BaseCommand
 from html2bbcode.parser import HTML2BBCode
 
 from WhatManager2.manage_torrent import add_torrent
-from WhatManager2.utils import wm_str
 from books.utils import call_mktorrent
 from home.models import ReplicaSet, get_what_client, DownloadLocation, WhatTorrent, \
     RequestException, \
@@ -72,10 +71,8 @@ class TorrentMigrationJob(object):
         self.data = data
         self.what_torrent = self.data['what_torrent']
         self.what_torrent_info = ujson.loads(self.what_torrent['info'])
-        self.full_location = os.path.join(
-            wm_str(self.data['location']['path']),
-            str(self.what_torrent['id']),
-        )
+        self.full_location = os.path.join(self.data['location']['path'],
+            str(self.what_torrent['id']))
         self.torrent_dict = bencode.bdecode(b64decode(self.what_torrent['torrent_file']))
         self.torrent_name = self.torrent_dict['info']['name']
         self.torrent_new_name = self.torrent_name
@@ -329,7 +326,7 @@ class TorrentMigrationJob(object):
         if existing_group_id is None:
             group_year = self.what_torrent_info['group']['year']
             group_name = html_parser.unescape(self.what_torrent_info['group']['name']).lower()
-            search_str = '{} {}'.format(wm_str(group_name), wm_str(str(group_year)))
+            search_str = '{} {}'.format(group_name, str(group_year))
             results = self.what.request('browse', searchstr=search_str)['response']['results']
             for result in results:
                 if html_parser.unescape(result['groupName']).lower() == group_name and \
@@ -627,7 +624,7 @@ class TorrentMigrationJob(object):
         self.set_new_location()
         if self.REAL_RUN:
             os.makedirs(self.full_new_location)
-            shutil.move(wm_str(self.torrent_dir_path), wm_str(self.full_new_location))
+            shutil.move(self.torrent_dir_path, self.full_new_location)
             try:
                 recursive_chmod(self.full_new_location, 0o777)
             except OSError:
