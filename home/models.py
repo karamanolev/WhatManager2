@@ -23,7 +23,7 @@ from WhatManager2.settings import FREELEECH_EMAIL_TO, WHAT_CD_DOMAIN, FREELEECH_
     FREELEECH_EMAIL_FROM
 from WhatManager2.throttling import Throttler
 from WhatManager2.utils import match_properties, copy_properties, norm_t_torrent, html_unescape, \
-    wm_str, get_artists, wm_unicode
+    get_artists
 from home.info_holder import InfoHolder
 from what_meta.models import WhatTorrentGroup
 
@@ -453,17 +453,16 @@ class TransTorrent(TransTorrentBase):
         files_added = []
         if not any('.torrent' in f for f in files):
             files_added.append('torrent')
-            torrent_path = os.path.join(wm_str(self.path),
-                                        wm_str(self.what_torrent.torrent_file_name))
+            torrent_path = os.path.join(self.path, self.what_torrent.torrent_file_name)
             with open(torrent_path, 'wb') as file:
                 file.write(self.what_torrent.torrent_file_binary)
             os.chmod(torrent_path, 0o777)
         if not any('ReleaseInfo2.txt' == f for f in files):
             files_added.append('ReleaseInfo2.txt')
-            release_info_path = os.path.join(self.path.encode('utf-8'), 'ReleaseInfo2.txt')
-            with open(release_info_path.decode('utf-8'), 'w') as file:
+            release_info_path = os.path.join(self.path, 'ReleaseInfo2.txt')
+            with open(release_info_path, 'w') as file:
                 file.write(self.what_torrent.info)
-            os.chmod(os.path.join(release_info_path.decode('utf-8')), 0o777)
+            os.chmod(os.path.join(release_info_path), 0o777)
         if files_added:
             LogEntry.add(None, 'info', 'Added files {0} to {1}'
                          .format(', '.join(files_added), self))
@@ -527,7 +526,7 @@ class WhatFileMetadataCache(models.Model):
         return data
 
     def fill(self, filename, file_mtime):
-        metadata = mutagen.File(wm_str(filename), easy=True)
+        metadata = mutagen.File(filename, easy=True)
         if hasattr(metadata, 'pictures'):
             for p in metadata.pictures:
                 p.data = None
@@ -557,17 +556,15 @@ class WhatFileMetadataCache(models.Model):
         cache_lines = {c.filename_sha256: c for c in cache_lines}
 
         abs_rel_filenames = []
-        for dirpath, dirnames, filenames in os.walk(wm_str(torrent_path)):
-            unicode_dirpath = wm_unicode(dirpath)
-            unicode_filenames = [wm_unicode(f) for f in filenames]
-            for filename in unicode_filenames:
+        for dirpath, dirnames, filenames in os.walk(torrent_path):
+            for filename in filenames:
                 if os.path.splitext(filename)[1].lower() in ['.flac', '.mp3']:
-                    abs_path = os.path.join(unicode_dirpath, filename)
+                    abs_path = os.path.join(dirpath, filename)
                     rel_path = os.path.relpath(abs_path, torrent_path)
                     abs_rel_filenames.append((abs_path, rel_path))
         abs_rel_filenames.sort(key=lambda f: f[1])
 
-        filename_hashes = {f[0]: hashlib.sha256(wm_str(f[1])).hexdigest() for f in
+        filename_hashes = {f[0]: hashlib.sha256(f[1]).hexdigest() for f in
                            abs_rel_filenames}
         hash_set = set(filename_hashes.values())
         old_cache_lines = []
@@ -579,7 +576,7 @@ class WhatFileMetadataCache(models.Model):
         result = []
         for abs_path, rel_path in abs_rel_filenames:
             try:
-                file_mtime = os.path.getmtime(wm_str(abs_path))
+                file_mtime = os.path.getmtime(abs_path)
                 cache = cache_lines.get(filename_hashes[abs_path])
                 if cache is None:
                     cache = WhatFileMetadataCache(

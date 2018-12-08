@@ -9,7 +9,7 @@ from django.http.response import HttpResponse
 from django.shortcuts import render, redirect
 from django.template.defaultfilters import filesizeformat
 
-from WhatManager2.utils import build_url, get_user_token, auth_username_token, wm_str, attemptFixPermissions
+from WhatManager2.utils import build_url, get_user_token, auth_username_token, attemptFixPermissions
 from bibliotik.models import BibliotikTransTorrent
 from home.models import TransTorrent, WhatTorrent, ReplicaSet, LogEntry
 from player.player_utils import get_playlist_files
@@ -140,7 +140,7 @@ def delete_torrent(request, what_id):
     if not t_torrent:
         return HttpResponse('Could not find that torrent.')
 
-    path = wm_str(t_torrent.path) # Save this because t_torrent won't exist before rmtree is called
+    path = t_torrent.path # Save this because t_torrent won't exist before rmtree is called
     WhatTorrent.objects.get(info_hash=t_torrent.info_hash).delete()
     t_torrent.instance.client.remove_torrent(t_torrent.info_hash)
     try:

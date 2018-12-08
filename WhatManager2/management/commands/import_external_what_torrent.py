@@ -8,14 +8,13 @@ import bencode
 from django.core.management.base import BaseCommand
 
 from WhatManager2 import manage_torrent
-from WhatManager2.utils import wm_unicode, wm_str
 from home.models import WhatTorrent, DownloadLocation, ReplicaSet, TransTorrent
 from what_transcode.utils import get_info_hash
 
 
 def safe_makedirs(p):
     try:
-        os.makedirs(wm_str(p))
+        os.makedirs(p)
     except OSError as ex:
         if ex.errno != errno.EEXIST:
             raise ex
@@ -58,66 +57,56 @@ class Command(BaseCommand):
             return False
         return True
 
-    def get_unicode_torrent_files(self):
-        files = []
-        for f in self.torrent_info['info']['files']:
-            nf = dict(f)
-            nf['path'] = [wm_unicode(i) for i in nf['path']]
-            files.append(nf)
-        return files
-
     def check_files(self):
         print('Checking for existing files...')
         if 'files' in self.torrent_info['info']:
-            for f in self.get_unicode_torrent_files():
-                f_path = os.path.join(self.data_path, *f['path'])
-                print(wm_str('Checking {0}'.format(f_path)))
-                if not os.path.isfile(wm_str(f_path)):
-                    print(wm_str('{0} does not exist. What are you giving me?'.format(f_path)))
+            for f in self.torrent_info['info']['files']:
+                f_path = os.path.join(self.data_path, *dict(f)['path'])
+                print('Checking {0}'.format(f_path))
+                if not os.path.isfile(f_path):
+                    print('{0} does not exist. What are you giving me?'.format(f_path))
                     return False
         else:
             f_path = os.path.join(self.data_path, self.torrent_info['info']['name'])
-            print(wm_str('Checking {0}'.format(f_path)))
-            if not os.path.isfile(wm_str(f_path)):
-                print(wm_str('{0} does not exist. What are you giving me?'.format(f_path)))
+            print('Checking {0}'.format(f_path))
+            if not os.path.isfile(f_path):
+                print('{0} does not exist. What are you giving me?'.format(f_path))
                 return False
         print('Creating destination directory...')
         self.dest_path = os.path.join(self.download_location.path, str(self.what_torrent.id))
-        os.makedirs(wm_str(self.dest_path))
+        os.makedirs(self.dest_path)
         os.chmod(self.dest_path, 0o777)
         if 'files' in self.torrent_info['info']:
-            self.dest_path = os.path.join(self.dest_path, wm_unicode(
-                self.torrent_info['info']['name']))
-            os.makedirs(wm_str(self.dest_path))
+            self.dest_path = os.path.join(self.dest_path, self.torrent_info['info']['name'])
+            os.makedirs(self.dest_path)
         print('All torrent data files exist.')
         return True
 
     def move_files(self):
         print('Moving files to new directory...')
         if 'files' in self.torrent_info['info']:
-            for f in self.get_unicode_torrent_files():
+            for f in self.torrent_info['info']['files']:
+                f = dict(f)
                 f_path = os.path.join(self.data_path, *f['path'])
                 f_dest_path = os.path.join(self.dest_path, *f['path'])
                 safe_makedirs(os.path.dirname(f_dest_path))
-                shutil.move(wm_str(f_path), wm_str(f_dest_path))
+                shutil.move(f_path, f_dest_path)
         else:
-            f_path = os.path.join(self.data_path, wm_unicode(self.torrent_info['info']['name']))
-            f_dest_path = os.path.join(self.dest_path, wm_unicode(
-                self.torrent_info['info']['name']))
+            f_path = os.path.join(self.data_path, self.torrent_info['info']['name'])
+            f_dest_path = os.path.join(self.dest_path, self.torrent_info['info']['name'])
             safe_makedirs(os.path.dirname(f_dest_path))
-            shutil.move(wm_str(f_path), wm_str(f_dest_path))
+            shutil.move(f_path,f_dest_path)
 
     def handle(self, *args, **options):
         if not self.check_args(args):
             print('Pass the torrent data directory as a first argument, ' \
                   'a path to the .torrent file as a second.')
             return
-        self.data_path, self.torrent_path = [wm_unicode(i) for i in args]
-        with open(wm_str(self.torrent_path), 'rb') as f:
+        self.data_path, self.torrent_path = [i for i in args]
+        with open(self.torrent_path, 'rb') as f:
             self.torrent_info = bencode.bdecode(f.read())
         if options['base_dir']:
-            self.data_path = os.path.join(self.data_path,
-                                          wm_unicode(self.torrent_info['info']['name']))
+            self.data_path = os.path.join(self.data_path, self.torrent_info['info']['name'])
         print('Checking to see if torrent is already loaded into WM..')
         masters = list(ReplicaSet.get_what_master().transinstance_set.all())
         try:

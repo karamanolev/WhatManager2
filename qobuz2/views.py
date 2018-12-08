@@ -12,7 +12,6 @@ from django.views.decorators.http import last_modified
 
 from WhatManager2.management.commands import import_external_what_torrent
 from WhatManager2.settings import WHAT_ANNOUNCE, WHATIMG_USERNAME, WHATIMG_PASSWORD
-from WhatManager2.utils import wm_str
 from home.info_holder import WHAT_RELEASE_TYPES
 from home.models import RequestException, get_what_client, WhatTorrent
 from qiller.upload import QillerUpload
@@ -58,7 +57,7 @@ def get_image_last_modified(subpath):
             qobuz_upload = QobuzUpload.objects.get(id=upload_id)
             dest_path = os.path.join(get_temp_dir(qobuz_upload.upload.metadata.id), subpath,
                                      os.path.basename(request.GET['path']))
-            s = os.path.getmtime(wm_str(dest_path))
+            s = os.path.getmtime(dest_path)
             return datetime.datetime.utcfromtimestamp(s)
         except Exception:
             raise
@@ -73,7 +72,7 @@ def view_spectral(request, upload_id):
         qobuz_upload = QobuzUpload.objects.get(id=upload_id)
         dest_path = os.path.join(get_temp_dir(qobuz_upload.upload.metadata.id), 'spectrals',
                                  os.path.basename(request.GET['path']))
-        f = open(wm_str(dest_path), 'rb')
+        f = open(dest_path, 'rb')
         return HttpResponse(f, content_type='image/png')
     except Exception:
         return HttpResponseNotFound()
@@ -85,7 +84,7 @@ def view_cover(request, upload_id):
         qobuz_upload = QobuzUpload.objects.get(id=upload_id)
         dest_path = os.path.join(get_temp_dir(qobuz_upload.upload.metadata.id),
                                  os.path.basename(request.GET['path']))
-        f = open(wm_str(dest_path), 'rb')
+        f = open(dest_path, 'rb')
         return HttpResponse(f, content_type='image/jpeg')
     except Exception:
         return HttpResponseNotFound()
@@ -230,11 +229,11 @@ def seed_upload(request, upload_id):
     qobuz_upload = QobuzUpload.objects.get(id=upload_id)
     temp_dir = get_temp_dir(qobuz_upload.upload.metadata.id)
     torrent_path = os.path.join(temp_dir, qobuz_upload.upload.metadata.torrent_name + '.torrent')
-    assert os.path.isfile(wm_str(torrent_path))
+    assert os.path.isfile(torrent_path)
     info_hash = get_info_hash(torrent_path)
     what_torrent = WhatTorrent.get_or_create(request, info_hash=info_hash)
     command = import_external_what_torrent.Command()
-    command.handle(wm_str(temp_dir), wm_str(torrent_path), base_dir=False)
+    command.handle(temp_dir, torrent_path, base_dir=False)
     try:
         run_request_transcode(request, what_torrent.id)
     except Exception:

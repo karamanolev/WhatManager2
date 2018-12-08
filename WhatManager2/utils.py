@@ -98,22 +98,6 @@ def auth_username_token(fn):
     return inner
 
 
-def wm_unicode(s):
-    if isinstance(s, str):
-        return s.decode('utf-8')
-    elif isinstance(s, str):
-        return s
-    raise Exception('Unknown string type: {0}'.format(type(s)))
-
-
-def wm_str(s):
-    if isinstance(s, str):
-        return s.encode('utf-8')
-    elif isinstance(s, str):
-        return s
-    raise Exception('Unknown string type: {0}'.format(type(s)))
-
-
 class JoinedArtistsBuilder(object):
     def __init__(self, joined_artists_builder=None):
         if joined_artists_builder is None:
