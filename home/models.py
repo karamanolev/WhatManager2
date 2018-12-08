@@ -564,7 +564,7 @@ class WhatFileMetadataCache(models.Model):
                     abs_rel_filenames.append((abs_path, rel_path))
         abs_rel_filenames.sort(key=lambda f: f[1])
 
-        filename_hashes = {f[0]: hashlib.sha256(f[1]).hexdigest() for f in
+        filename_hashes = {f[0]: hashlib.sha256(f[1].encode('utf-8')).hexdigest() for f in 
                            abs_rel_filenames}
         hash_set = set(filename_hashes.values())
         old_cache_lines = []
