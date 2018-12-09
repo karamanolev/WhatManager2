@@ -6,6 +6,12 @@ from django.http.response import HttpResponse
 
 
 class HttpBasicAuthMiddleware(object):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        return self.get_response(request)
+    
     def get_response_401(self):
         response = HttpResponse('Unauthorized\r\n')
         response.status_code = 401
