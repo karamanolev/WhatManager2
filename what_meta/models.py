@@ -219,9 +219,9 @@ class WhatTorrentArtist(models.Model):
 class WhatMetaFulltext(models.Model):
     info = models.TextField()
     more_info = models.TextField()
-    artist = models.OneToOneField(WhatArtist, null=True)
-    artist_alias = models.OneToOneField(WhatArtistAlias, null=True)
-    torrent_group = models.OneToOneField(WhatTorrentGroup, null=True)
+    artist = models.OneToOneField(WhatArtist, null=True, on_delete=models.CASCADE)
+    artist_alias = models.OneToOneField(WhatArtistAlias, null=True, on_delete=models.CASCADE)
+    torrent_group = models.OneToOneField(WhatTorrentGroup, null=True, on_delete=models.CASCADE)
 
     @classmethod
     def create_or_update_artist(cls, artist):
