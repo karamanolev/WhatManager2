@@ -35,7 +35,7 @@ class QobuzUpload(models.Model):
     track_data_json = models.TextField()
     download_task_id = models.CharField(max_length=64, null=True)
     what_img_cover = models.CharField(max_length=256, null=True)
-    what_torrent = models.ForeignKey(WhatTorrent, null=True)
+    what_torrent = models.ForeignKey(WhatTorrent, null=True, on_delete=models.CASCADE)
 
     @cached_property
     def description_box(self):

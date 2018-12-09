@@ -9,7 +9,7 @@ from WhatManager2.utils import html_unescape, get_artists
 
 
 class WhatArtistAlias(models.Model):
-    artist = models.ForeignKey('WhatArtist')
+    artist = models.ForeignKey('WhatArtist', on_delete=models.CASCADE)
     name = models.CharField(max_length=200, unique=True)
 
     def save(self, *args, **kwargs):
@@ -210,9 +210,9 @@ class WhatTorrentGroup(models.Model):
 
 
 class WhatTorrentArtist(models.Model):
-    artist = models.ForeignKey(WhatArtist)
-    artist_alias = models.ForeignKey(WhatArtistAlias, null=True)
-    torrent_group = models.ForeignKey(WhatTorrentGroup)
+    artist = models.ForeignKey(WhatArtist, on_delete=models.CASCADE)
+    artist_alias = models.ForeignKey(WhatArtistAlias, null=True, on_delete=models.CASCADE)
+    torrent_group = models.ForeignKey(WhatTorrentGroup, on_delete=models.CASCADE)
     importance = models.IntegerField()
 
 

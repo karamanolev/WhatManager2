@@ -35,8 +35,8 @@ class BookUpload(models.Model):
     bibliotik_torrent_file = models.BinaryField(null=True)
     what_torrent_file = models.BinaryField(null=True)
 
-    bibliotik_torrent = models.ForeignKey('bibliotik.BibliotikTorrent', null=True, blank=True)
-    what_torrent = models.ForeignKey('home.WhatTorrent', null=True, blank=True)
+    bibliotik_torrent = models.ForeignKey('bibliotik.BibliotikTorrent', null=True, blank=True, on_delete=models.CASCADE)
+    what_torrent = models.ForeignKey('home.WhatTorrent', null=True, blank=True, on_delete=models.CASCADE)
 
     @property
     def tag_list(self):

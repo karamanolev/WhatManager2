@@ -187,7 +187,7 @@ class BibliotikTorrent(models.Model):
 
 
 class BibliotikTransTorrent(TransTorrentBase):
-    bibliotik_torrent = models.ForeignKey(BibliotikTorrent)
+    bibliotik_torrent = models.ForeignKey(BibliotikTorrent, on_delete=models.CASCADE)
 
     @property
     def path(self):

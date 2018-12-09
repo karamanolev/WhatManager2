@@ -123,7 +123,7 @@ class MAMTorrent(models.Model):
 
 
 class MAMTransTorrent(TransTorrentBase):
-    mam_torrent = models.ForeignKey(MAMTorrent)
+    mam_torrent = models.ForeignKey(MAMTorrent, on_delete=models.CASCADE)
 
     @property
     def path(self):

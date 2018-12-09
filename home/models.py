@@ -138,7 +138,7 @@ class TransInstance(models.Model):
             ('run_checks', 'Can run the validity checks.'),
         )
 
-    replica_set = models.ForeignKey(ReplicaSet)
+    replica_set = models.ForeignKey(ReplicaSet, on_delete=models.CASCADE)
     name = models.TextField()
     host = models.TextField()
     port = models.IntegerField()
@@ -284,8 +284,8 @@ class WhatTorrent(models.Model, InfoHolder):
     retrieved = models.DateTimeField(db_index=True)
     info = models.TextField()
     tags = models.TextField()
-    added_by = models.ForeignKey(User, null=True)
-    torrent_group = models.ForeignKey('what_meta.WhatTorrentGroup', null=True)
+    added_by = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+    torrent_group = models.ForeignKey('what_meta.WhatTorrentGroup', null=True, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
@@ -411,8 +411,8 @@ class TransTorrentBase(models.Model):
         ('torrent_error_string', 'errorString'),
     )
 
-    instance = models.ForeignKey(TransInstance)
-    location = models.ForeignKey(DownloadLocation)
+    instance = models.ForeignKey(TransInstance, on_delete=models.CASCADE)
+    location = models.ForeignKey(DownloadLocation, on_delete=models.CASCADE)
 
     info_hash = models.CharField(max_length=40)
     torrent_id = models.IntegerField(null=True)
@@ -436,7 +436,7 @@ class TransTorrentBase(models.Model):
 
 
 class TransTorrent(TransTorrentBase):
-    what_torrent = models.ForeignKey(WhatTorrent)
+    what_torrent = models.ForeignKey(WhatTorrent, on_delete=models.CASCADE)
 
     @property
     def path(self):
@@ -478,7 +478,7 @@ class LogEntry(models.Model):
             ('view_logentry', 'Can view the logs.'),
         )
 
-    user = models.ForeignKey(User, null=True, related_name='wm_logentry')
+    user = models.ForeignKey(User, null=True, related_name='wm_logentry', on_delete=models.CASCADE)
     datetime = models.DateTimeField(auto_now_add=True, db_index=True)
     type = models.TextField()
     message = models.TextField()
@@ -491,7 +491,7 @@ class LogEntry(models.Model):
 
 
 class WhatFileMetadataCache(models.Model):
-    what_torrent = models.ForeignKey(WhatTorrent)
+    what_torrent = models.ForeignKey(WhatTorrent, on_delete=models.CASCADE)
     filename_sha256 = models.CharField(max_length=64, primary_key=True)
     filename = models.CharField(max_length=500)
     file_mtime = models.IntegerField()
