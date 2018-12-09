@@ -21,7 +21,6 @@ class Migration(migrations.Migration):
                 ('info', models.TextField()),
             ],
             options={
-                'permissions': (('view_whatusersnapshot', 'Can view the user profile.'),),
             },
             bases=(models.Model,),
         ),

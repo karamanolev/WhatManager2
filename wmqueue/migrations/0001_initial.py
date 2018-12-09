@@ -25,7 +25,6 @@ class Migration(migrations.Migration):
                 ('torrent_size', models.BigIntegerField()),
             ],
             options={
-                'permissions': (('view_queueitem', 'Can view the queue.'),),
             },
             bases=(models.Model,),
         ),

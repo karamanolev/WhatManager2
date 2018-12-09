@@ -40,7 +40,6 @@ class Migration(migrations.Migration):
                                            null=True, on_delete=models.CASCADE)),
             ],
             options={
-                'permissions': (('view_logentry', 'Can view the logs.'),),
             },
             bases=(models.Model,),
         ),
@@ -119,7 +118,6 @@ class Migration(migrations.Migration):
             ],
             options={
                 'permissions': (
-                    ('view_whattorrent', 'Can view torrents.'),
                     ('download_whattorrent', 'Can download and play torrents.')
                 ),
             },
