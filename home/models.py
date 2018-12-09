@@ -274,7 +274,6 @@ class WhatFulltext(models.Model):
 class WhatTorrent(models.Model, InfoHolder):
     class Meta:
         permissions = (
-            ('view_whattorrent', 'Can view torrents.'),
             ('download_whattorrent', 'Can download and play torrents.'),
         )
 
@@ -473,11 +472,6 @@ class TransTorrent(TransTorrentBase):
 
 
 class LogEntry(models.Model):
-    class Meta:
-        permissions = (
-            ('view_logentry', 'Can view the logs.'),
-        )
-
     user = models.ForeignKey(User, null=True, related_name='wm_logentry', on_delete=models.CASCADE)
     datetime = models.DateTimeField(auto_now_add=True, db_index=True)
     type = models.TextField()

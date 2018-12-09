@@ -47,11 +47,6 @@ def is_existing(what_id):
 
 
 class QueueItem(models.Model):
-    class Meta:
-        permissions = (
-            ('view_queueitem', 'Can view the queue.'),
-        )
-
     datetime_added = models.DateTimeField(auto_now_add=True)
     what_id = models.IntegerField()
     priority = models.IntegerField()
