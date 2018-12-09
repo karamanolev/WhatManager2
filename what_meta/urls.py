@@ -1,6 +1,6 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+from what_meta.views import image
 
-urlpatterns = patterns(
-    '',
-    url(r'^cached_image$', 'what_meta.views.image'),
-)
+urlpatterns = [
+    url(r'^cached_image$', image),
+]
