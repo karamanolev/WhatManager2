@@ -21,15 +21,15 @@ def safe_makedirs(p):
 
 
 class Command(BaseCommand):
-    option_list = BaseCommand.option_list + (
-        make_option('--base-dir',
-                    action='store_true',
-                    dest='base_dir',
-                    default=False,
-                    help='Pass the containing directory of the torrent instead of the directory'
-                         ' itself. The name of the torrent will be automatically appended.'),
-    )
     help = 'Moves existing torrent data and import the torrent in WM.'
+
+    def add_arguments(self, parser):
+        parser.add_argument('--base-dir',
+                            action='store_true',
+                            dest='base_dir',
+                            default=False,
+                            help='Pass the containing directory of the torrent instead of the directory'
+                                 ' itself. The name of the torrent will be automatically appended.')
 
     def __init__(self):
         super(Command, self).__init__()
