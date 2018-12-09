@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 ('album', models.CharField(max_length=200)),
                 ('title', models.CharField(max_length=200, db_index=True)),
                 ('duration', models.FloatField()),
-                ('what_torrent', models.ForeignKey(to='home.WhatTorrent')),
+                ('what_torrent', models.ForeignKey(to='home.WhatTorrent', on_delete=models.CASCADE)),
             ],
             options={
             },

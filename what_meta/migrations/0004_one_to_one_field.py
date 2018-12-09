@@ -14,16 +14,19 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='whatmetafulltext',
             name='artist',
-            field=models.OneToOneField(null=True, to='what_meta.WhatArtist'),
+            field=models.OneToOneField(null=True, 
+                                       to='what_meta.WhatArtist', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='whatmetafulltext',
             name='artist_alias',
-            field=models.OneToOneField(null=True, to='what_meta.WhatArtistAlias'),
+            field=models.OneToOneField(null=True, 
+                                       to='what_meta.WhatArtistAlias', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='whatmetafulltext',
             name='torrent_group',
-            field=models.OneToOneField(null=True, to='what_meta.WhatTorrentGroup'),
+            field=models.OneToOneField(null=True, 
+                                       to='what_meta.WhatTorrentGroup', on_delete=models.CASCADE),
         ),
     ]

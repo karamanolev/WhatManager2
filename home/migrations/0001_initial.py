@@ -35,8 +35,9 @@ class Migration(migrations.Migration):
                 ('type', models.TextField()),
                 ('message', models.TextField()),
                 ('traceback', models.TextField(null=True)),
-                ('user', models.ForeignKey(related_name=b'wm_logentry',
-                                           to=settings.AUTH_USER_MODEL, null=True)),
+                ('user', models.ForeignKey(related_name='wm_logentry',
+                                           to=settings.AUTH_USER_MODEL, 
+                                           null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'permissions': (('view_logentry', 'Can view the logs.'),),
@@ -66,7 +67,7 @@ class Migration(migrations.Migration):
                 ('peer_port', models.IntegerField()),
                 ('username', models.TextField()),
                 ('password', models.TextField()),
-                ('replica_set', models.ForeignKey(to='home.ReplicaSet')),
+                ('replica_set', models.ForeignKey(to='home.ReplicaSet', on_delete=models.CASCADE)),
             ],
             options={
                 'permissions': (
@@ -113,7 +114,8 @@ class Migration(migrations.Migration):
                 ('info', models.TextField()),
                 ('tags', models.TextField()),
                 ('what_group_id', models.IntegerField()),
-                ('added_by', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
+                ('added_by', models.ForeignKey(to=settings.AUTH_USER_MODEL, 
+                                               null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'permissions': (
@@ -137,9 +139,9 @@ class Migration(migrations.Migration):
                 ('torrent_date_added', models.DateTimeField(null=True)),
                 ('torrent_error', models.IntegerField(null=True)),
                 ('torrent_error_string', models.TextField(null=True)),
-                ('instance', models.ForeignKey(to='home.TransInstance')),
-                ('location', models.ForeignKey(to='home.DownloadLocation')),
-                ('what_torrent', models.ForeignKey(to='home.WhatTorrent')),
+                ('instance', models.ForeignKey(to='home.TransInstance', on_delete=models.CASCADE)),
+                ('location', models.ForeignKey(to='home.DownloadLocation', on_delete=models.CASCADE)),
+                ('what_torrent', models.ForeignKey(to='home.WhatTorrent', on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,

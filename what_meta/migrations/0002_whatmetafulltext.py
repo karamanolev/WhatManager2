@@ -18,9 +18,10 @@ class Migration(migrations.Migration):
                     verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('info', models.TextField()),
                 ('more_info', models.TextField()),
-                ('artist', models.ForeignKey(null=True, to='what_meta.WhatArtist', unique=True)),
-                ('torrent_group', models.ForeignKey(
-                    null=True, to='what_meta.WhatTorrentGroup', unique=True)),
+                ('artist', models.ForeignKey(null=True, to='what_meta.WhatArtist', 
+                                             unique=True, on_delete=models.CASCADE)),
+                ('torrent_group', models.ForeignKey(null=True, to='what_meta.WhatTorrentGroup', 
+                                                    unique=True, on_delete=models.CASCADE)),
             ],
             options={
             },
