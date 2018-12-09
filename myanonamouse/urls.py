@@ -1,6 +1,5 @@
 from django.conf.urls import url
 from myanonamouse.views import sync, add_torrent, torrents_info, get_torrent_file
-from myanonamouse.maintenance_views import refresh_oldest_torrent, reparse_mam_pages
 
 app_name = 'myanonamouse'
 
