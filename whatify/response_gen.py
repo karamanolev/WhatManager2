@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.http import urlquote
 
 from WhatManager2.utils import get_artists, get_artists_list
