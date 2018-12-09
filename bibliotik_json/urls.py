@@ -1,6 +1,7 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+from django.views.generic.base import TemplateView
 from bibliotik_json.views import sync, add_torrent, search, torrents_info, get_torrent_file
-from bibliotik_json.maintenance_views import refresh_oldest_torrent, reparse_bibliotik_pages, cache_next
+from bibliotik_json.maintenance_views import refresh_oldest_torrent, reparse_bibliotik_pages
 
 app_name = 'bibliotik_json'
 
@@ -13,5 +14,5 @@ urlpatterns = [
     # Maintenance views
     url(r'^refresh_oldest_torrent$', refresh_oldest_torrent),
     url(r'^reparse_bibliotik_pages$', reparse_bibliotik_pages),
-    url(r'^cache_next$', cache_next),
+    url(r'^cache_next$', TemplateView.as_view(template_name='cache_next.html')),
 ]
