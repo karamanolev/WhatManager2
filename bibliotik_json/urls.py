@@ -2,6 +2,8 @@ from django.conf.urls import patterns, url
 from bibliotik_json.views import sync, add_torrent, search, torrents_info, get_torrent_file
 from bibliotik_json.maintenance_views import refresh_oldest_torrent, reparse_bibliotik_pages, cache_next
 
+app_name = 'bibliotik_json'
+
 urlpatterns = [
     url(r'^sync$', sync),
     url(r'^add/(\d+)$', add_torrent),

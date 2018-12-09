@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from player.views import index, get_file, metadata, album_art
 
+app_name = 'player'
+
 urlpatterns = [
     url(r'^$', index),
     url(r'^file$', get_file),

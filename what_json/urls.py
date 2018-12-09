@@ -4,6 +4,8 @@ from what_json.views import (add_torrent, checks, move_torrent_to_location,
                              sync_replicas, torrents_info, update_freeleech,
                              what_proxy)
 
+app_name = 'what_json'
+
 urlpatterns = [
     url(r'^checks$', checks),
     url(r'^add_torrent$', add_torrent),

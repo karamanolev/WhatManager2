@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from wmqueue.views import index
 
+app_name = 'wmqueue'
+
 urlpatterns = [
     url(r'^$', index),
     url(r'^part/queue_stats$', queue_stats),

@@ -3,6 +3,8 @@ from books.views import (edit_upload, new_upload, skip_bibliotik, skip_what,
                          upload_cover, upload_cover_upload,
                          upload_generate_torrents, upload_to_what, uploads)
 
+app_name = 'books'
+
 urlpatterns = [
     url(r'^uploads$', uploads),
     url(r'^uploads/new$', new_upload),

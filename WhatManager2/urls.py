@@ -3,6 +3,8 @@ from django.contrib import admin
 
 admin.autodiscover()
 
+app_name = 'WhatManager2'
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include('home.urls')),

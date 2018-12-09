@@ -5,6 +5,8 @@ from home.parts import (checks, downloading, error_torrents, recent_log,
 from home.views import (add_all, checks, dashboard, remove_transmission_dupes,
                         stats, torrents, userscripts, view_log)
 
+app_name = 'home'
+
 urlpatterns = [
     url(r'^$', dashboard),
     url(r'^torrents$', torrents),

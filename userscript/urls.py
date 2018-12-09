@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from userscript.views import bibliotik, whatcd, overdrive, myanonamouse
 
+app_name = 'userscript'
+
 urlpatterns = [
     url(r'^bibliotik.user.js$', bibliotik),
     url(r'^what.cd.user.js$', whatcd),
