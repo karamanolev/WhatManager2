@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from qobuz.views import (download_torrent_file, edit_upload, new_upload,
+from .views import (download_torrent_file, edit_upload, new_upload,
                          start_download_album, start_seeding,
                          upload_cover_to_whatimg, uploads, view_cover,
                          view_spectral)

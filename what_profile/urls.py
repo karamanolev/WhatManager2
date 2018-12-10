@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from django.views.generic.base import TemplateView
-from what_profile.views import profile
+from .views import profile
 
 app_name = 'what_profile'
 

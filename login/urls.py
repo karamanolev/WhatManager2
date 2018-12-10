@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from login.views import login, logout, view_token
+from .views import login, logout, view_token
 
 app_name = 'login'
 

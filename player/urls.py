@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from player.views import index, get_file, metadata, album_art
+from .views import index, get_file, metadata, album_art
 
 app_name = 'player'
 

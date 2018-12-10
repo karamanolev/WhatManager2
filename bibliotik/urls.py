@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from bibliotik.views import upload_book, refresh_ui, cache_worker
+from .views import upload_book, refresh_ui, cache_worker
 
 app_name = 'bibliotik'
 

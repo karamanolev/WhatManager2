@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from myanonamouse.views import sync, add_torrent, torrents_info, get_torrent_file
+from .views import sync, add_torrent, torrents_info, get_torrent_file
 
 app_name = 'myanonamouse'
 

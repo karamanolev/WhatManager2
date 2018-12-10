@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from what_meta.views import image
+from .views import image
 
 app_name = 'what_meta'
 

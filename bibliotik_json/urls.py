@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from django.views.generic.base import TemplateView
-from bibliotik_json.views import sync, add_torrent, search, torrents_info, get_torrent_file
-from bibliotik_json.maintenance_views import refresh_oldest_torrent, reparse_bibliotik_pages
+from .views import sync, add_torrent, search, torrents_info, get_torrent_file
+from .maintenance_views import refresh_oldest_torrent, reparse_bibliotik_pages
 
 app_name = 'bibliotik_json'
 

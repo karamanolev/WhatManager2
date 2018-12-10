@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from django.views.generic.base import TemplateView
-from wmqueue.views import index
+from .views import index
 
 app_name = 'wmqueue'
 

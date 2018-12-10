@@ -1,8 +1,8 @@
 from django.conf.urls import url
-from home.parts import (checks, downloading, error_torrents, recent_log,
+from .parts import (checks, downloading, error_torrents, recent_log,
                         recently_downloaded, search_torrents, stats,
                         torrent_stats)
-from home.views import (add_all, checks, dashboard, remove_transmission_dupes,
+from .views import (add_all, checks, dashboard, remove_transmission_dupes,
                         stats, torrents, userscripts, view_log)
 
 app_name = 'home'

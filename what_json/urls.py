@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from what_json.views import (add_torrent, checks, move_torrent_to_location,
+from .views import (add_torrent, checks, move_torrent_to_location,
                              refresh_whattorrent, run_load_balance, sync,
                              sync_replicas, torrents_info, update_freeleech,
                              what_proxy)

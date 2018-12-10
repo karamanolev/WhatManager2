@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from userscript.views import bibliotik, whatcd, overdrive, myanonamouse
+from .views import bibliotik, whatcd, overdrive, myanonamouse
 
 app_name = 'userscript'
 

@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from download.views import download_zip, download_bibliotik_zip, download_pls, delete_torrent
+from .views import download_zip, download_bibliotik_zip, download_pls, delete_torrent
 
 app_name = 'download'
 
