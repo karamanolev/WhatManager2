@@ -176,7 +176,7 @@ TEMPLATES = [
         'DIRS': [
             os.path.join(os.path.dirname(__file__), '..', 'templates').replace('\\', '/')
         ],
-        'APP_DIRS': False,
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
@@ -212,15 +212,14 @@ ROOT_URLCONF = 'WhatManager2.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'WhatManager2.wsgi.application'
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     # Django apps
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.admin',
     # Library apps
     'djcelery',
     'bootstrapform',
@@ -240,7 +239,7 @@ INSTALLED_APPS = (
     'whatify',
     'qobuz2',
     'myanonamouse',
-)
+]
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
