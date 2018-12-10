@@ -4,5 +4,5 @@ from .views import image
 app_name = 'what_meta'
 
 urlpatterns = [
-    url(r'^cached_image$', image),
+    url(r'^cached_image$', image, name='image'),
 ]
