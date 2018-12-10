@@ -88,9 +88,9 @@
         var dgPlayer = DGPlayer($('#dgplayer')[0], playActive, pause, pauseActive);
 
         var playerUrls = {
-            file: '{% url 'player.views.get_file' %}',
-            metadata: '{% url 'player.views.metadata' %}',
-            coverArt: '{% url 'player.views.album_art' %}'
+            file: '{% url 'player:get_file' %}',
+            metadata: '{% url 'player:metadata' %}',
+            coverArt: '{% url 'player:album_art' %}'
         }
         var player = multiplayer(dgPlayer, playerUrls);
         player.endedCallback = function () {

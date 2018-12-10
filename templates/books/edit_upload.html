@@ -8,8 +8,8 @@
     </div>
     <div id="breadcrumb">
         <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
-        <a href="{% url 'books.views.uploads' %}">Book Uploads</a>
-        <a href="{% url 'books.views.edit_upload' book.id %}" class="current">Edit Upload</a>
+        <a href="{% url 'books:uploads' %}">Book Uploads</a>
+        <a href="{% url 'books:edit_upload' book.id %}" class="current">Edit Upload</a>
     </div>
 
     <div class="container-fluid">
@@ -21,7 +21,7 @@
                         <h5>Book Details</h5>
                     </div>
                     <div class="widget-content nopadding">
-                        <form action="{% url 'books.views.edit_upload' book.id %}" method="post"
+                        <form action="{% url 'books:edit_upload' book.id %}" method="post"
                               enctype="multipart/form-data" class="form-horizontal" role="form">
                             {% csrf_token %}
                             {{ form|bootstrap_horizontal }}
@@ -55,7 +55,7 @@
                                                     Upload to bibliotik.me
                                                 </button>
                                                 {# <a class="btn btn-block btn-warning"#}
-                                                {#    href="{% url 'books.views.skip_bibliotik' book.id %}">#}
+                                                {#    href="{% url 'books:skip_bibliotik' book.id %}">#}
                                                 {#     Skip bibliotik.me#}
                                                 {# </a>#}
                                             {% endif %}
@@ -70,7 +70,7 @@
                                                     Upload to what.cd
                                                 </button>
                                                 {#  <a class="btn btn-block btn-warning"#}
-                                                {#     href="{% url 'books.views.skip_what' book.id %}">#}
+                                                {#     href="{% url 'books:skip_what' book.id %}">#}
                                                 {#      Skip what.cd#}
                                                 {#  </a>#}
                                             {% endif %}
@@ -81,13 +81,13 @@
                                         {% endif %}
                                     {% else %}
                                         <a class="btn btn-block btn-default"
-                                           href="{% url 'books.views.upload_generate_torrents' book.id %}">
+                                           href="{% url 'books:upload_generate_torrents' book.id %}">
                                             Generate torrents
                                         </a>
                                     {% endif %}
                                 {% else %}
                                     <a class="btn btn-block btn-primary"
-                                       href="{% url 'books.views.upload_cover_upload' book.id %}">
+                                       href="{% url 'books:upload_cover_upload' book.id %}">
                                         Upload cover to whatimg
                                     </a>
                                 {% endif %}
@@ -103,7 +103,7 @@
                                 <h5>Book Cover</h5>
                             </div>
                             <div class="widget-content">
-                                <img src="{% url 'books.views.upload_cover' book.id %}"
+                                <img src="{% url 'books:upload_cover' book.id %}"
                                      style="width: 100%;"/>
                             </div>
                         </div>
@@ -119,15 +119,15 @@
 
     <script>
         function whatUpload() {
-            var url = "{% url 'books.views.upload_to_what' book.id %}";
-            url += "?return={% url 'books.views.edit_upload' book.id %}";
+            var url = "{% url 'books:upload_to_what' book.id %}";
+            url += "?return={% url 'books:edit_upload' book.id %}";
             window.location = url;
         }
 
         function bibliotikUpload() {
             var bibliotikSessionId = stealBibliotikSessionId(function (sessionId) {
-                var url = "{% url 'bibliotik.views.upload_book' book.id %}";
-                url += "?return={% url 'books.views.edit_upload' book.id %}";
+                var url = "{% url 'bibliotik:upload_book' book.id %}";
+                url += "?return={% url 'books:edit_upload' book.id %}";
                 url += "&bibliotik_id=" + encodeURIComponent(sessionId);
                 window.location = url;
             });

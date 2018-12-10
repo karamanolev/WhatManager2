@@ -7,8 +7,8 @@
         <h1>Bibliotik Data Refresh</h1>
     </div>
     <div id="breadcrumb">
-        <a href="{% url 'home.views.dashboard' %}" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
-        <a href="{% url 'bibliotik.views.refresh_ui' %}" class="current">Bibliotik Data Refresh</a>
+        <a href="{% url 'home:dashboard' %}" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="{% url 'bibliotik:refresh_ui' %}" class="current">Bibliotik Data Refresh</a>
     </div>
 
     <div class="container-fluid">
@@ -58,7 +58,7 @@
                     }
                 }
                 var refreshItem = function () {
-                    $.getJSON('{% url 'bibliotik_json.views.refresh_oldest_torrent' %}', { bibliotik_id: sessionId }, function (resp) {
+                    $.getJSON("{% url 'bibliotik_json:refresh_oldest_torrent' %}", { bibliotik_id: sessionId }, function (resp) {
                         appendLog(JSON.stringify(resp));
                         if (!resp.success) {
                             refreshItemFail();

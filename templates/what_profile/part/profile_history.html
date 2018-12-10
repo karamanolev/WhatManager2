@@ -12,6 +12,6 @@
 </div>
 
 <script>
-    var profileHistoryUrl = '{% url 'what_profile.parts.profile_history' %}';
+    var profileHistoryUrl = '{% url 'what_profile:profile_history' %}';
     $('#profile_history_row .widget-content').timedReload(profileHistoryUrl, 60 * 1000)
 </script>

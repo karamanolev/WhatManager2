@@ -2,7 +2,7 @@
     $(function () {
         function search() {
             var query = $('#search input').val();
-            redirectShortly('{% url 'home.views.torrents' %}?search=' + encodeURIComponent(query));
+            redirectShortly("{% url 'home:torrents' %}?search=" + encodeURIComponent(query));
         }
 
         $('#search input').typeWatch({

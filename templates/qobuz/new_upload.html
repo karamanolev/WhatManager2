@@ -8,8 +8,8 @@
     </div>
     <div id="breadcrumb">
         <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
-        <a href="{% url 'qobuz.views.uploads' %}">Qobuz Uploads</a>
-        <a href="{% url 'qobuz.views.new_upload' %}" class="current">New Upload</a>
+        <a href="{% url 'qobuz:uploads' %}">Qobuz Uploads</a>
+        <a href="{% url 'qobuz:new_upload' %}" class="current">New Upload</a>
     </div>
 
     <div class="container-fluid">
@@ -21,7 +21,7 @@
                         <h5>Qobuz Album</h5>
                     </div>
                     <div class="widget-content nopadding">
-                        <form action="{% url 'qobuz.views.new_upload' %}" method="post"
+                        <form action="{% url 'qobuz:new_upload' %}" method="post"
                               class="form" role="form">
                             {% csrf_token %}
                             {{ form|bootstrap }}

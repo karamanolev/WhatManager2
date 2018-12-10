@@ -27,8 +27,8 @@
     </div>
     <div id="breadcrumb">
         <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
-        <a href="{% url 'books.views.uploads' %}">Book Uploads</a>
-        <a href="{% url 'books.views.new_upload' %}" class="current">New Upload</a>
+        <a href="{% url 'books:uploads' %}">Book Uploads</a>
+        <a href="{% url 'books:new_upload' %}" class="current">New Upload</a>
     </div>
 
     <div class="container-fluid">
@@ -40,7 +40,7 @@
                         <h5>E-book files</h5>
                     </div>
                     <div class="widget-content nopadding">
-                        <form action="{% url 'books.views.new_upload' %}" method="post" enctype="multipart/form-data">
+                        <form action="{% url 'books:new_upload' %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <table class="table table-bordered">
                                 {% if errors %}

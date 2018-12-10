@@ -8,7 +8,7 @@
     </div>
     <div id="breadcrumb">
         <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
-        <a href="{% url 'wmqueue.views.index' %}" class="current"><i class="fa fa-list-alt"></i> Queue</a>
+        <a href="{% url 'wmqueue:index' %}" class="current"><i class="fa fa-list-alt"></i> Queue</a>
     </div>
     <div class="container-fluid">
         {% if perms.wmqueue.view_queueitem %}

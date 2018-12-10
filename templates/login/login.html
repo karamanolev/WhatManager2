@@ -19,7 +19,7 @@
         </div>
 
         <div id="loginbox" style="height: 186px;">
-            <form id="loginform" class="form-vertical" action="{% url 'login.views.login' %}" method="POST">
+            <form id="loginform" class="form-vertical" action="{% url 'login:login' %}" method="POST">
                 {% csrf_token %}
 
                 <p>Enter username and password to continue.</p>

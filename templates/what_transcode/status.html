@@ -34,12 +34,12 @@
 
 <script>
     function reloadStatusTable() {
-        $('#status-table').load('{% url 'what_transcode.views.status_table' %}', function () {
+        $('#status-table').load('{% url 'what_transcode:status_table' %}', function () {
             $('#status-table .button-retry').click(function () {
                 $this = $(this);
                 var what_id = $this.parents('tr').data('what-id');
 
-                $.post('{% url 'what_transcode.views.request_retry' %}', {
+                $.post('{% url 'what_transcode:request_retry' %}', {
                     'csrfmiddlewaretoken': '{{ csrf_token }}',
                     'what_id': what_id
                 }, function (data) {
@@ -65,7 +65,7 @@
         $('#btn-request').attr('disabled', true);
         $('#request-what-id').attr('disabled', true);
 
-        $.post('{% url 'what_transcode.views.request_transcode' %}', {
+        $.post('{% url 'what_transcode:request_transcode' %}', {
             'csrfmiddlewaretoken': '{{ csrf_token }}',
             'what_id': $('#request-what-id').val()
         }, function (data) {

@@ -25,8 +25,8 @@
     </div>
     <div id="breadcrumb">
         <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
-        <a href="{% url 'qobuz2.views.index' %}">Qobuz Uploads</a>
-        <a href="{% url 'qobuz2.views.edit_upload' upload.id %}" class="current">
+        <a href="{% url 'qobuz2:index' %}">Qobuz Uploads</a>
+        <a href="{% url 'qobuz2:edit_upload' upload.id %}" class="current">
             Edit Qobuz Upload
         </a>
     </div>
@@ -40,7 +40,7 @@
                         <h5>Upload Details</h5>
                     </div>
                     <div class="widget-content nopadding">
-                        <form action="{% url 'qobuz2.views.edit_upload' upload.id %}" method="post"
+                        <form action="{% url 'qobuz2:edit_upload' upload.id %}" method="post"
                               enctype="multipart/form-data" class="form-horizontal" role="form">
                             {% csrf_token %}
                             {{ artists_formset.management_form }}
@@ -85,14 +85,14 @@
                                 <h5>Album Actions</h5>
                             </div>
                             <div class="widget-content">
-                                <a href="{% url 'qobuz2.views.title_case' upload.id %}"
+                                <a href="{% url 'qobuz2:title_case' upload.id %}"
                                    class="btn btn-block btn-default">
                                     Title Case
                                 </a>
 
                                 {% if upload.upload.state == STATE_INITIALIZED %}
                                     {% if not status %}
-                                        <a href="{% url 'qobuz2.views.start_download' upload.id %}"
+                                        <a href="{% url 'qobuz2:start_download' upload.id %}"
                                            class="btn btn-block btn-primary">
                                             Download from Qobuz
                                         </a>
@@ -103,7 +103,7 @@
                                     {% elif status == 'failed' %}
                                         <div class="alert alert-danger">
                                             {{ error }}
-                                            <a href="{% url 'qobuz2.views.start_download' upload.id %}"
+                                            <a href="{% url 'qobuz2:start_download' upload.id %}"
                                                class="btn btn-block btn-default">
                                                 Retry
                                             </a>
@@ -112,7 +112,7 @@
                                         Unknown status
                                     {% endif %}
                                 {% elif upload.upload.state == STATE_DOWNLOADED %}
-                                    <a href="{% url 'qobuz2.views.prepare' upload.id %}"
+                                    <a href="{% url 'qobuz2:prepare' upload.id %}"
                                        class="btn btn-block btn-primary">
                                         Prepare
                                     </a>
@@ -131,7 +131,7 @@
                             <div class="widget-content">
                                 {% for file in images %}
                                     <img class="spectral-image"
-                                         src="{% url 'qobuz2.views.view_cover' upload.id %}?path={{ file }}">
+                                         src="{% url 'qobuz2:view_cover' upload.id %}?path={{ file }}">
                                 {% endfor %}
                             </div>
                         </div>
@@ -145,7 +145,7 @@
                                 <h5>Find/Replace</h5>
                             </div>
                             <div class="widget-content">
-                                <form action="{% url 'qobuz2.views.find_replace' upload.id %}"
+                                <form action="{% url 'qobuz2:find_replace' upload.id %}"
                                       method="post">
                                     {% csrf_token %}
                                     Find:

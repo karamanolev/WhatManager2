@@ -12,7 +12,7 @@
                     {% for file in spectrals %}
                         <p>
                             <img class="spectral-image"
-                                 src="{% url 'qobuz2.views.view_spectral' upload.id %}?path={{ file|urlencode }}">
+                                 src="{% url 'qobuz2:view_spectral' upload.id %}?path={{ file|urlencode }}">
                         </p>
                     {% endfor %}
                 </div>

@@ -9,6 +9,6 @@
 </div>
 
 <script>
-    var torrentStatsUrl = '{% url 'home.parts.torrent_stats' %}';
+    var torrentStatsUrl = '{% url 'home:torrent_stats' %}';
     var reloadTorrentStats = $('#torrent_stats_row .widget-content').timedReload(torrentStatsUrl, 10000)
 </script>

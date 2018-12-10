@@ -22,7 +22,7 @@
 
 {% if perms.home.view_whattorrent %}
     <script>
-        var recentlyDownloadedUrl = '{% url 'home.parts.recently_downloaded' %}';
+        var recentlyDownloadedUrl = '{% url 'home:recently_downloaded' %}';
         $('#recently_downloaded_row .widget-content').timedReload(recentlyDownloadedUrl, 5000, function () {
             $('#recently_downloaded_row').refreshTooltips();
         });

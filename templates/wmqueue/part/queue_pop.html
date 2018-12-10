@@ -17,8 +17,8 @@
 </div>
 
 <script>
-    var queuePopUrl = '{% url 'wmqueue.parts.queue_pop' %}';
-    var doPopUrl = '{% url 'wmqueue.parts.do_pop' %}';
+    var queuePopUrl = '{% url 'wmqueue:queue_pop' %}';
+    var doPopUrl = '{% url 'wmqueue:do_pop' %}';
     var reloadQueuePop = $('#queue_pop').timedReload(queuePopUrl, 30000);
 
     $('.btn-queue-pop').click(function () {
