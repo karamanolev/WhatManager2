@@ -7,12 +7,15 @@ import shutil
 import subprocess
 from optparse import make_option
 
-import WhatManager2.settings
-from WhatManager2.settings import TRANSMISSION_FILES_ROOT, TRANSMISSION_BIND_HOST
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
 
-from WhatManager2.utils import read_text, write_text
+import WhatManager2.settings
 from home import models
+from WhatManager2.settings import (TRANSMISSION_BIND_HOST,
+                                   TRANSMISSION_FILES_ROOT,
+                                   TRANSMISSION_PASSWORD)
+from WhatManager2.utils import read_text, write_text
 
 transmission_init_script_template = '''#!/bin/sh -e
 ### BEGIN INIT INFO
@@ -367,6 +370,7 @@ def ensure_replica_set_exists(zone):
 def ensure_replica_sets_exist():
     ensure_replica_set_exists(models.ReplicaSet.ZONE_WHAT)
     ensure_replica_set_exists(models.ReplicaSet.ZONE_BIBLIOTIK)
+    ensure_replica_set_exists(models.ReplicaSet.ZONE_MYANONAMOUSE)
 
 
 # TODO: Implement it in a non-ugly way!
@@ -376,19 +380,78 @@ def apply_options(options):
 
 
 class Command(BaseCommand):
-    option_list = BaseCommand.option_list + (
-        make_option('--no-confirm',
+    help = 'Provisions transmission instances'
+
+    def add_arguments(self, parser):
+        parser.add_argument('--no-confirm',
                     action='store_false',
                     dest='confirm',
                     default=True,
-                    help='Do not ask for confirmation'),
-    )
-    help = 'Provisions transmission instances'
-
+                    help='Do not ask for confirmation')
+        
+        parser.add_argument('--new',
+                    action='store',
+                    dest='zone',
+                    default=None,
+                    help='Provision new instance')
+    
     def handle(self, *args, **options):
         apply_options(options)
         ensure_root()
         ensure_replica_sets_exist()
-        for instance in models.TransInstance.objects.order_by('name'):
-            manager = TransInstanceManager(instance)
-            manager.sync()
+        if options['zone'] is None:
+            for instance in models.TransInstance.objects.order_by('name'):
+                manager = TransInstanceManager(instance)
+                manager.sync()
+        else:
+            replica_set = models.ReplicaSet.objects.get(zone=options['zone'])
+            old_instances = replica_set.transinstance_set.order_by('-port').all()
+            if len(old_instances):
+                old_instance = old_instances[0]
+            else:
+                if replica_set.zone == models.ReplicaSet.ZONE_WHAT:
+                    zero_port = 9090
+                    zero_peer_port = 21412
+                elif replica_set.zone == models.ReplicaSet.ZONE_BIBLIOTIK:
+                    zero_port = 10090
+                    zero_peer_port = 22412
+                elif replica_set.zone == models.ReplicaSet.ZONE_MYANONAMOUSE:
+                    zero_port = 11090
+                    zero_peer_port = 23412
+                else:
+                    raise Exception('Unknown zone')
+                old_instance = models.TransInstance(
+                    replica_set=replica_set,
+                    name='{0}00'.format(replica_set.zone
+                                        .replace('.cd', '')
+                                        .replace('.org', '')
+                                        .replace('.net', '')
+                                        .replace('.me', '')
+                                        .replace('.ch', '')),
+                    host='127.0.0.1',
+                    port=zero_port,
+                    peer_port=zero_peer_port,
+                    username='transmission',
+                    password=TRANSMISSION_PASSWORD,
+                )
+            new_instance = models.TransInstance(
+                replica_set=old_instance.replica_set,
+                name='{0}{1:02}'.format(old_instance.name[:-2], int(old_instance.name[-2:]) + 1),
+                host=old_instance.host,
+                port=old_instance.port + 1,
+                peer_port=old_instance.peer_port + 1,
+                username=old_instance.username,
+                password=TRANSMISSION_PASSWORD,
+            )
+            print(new_instance.full_description())
+            print('Is this OK?')
+            confirm()
+            with transaction.atomic():
+                instance_manager = TransInstanceManager(new_instance)
+                instance_manager.sync()
+                new_instance.save()
+
+            print('Starting daemon...')
+            instance_manager.start_daemon()
+
+            print('Instance synced and saved.')
