@@ -19,7 +19,7 @@ def login(request):
                 if 'next' in request.GET:
                     return redirect(request.GET['next'])
                 else:
-                    return redirect('home.views.dashboard')
+                    return redirect('home:dashboard')
     else:
         username = ''
         password = ''
@@ -32,7 +32,7 @@ def login(request):
 
 def logout(request):
     auth.logout(request)
-    return redirect('home.views.dashboard')
+    return redirect('home:dashboard')
 
 
 @login_required
