@@ -85,7 +85,7 @@ def get_user_token(user):
 
 def auth_username_token(fn):
     def inner(request, *args, **kwargs):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             try:
                 user = User.objects.get(username=request.GET.get('username'))
             except User.DoesNotExist:

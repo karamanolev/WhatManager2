@@ -22,7 +22,7 @@ from what_transcode.utils import get_trans_torrent, torrent_is_preemphasized, ge
 
 def request_is_allowed(request):
     return (
-        request.user.is_authenticated() and
+        request.user.is_authenticated and
         request.user.is_active and
         request.user.has_perm('what_transcode.add_transcoderequest')
     )
@@ -37,7 +37,7 @@ def request_get_what_user(request):
 
 
 def request_allow_retry(request):
-    return request.user.is_authenticated() and request.user.is_active and request.user.is_superuser
+    return request.user.is_authenticated and request.user.is_active and request.user.is_superuser
 
 
 def index(request):
@@ -236,14 +236,14 @@ def run_request_transcode(request, what_id):
             instance = ReplicaSet.get_what_master().get_preferred_instance()
             download_location = DownloadLocation.get_what_preferred()
             m_torrent = add_torrent(request, instance, download_location, what_id)
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 m_torrent.what_torrent.added_by = request.user
             else:
                 m_torrent.what_torrent.added_by = None
             m_torrent.what_torrent.tags = 'transcode'
             m_torrent.what_torrent.save()
 
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 log_user = request.user
             else:
                 log_user = None
@@ -255,7 +255,7 @@ def run_request_transcode(request, what_id):
         }
     except Exception as ex:
         tb = traceback.format_exc()
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             current_user = request.user
         else:
             current_user = None
