@@ -24,6 +24,8 @@ class Command(BaseCommand):
     help = 'Moves existing torrent data and import the torrent in WM.'
 
     def add_arguments(self, parser):
+        parser.add_argument('data_dir')
+        parser.add_argument('torrent_file')
         parser.add_argument('--base-dir',
                             action='store_true',
                             dest='base_dir',
@@ -43,15 +45,13 @@ class Command(BaseCommand):
         self.dest_path = None
         self.what_torrent = None
 
-    def check_args(self, args):
-        if len(args) != 2:
+    def check_opts(self, options):
+        if not os.path.isdir(options['data_dir']):
             return False
-        if not os.path.isdir(args[0]):
-            return False
-        if not os.path.isfile(args[1]):
+        if not os.path.isfile(options['torrent_file']):
             return False
         try:
-            self.info_hash = get_info_hash(args[1])
+            self.info_hash = get_info_hash(options['torrent_file'])
         except Exception:
             print('Invalid .torrent file.')
             return False
@@ -98,11 +98,12 @@ class Command(BaseCommand):
             shutil.move(f_path,f_dest_path)
 
     def handle(self, *args, **options):
-        if not self.check_args(args):
+        if not self.check_opts(options):
             print('Pass the torrent data directory as a first argument, ' \
                   'a path to the .torrent file as a second.')
             return
-        self.data_path, self.torrent_path = [i for i in args]
+        self.data_path = options['data_dir']
+        self.torrent_path = options['torrent_file']
         with open(self.torrent_path, 'rb') as f:
             self.torrent_info = bencode.bdecode(f.read())
         if options['base_dir']:
