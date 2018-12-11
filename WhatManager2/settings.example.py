@@ -29,7 +29,7 @@ TRANSMISSION_FILES_ROOT = '/mnt/tank/Torrent/transmission-daemon'
 # Transmission's ipv4 bind address. Leave as is or changed to specific ip.
 TRANSMISSION_BIND_HOST = '0.0.0.0'
 # Set this to true to use systemd rather than Upstart for Transmission daemon instances
-TRANSMISSION_USE_SYSTEMD = False
+TRANSMISSION_USE_SYSTEMD = True
 
 # You only need these if you are uploading books
 WHATIMG_USERNAME = 'whatimg username'
