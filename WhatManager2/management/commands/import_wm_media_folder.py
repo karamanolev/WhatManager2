@@ -23,16 +23,16 @@ def safe_makedirs(p):
 
 
 class Command(BaseCommand):
-    args = '<wm_media>'
-    option_list = BaseCommand.option_list + (
-        make_option('--no-move',
-                    action='store_true',
-                    dest='no_move',
-                    default=False,
-                    help='Prevent import from moving and grouping folders when import errors occur'),
-    )
     help = 'Scans WM media folder from a previous installation and imports available torrents + data.'\
            ' Sorts and groups errored torrents into folders for easy post-import fixing/debugging'
+
+    def add_arguments(self, parser):
+        parser.add_argument('wm_media')
+        parser.add_argument('--no-move',
+                    action='store_false',
+                    dest='move',
+                    default=True,
+                    help='Prevent import from moving and grouping folders when import errors occur')
             
     def __init__(self):
         super(Command, self).__init__()
@@ -63,13 +63,6 @@ class Command(BaseCommand):
         except Exception as e:
             shutil.rmtree(d)
             raise e
-
-    def check_args(self, args):
-        if len(args) != 1:
-            return False
-        if not os.path.isdir(args[0]):
-            return False
-        return True
 
     def check_files(self):
         print('Checking for existing files...')
@@ -118,15 +111,15 @@ class Command(BaseCommand):
         self.subfolder_move('imported', self.torrent_id)  
 
     def handle(self, *args, **options):
-        if not self.check_args(args):
+        if not os.path.isdir(options['wm_media']):
             print('Pass the directory containing your torrent directories from a previous WM' \
                   ' install. Subfolders of this directory should be named by torrent ID. After' \
                   ' import, all errored torrent/data sets will be organized into subfolders for' \
                   ' manual inspection/import.')
             return
 
-        self.wm_media = args[0]
-        self.error_move = not options['no_move']
+        self.wm_media = options['wm_media']
+        self.error_move = options['move']
 
         for self.torrent_id in next(os.walk(self.wm_media))[1]:
             try:
