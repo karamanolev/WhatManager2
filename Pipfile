@@ -24,6 +24,8 @@ pillow = "*"
 imgurpython = "*"
 sqlparse = "*"
 html2bbcode = "*"
+mod-wsgi-httpd = "*"
+mod-wsgi = "*"
 
 [requires]
 python_version = "3.6"
