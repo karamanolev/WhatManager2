@@ -11,7 +11,6 @@ rope = "*"
 [packages]
 django = "*"
 django-bootstrap-form = "*"
-mysqlclient = "*"
 ujson = "*"
 mutagen = "*"
 requests = "*"
@@ -26,6 +25,7 @@ sqlparse = "*"
 html2bbcode = "*"
 mod-wsgi-httpd = "*"
 mod-wsgi = "*"
+mysql-connector-python = "*"
 
 [requires]
 python_version = "3.6"
