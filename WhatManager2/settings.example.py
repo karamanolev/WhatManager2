@@ -1,10 +1,5 @@
 import os
 
-import djcelery
-
-
-djcelery.setup_loader()
-
 WHAT_USER_ID = 123456
 WHAT_USERNAME = 'your RED username'
 WHAT_PASSWORD = 'your RED password'
@@ -223,7 +218,6 @@ INSTALLED_APPS = [
     # Web Server
     'mod_wsgi.server',
     # Library apps
-    'djcelery',
     'bootstrapform',
     # WhatManager2 apps
     'WhatManager2',
