@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-sudo apt-get install -y libapache2-mod-wsgi python3-pip flac lame sox mktorrent libmysqlclient-dev python3-dev libxml2-dev libxslt1-dev curl
+sudo apt-get install -y python3-pip flac lame sox mktorrent curl libmysqlclient-dev
 
 sudo pip3 install pipenv
 pipenv install --three
