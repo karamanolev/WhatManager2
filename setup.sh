@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-sudo apt-get install -y python3-pip flac lame sox mktorrent curl
+sudo apt-get install -y python3-pip flac lame sox mktorrent curl python3-dev default-libmysqlclient-dev
 
 sudo pip3 install pipenv
 export PIPENV_VENV_IN_PROJECT=True

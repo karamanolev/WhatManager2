@@ -25,7 +25,7 @@ sqlparse = "*"
 html2bbcode = "*"
 mod-wsgi-httpd = "*"
 mod-wsgi = "*"
-mysql-connector-python = "*"
+mysqlclient = "*"
 
 [requires]
 python_version = "3.6"
