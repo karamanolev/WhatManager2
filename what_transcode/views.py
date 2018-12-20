@@ -102,7 +102,7 @@ def status_table(request):
             elif async_result.state == states.FAILURE:
                 t_r.show_retry_button = allow_retry
                 t_r.status = 'failed - {0}({1})'.format(type(async_result.result).__name__,
-                                                        async_result.result.message)
+                                                        async_result.result)
                 failed.append(t_r)
         what_client = get_what_client(request)
         t_r.status = t_r.status.replace(what_client.authkey, '<authkey>').replace(

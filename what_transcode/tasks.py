@@ -16,6 +16,7 @@ from WhatManager2.settings import WHAT_ANNOUNCE, WHAT_UPLOAD_URL, TRANSCODER_ADD
     TRANSCODER_HTTP_USERNAME, TRANSCODER_HTTP_PASSWORD, TRANSCODER_TEMP_DIR, \
     TRANSCODER_ERROR_OUTPUT, TRANSCODER_FORMATS
 from WhatManager2.utils import get_artists
+from WhatManager2 import manage_torrent
 from home.models import get_what_client, DownloadLocation, ReplicaSet
 from what_transcode.flac_lame import transcode_file
 from what_transcode.utils import torrent_is_preemphasized, get_info_hash, html_unescape, \
@@ -43,7 +44,7 @@ def get_dest_upload_dir():
     global dest_upload_dir
     if dest_upload_dir is not None:
         return dest_upload_dir
-    dest_upload_dir = DownloadLocation.get_what_preferred().path
+    dest_upload_dir = DownloadLocation.get_what_preferred()
     db.connection.close()
     return dest_upload_dir
 
@@ -86,16 +87,13 @@ class TranscodeSingleJob(object):
     def _add_to_wm(self):
         new_id = self.new_torrent['torrent']['id']
         print('Adding {0} to wm'.format(new_id))
-        post_data = {
-            'id': new_id,
-            'tags': 'my',
-            'dir': get_dest_upload_dir(),
-        }
-        response = requests.post(TRANSCODER_ADD_TORRENT_URL, data=post_data,
-                                 auth=(TRANSCODER_HTTP_USERNAME, TRANSCODER_HTTP_PASSWORD))
-        response_json = response.json()
-        if not response_json['success']:
-            raise Exception('Cannot add {0} to wm: {1}'.format(new_id, response.text))
+        try:
+            manage_torrent.add_torrent(lambda: None,
+                                    ReplicaSet.get_what_master().get_preferred_instance(),
+                                    get_dest_upload_dir(),
+                                    new_id)
+        except Exception as e:
+            raise Exception('Cannot add {0} to wm: {1}'.format(new_id, str(e)))
 
     def add_to_wm(self):
         for i in range(3):
@@ -134,7 +132,7 @@ class TranscodeSingleJob(object):
 
         self.retrieve_new_torrent(self.new_torrent_info_hash)
 
-        dest_path = os.path.join(get_dest_upload_dir(), str(self.new_torrent['torrent']['id']))
+        dest_path = os.path.join(get_dest_upload_dir().path, str(self.new_torrent['torrent']['id']))
         try:
             os.makedirs(dest_path)
         except OSError:
@@ -213,7 +211,7 @@ class TranscodeSingleJob(object):
                     'Error uploading data to Redacted. Errors: {0}'.format('; '.join(errors)))
                 exception.response_text = response.text
                 with open(TRANSCODER_ERROR_OUTPUT, 'w') as error_file:
-                    error_file.write(response.text.encode('utf-8'))
+                    error_file.write(response.text)
                 raise exception
         except Exception as ex:
             time.sleep(2)

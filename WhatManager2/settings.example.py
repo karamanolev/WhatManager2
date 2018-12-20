@@ -50,13 +50,14 @@ FREELEECH_HOSTNAME = 'NO_EMAILS'
 USERSCRIPT_WM_ROOT = 'http://hostname.com'
 
 # You only need to set these if you are running the transcoder
-TRANSCODER_ADD_TORRENT_URL = 'http://hostname.com/json/add_torrent'
+TRANSCODER_ADD_TORRENT_URL = 'http://localhost/json/add_torrent'
 TRANSCODER_HTTP_USERNAME = 'http username'
 TRANSCODER_HTTP_PASSWORD = 'http password'
 TRANSCODER_TEMP_DIR = '/mnt/bulk/temp/whatup.celery.{0}'.format(os.getpid())
 TRANSCODER_ERROR_OUTPUT = '/mnt/bulk/temp/what_error.html'
-TRANSCODER_FORMATS = ['V0', '320']  # You can also add V2
-BROKER_URL = 'amqp://guest:guest@localhost:5672/'
+TRANSCODER_FORMATS = ['V0', '320']
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672/'
+CELERY_RESULT_BACKEND = 'amqp://guest@localhost//'
 
 # You only need to set these if you are running transmission_files_sync
 FILES_SYNC_HTTP_USERNAME = 'username'
