@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-sudo apt-get install -y python3-pip flac lame sox mktorrent curl python3-dev default-libmysqlclient-dev
+sudo apt-get install -y python3-pip flac lame sox mktorrent curl python3-dev
 
 cp -i WhatManager2/settings.example.py WhatManager2/settings.py
 cp -i bibliotik/settings.example.py bibliotik/settings.py
