@@ -123,7 +123,7 @@ def new_upload(request):
                     upload.set_upload(qiller)
                     upload.save()
                     os.chmod(temp_dir, 0o777)
-                    return redirect(edit_upload, upload.id)
+                    return redirect('qobuz2:edit_upload', upload.id)
                 except RequestException:
                     form.add_error('album_id', 'Cannot fetch Qobuz album')
     else:
@@ -146,7 +146,7 @@ def edit_upload(request, upload_id):
     elif upload.state == QillerUpload.STATE_TORRENT_CREATED:
         return edit_upload_whatcd(request, upload)
     elif upload.state == STATE_DONE:
-        return redirect(index)
+        return redirect('qobuz2:index')
 
 
 @atomic
@@ -156,7 +156,7 @@ def upload_cover(request, upload_id):
     temp_dir = get_temp_dir(upload.upload.metadata.id)
     qiller = upload.upload
     do_upload_cover(upload, temp_dir, qiller)
-    return redirect(edit_upload, upload_id)
+    return redirect('qobuz2:edit_upload', upload_id)
 
 
 def do_upload_cover(upload, temp_dir, qiller):
@@ -214,7 +214,7 @@ def edit_upload_whatcd(request, upload):
                 do_upload()
         else:
             raise Exception('Unknown type')
-        return redirect(seed_upload, upload.id)
+        return redirect('qobuz2:seed_upload', upload.id)
     data = {
         'upload': upload,
         'spectrals': get_spectral_files(upload.upload),
@@ -233,7 +233,7 @@ def seed_upload(request, upload_id):
     info_hash = get_info_hash(torrent_path)
     what_torrent = WhatTorrent.get_or_create(request, info_hash=info_hash)
     command = import_external_what_torrent.Command()
-    command.handle(temp_dir, torrent_path, base_dir=False)
+    command.handle(data_dir=temp_dir, torrent_file=torrent_path, base_dir=False)
     try:
         run_request_transcode(request, what_torrent.id)
     except Exception:
@@ -242,7 +242,7 @@ def seed_upload(request, upload_id):
     qiller.state = STATE_DONE
     qobuz_upload.set_upload(qiller)
     qobuz_upload.save()
-    return redirect(edit_upload, upload_id)
+    return redirect('qobuz2:edit_upload', upload_id)
 
 
 def edit_upload_prepared(request, upload):
@@ -325,7 +325,7 @@ def title_case(request, upload_id):
 
     qobuz_upload.set_upload(qiller)
     qobuz_upload.save()
-    return redirect(edit_upload, upload_id)
+    return redirect('qobuz2:edit_upload', upload_id)
 
 
 @atomic
@@ -336,7 +336,7 @@ def prepare(request, upload_id):
     qiller.prepare(get_temp_dir(qiller.metadata.id))
     qobuz_upload.set_upload(qiller)
     qobuz_upload.save()
-    return redirect(edit_upload, upload_id)
+    return redirect('qobuz2:edit_upload', upload_id)
 
 
 @atomic
@@ -347,7 +347,7 @@ def make_torrent(request, upload_id):
     qiller.make_torrent(get_temp_dir(qiller.metadata.id), WHAT_ANNOUNCE)
     qobuz_upload.set_upload(qiller)
     qobuz_upload.save()
-    return redirect(edit_upload, upload_id)
+    return redirect('qobuz2:edit_upload', upload_id)
 
 
 @atomic
@@ -357,7 +357,7 @@ def start_download(request, upload_id):
     if qobuz_upload.download_task_id is not None:
         qobuz_upload.download_task_id = None
     tasks.start_qiller_download(qobuz_upload)
-    return redirect(edit_upload, upload_id)
+    return redirect('qobuz2:edit_upload', upload_id)
 
 
 @atomic
@@ -373,4 +373,4 @@ def find_replace(request, upload_id):
         track.title = track.title.replace(str_find, str_replace).strip()
     qobuz_upload.set_upload(qiller)
     qobuz_upload.save()
-    return redirect(edit_upload, upload_id)
+    return redirect('qobuz2:edit_upload', upload_id)
