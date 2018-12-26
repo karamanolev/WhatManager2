@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^json/', include('what_json.urls')),
     url(r'^download/', include('download.urls')),
     url(r'^user/', include('login.urls')),
-    url(r'^queue/', include('wmqueue.urls')),
+    url(r'^queue/', include('what_queue.urls')),
     url(r'^profile/', include('what_profile.urls')),
     url(r'^player/', include('player.urls')),
     url(r'^transcode/', include('what_transcode.urls')),

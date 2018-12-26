@@ -75,8 +75,8 @@ WCD_PTH_SPECTRALS_HTML_PATH = '/path/to/target/folder/with/html/and/pngs'
 # what_transcode.add_transcoderequest - Adding transcode requests
 # home.run_checks = Running checks
 # home.view_transinstance_stats - Realtime stats viewing
-# wmqueue.view_queueitem - Viewing the queue
-# wmqueue.add_queueitem - Add to the queue
+# what_queue.view_queueitem - Viewing the queue
+# what_queue.add_queueitem - Add to the queue
 # what_profile.view_whatusersnapshot - Viewing the user profile
 # home.download_whattorrent - Downloading torrent zips
 
@@ -226,7 +226,7 @@ INSTALLED_APPS = [
     'home',
     'what_json',
     'download',
-    'wmqueue',
+    'what_queue',
     'what_profile',
     'what_transcode',
     'books',

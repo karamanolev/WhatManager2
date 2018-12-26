@@ -1,9 +1,9 @@
 from django.conf.urls import url
 from django.views.generic.base import TemplateView
 from .views import index
-from wmqueue import parts
+from what_queue import parts
 
-app_name = 'wmqueue'
+app_name = 'what_queue'
 
 urlpatterns = [
     url(r'^$', index, name='index'),

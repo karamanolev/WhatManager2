@@ -9,7 +9,7 @@ from WhatManager2.settings import MIN_FREE_DISK_SPACE, MIN_WHAT_RATIO
 from WhatManager2.templatetags.custom_filters import filesizeformat
 from WhatManager2.utils import json_return_method, html_unescape, get_artists
 from home.models import DownloadLocation, LogEntry, ReplicaSet, WhatTorrent, get_what_client
-from wmqueue.models import QueueItem, filter_group, filter_torrent, is_existing
+from what_queue.models import QueueItem, filter_group, filter_torrent, is_existing
 from what_profile.models import WhatUserSnapshot
 
 
@@ -18,7 +18,7 @@ def get_auto_pop_ratio_delta(snapshot):
 
 
 @login_required
-@permission_required('wmqueue.add_queueitem', raise_exception=True)
+@permission_required('what_queue.add_queueitem', raise_exception=True)
 def pop_remove(request):
     front = QueueItem.get_front()
     if not front:
@@ -33,7 +33,7 @@ def pop_remove(request):
 
 
 @login_required
-@permission_required('wmqueue.add_queueitem', raise_exception=True)
+@permission_required('what_queue.add_queueitem', raise_exception=True)
 @json_return_method
 def auto_pop(request):
     front = QueueItem.get_front()
@@ -66,7 +66,7 @@ def auto_pop(request):
 
 
 @login_required
-@permission_required('wmqueue.add_queueitem', raise_exception=True)
+@permission_required('what_queue.add_queueitem', raise_exception=True)
 @json_return_method
 def do_pop(request):
     download_location = DownloadLocation.get_what_preferred()
@@ -119,12 +119,12 @@ def do_pop(request):
 
 
 @login_required
-@permission_required('wmqueue.add_queueitem', raise_exception=True)
+@permission_required('what_queue.add_queueitem', raise_exception=True)
 def queue_pop(request):
     data = {
         'front': QueueItem.get_front()
     }
-    return render(request, 'wmqueue/part_ui/queue_pop.html', data)
+    return render(request, 'what_queue/part_ui/queue_pop.html', data)
 
 
 @login_required
@@ -139,11 +139,11 @@ def queue_stats(request):
         'total_size': QueueItem.objects.aggregate(Sum('torrent_size'))['torrent_size__sum'],
         'auto_pop_ratio_delta': ratio_delta,
     }
-    return render(request, 'wmqueue/part_ui/queue_stats.html', data)
+    return render(request, 'what_queue/part_ui/queue_stats.html', data)
 
 
 @login_required
-@permission_required('wmqueue.add_queueitem', raise_exception=True)
+@permission_required('what_queue.add_queueitem', raise_exception=True)
 @json_return_method
 def add_artist(request, artist_name):
     what_client = get_what_client(request)
@@ -180,7 +180,7 @@ def add_artist(request, artist_name):
 
 
 @login_required
-@permission_required('wmqueue.add_queueitem', raise_exception=True)
+@permission_required('what_queue.add_queueitem', raise_exception=True)
 @json_return_method
 def add_collage(request, collage_id):
     what_client = get_what_client(request)

@@ -8,14 +8,14 @@
     </div>
     <div id="breadcrumb">
         <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
-        <a href="{% url 'wmqueue:index' %}" class="current"><i class="fa fa-list-alt"></i> Queue</a>
+        <a href="{% url 'what_queue:index' %}" class="current"><i class="fa fa-list-alt"></i> Queue</a>
     </div>
     <div class="container-fluid">
-        {% if perms.wmqueue.view_queueitem %}
+        {% if perms.what_queue.view_queueitem %}
             <div class="row row-flex wrap">
-                {% include 'wmqueue/part/queue_stats.html' %}
+                {% include 'what_queue/part/queue_stats.html' %}
                 {% include 'home/part/location_stats.html' %}
-                {% include 'wmqueue/part/queue_pop.html' %}
+                {% include 'what_queue/part/queue_pop.html' %}
             </div>
 
             {% include 'home/part/downloading_torrents.html' %}

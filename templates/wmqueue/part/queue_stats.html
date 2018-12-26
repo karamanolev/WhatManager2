@@ -10,6 +10,6 @@
 </div>
 
 <script>
-    var queueStatsUrl = '{% url 'wmqueue:queue_stats' %}';
+    var queueStatsUrl = '{% url 'what_queue:queue_stats' %}';
     var reloadQueueStats = $('#queue_stats').timedReload(queueStatsUrl, 5000);
 </script>
