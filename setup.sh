@@ -5,7 +5,7 @@ cp -i bibliotik/settings.example.py bibliotik/settings.py
 cp -i myanonamouse/settings.example.py myanonamouse/settings.py
 cp -i qobuz2/settings.example.py qobuz2/settings.py
 
-sudo apt-get install -y python3-pip flac lame sox mktorrent curl python3-dev
+sudo apt install -y python3-pip flac lame sox mktorrent curl python3-dev
 
 sudo pip3 install pipenv
 export PIPENV_VENV_IN_PROJECT=True
