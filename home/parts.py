@@ -102,7 +102,9 @@ def search_torrents(request):
     query = request.POST.get('query') or request.GET.get('query')
     query = ' '.join('+' + i for i in query.split())
 
-    w_fulltext = WhatFulltext.objects.filter(info__search=query).only('id')
+    w_fulltext = WhatFulltext.objects.only('id').all()
+    w_fulltext = w_fulltext.extra(where=['MATCH(`info`, `more_info`) AGAINST (%s IN BOOLEAN MODE)'],
+                                  params=[query])
     w_fulltext = w_fulltext.extra(select={'score': 'MATCH(`info`) AGAINST (%s)'},
                                   select_params=[query])
     w_fulltext = w_fulltext.extra(order_by=['-score'])
