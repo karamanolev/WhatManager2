@@ -23,13 +23,13 @@ def get_what_tags(book_upload):
 
 def get_what_desc(book_upload):
     desc = list()
-    desc.append(u'Publisher: {0}'.format(book_upload.publisher))
+    desc.append('Publisher: {0}'.format(book_upload.publisher))
     if book_upload.year and book_upload.year != '0':
-        desc.append(u'Publication Year: {0}'.format(book_upload.year))
+        desc.append('Publication Year: {0}'.format(book_upload.year))
     if book_upload.isbn:
-        desc.append(u'ISBN: {0}'.format(book_upload.isbn))
+        desc.append('ISBN: {0}'.format(book_upload.isbn))
     if book_upload.pages and book_upload.pages != '0':
-        desc.append(u'Pages: {0}'.format(book_upload.pages))
+        desc.append('Pages: {0}'.format(book_upload.pages))
     desc.append('')
     desc.append(book_upload.description)
     return '\n'.join(desc)
@@ -41,12 +41,12 @@ def move_to_dest_add(request, book_upload):
     book_path = os.path.join(dest_path, book_upload.target_filename)
     if not os.path.exists(dest_path):
         os.mkdir(dest_path)
-    os.chmod(dest_path, 0777)
+    os.chmod(dest_path, 0o777)
     shutil.copyfile(
         book_upload.book_data.storage.path(book_upload.book_data),
         book_path
     )
-    os.chmod(book_path, 0777)
+    os.chmod(book_path, 0o777)
     manage_torrent.add_torrent(request, ReplicaSet.get_what_master().get_preferred_instance(),
                                location, book_upload.what_torrent_id)
 
@@ -58,7 +58,7 @@ def upload_to_what(request, book_upload):
     if not book_upload.cover_url:
         raise Exception('cover_url is no')
 
-    print 'Sending request for upload to what.cd'
+    print('Sending request for upload to what.cd')
 
     what = get_what_client(request)
 

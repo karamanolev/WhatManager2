@@ -1,6 +1,5 @@
 from django.db import models, transaction
 
-from django.db.backends.mysql.base import parse_datetime_with_timezone_support
 from django.utils import timezone
 from django.utils.functional import cached_property
 
@@ -9,7 +8,7 @@ from WhatManager2.utils import html_unescape, get_artists
 
 
 class WhatArtistAlias(models.Model):
-    artist = models.ForeignKey('WhatArtist')
+    artist = models.ForeignKey('WhatArtist', on_delete=models.CASCADE)
     name = models.CharField(max_length=200, unique=True)
 
     def save(self, *args, **kwargs):
@@ -145,7 +144,7 @@ class WhatTorrentGroup(models.Model):
 
     @cached_property
     def fulltext_more_info(self):
-        return self.joined_artists + u' ' + unicode(self.year) + u' ' + self.catalogue_number
+        return self.joined_artists + ' ' + str(self.year) + ' ' + self.catalogue_number
 
     def add_artists(self, importance, artists):
         for artist in artists:
@@ -183,7 +182,7 @@ class WhatTorrentGroup(models.Model):
         group.release_type = data_dict['releaseType']
         group.category_id = data_dict['categoryId']
         group.category_name = data_dict['categoryName']
-        group.time = parse_datetime_with_timezone_support(data_dict['time'])
+        group.time = data_dict['time']
         group.vanity_house = data_dict['vanityHouse']
         group.info_json = ujson.dumps(data_dict)
         if torrents_dict is not None:
@@ -210,18 +209,18 @@ class WhatTorrentGroup(models.Model):
 
 
 class WhatTorrentArtist(models.Model):
-    artist = models.ForeignKey(WhatArtist)
-    artist_alias = models.ForeignKey(WhatArtistAlias, null=True)
-    torrent_group = models.ForeignKey(WhatTorrentGroup)
+    artist = models.ForeignKey(WhatArtist, on_delete=models.CASCADE)
+    artist_alias = models.ForeignKey(WhatArtistAlias, null=True, on_delete=models.CASCADE)
+    torrent_group = models.ForeignKey(WhatTorrentGroup, on_delete=models.CASCADE)
     importance = models.IntegerField()
 
 
 class WhatMetaFulltext(models.Model):
     info = models.TextField()
     more_info = models.TextField()
-    artist = models.OneToOneField(WhatArtist, null=True)
-    artist_alias = models.OneToOneField(WhatArtistAlias, null=True)
-    torrent_group = models.OneToOneField(WhatTorrentGroup, null=True)
+    artist = models.OneToOneField(WhatArtist, null=True, on_delete=models.CASCADE)
+    artist_alias = models.OneToOneField(WhatArtistAlias, null=True, on_delete=models.CASCADE)
+    torrent_group = models.OneToOneField(WhatTorrentGroup, null=True, on_delete=models.CASCADE)
 
     @classmethod
     def create_or_update_artist(cls, artist):

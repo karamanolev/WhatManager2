@@ -7,7 +7,7 @@
         <h1>Userscripts</h1>
     </div>
     <div id="breadcrumb">
-        <a href="{% url 'home.views.dashboard' %}" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
+        <a href="{% url 'home:dashboard' %}" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
         <a href="#" class="current">Userscripts</a>
     </div>
     <div class="container-fluid">
@@ -20,19 +20,19 @@
                     </div>
                     <div class="widget-content">
                         <p>
-                            <a href="{% url 'userscript.views.whatcd' %}">What.CD Integration</a>
+                            <a href="{% url 'userscript:whatcd' %}">What.CD Integration</a>
                         </p>
 
                         <p>
-                            <a href="{% url 'userscript.views.overdrive' %}">OverDrive Searching</a>
+                            <a href="{% url 'userscript:overdrive' %}">OverDrive Searching</a>
                         </p>
 
                         <p>
-                            <a href="{% url 'userscript.views.bibliotik' %}">Bibliotik Integration</a>
+                            <a href="{% url 'userscript:bibliotik' %}">Bibliotik Integration</a>
                         </p>
 
                         <p>
-                            <a href="{% url 'userscript.views.myanonamouse' %}">MyAnonaMouse Integration</a>
+                            <a href="{% url 'userscript:myanonamouse' %}">MyAnonaMouse Integration</a>
                         </p>
                     </div>
                 </div>

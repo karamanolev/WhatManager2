@@ -40,20 +40,20 @@ def torrents_status(torrent_ids):
 
 
 def monitor_torrent(client, t_id):
-    print 'Monitoring transmission_id={0}'.format(t_id)
+    print('Monitoring transmission_id={0}'.format(t_id))
     while True:
         t_torrent = client.get_torrent(t_id, arguments=['id', 'status'])
         if t_torrent.status in ['seed pending', 'seeding']:
-            print 'Torrent {0} is {1}. OK.'.format(t_id, t_torrent.status)
+            print('Torrent {0} is {1}. OK.'.format(t_id, t_torrent.status))
             break
         elif t_torrent.status in ['download pending', 'downloading']:
-            print 'Torrent {0} is {1}. Stopping it!!!'.format(t_id, t_torrent.status)
+            print('Torrent {0} is {1}. Stopping it!!!'.format(t_id, t_torrent.status))
             client.stop_torrent(t_id)
             break
         elif t_torrent.status in ['check pending', 'checking']:
-            print 'Torrent {0} is {1}. Waiting more...'.format(t_id, t_torrent.status)
+            print('Torrent {0} is {1}. Waiting more...'.format(t_id, t_torrent.status))
         elif t_torrent.status in ['stopped']:
-            print 'Torrent {0} is {1}. Whatever...'.format(t_id, t_torrent.status)
+            print('Torrent {0} is {1}. Whatever...'.format(t_id, t_torrent.status))
             break
         time.sleep(0.5)
 
@@ -92,7 +92,7 @@ class Command(BaseCommand):
             self.files_sync()
         except Exception as ex:
             with open('/files_sync_error.txt', 'w') as f:
-                f.write(unicode(ex))
+                f.write(str(ex))
                 f.write('\n')
 
     def call_rsyncs(self):
@@ -102,10 +102,10 @@ class Command(BaseCommand):
     def files_sync(self):
         check_running()
 
-        print 'Running initial rsync...'
+        print('Running initial rsync...')
         self.call_rsyncs()
 
-        print 'Iterating instances...'
+        print('Iterating instances...')
         current_torrents = {}
         best_instance = None
         for instance in ReplicaSet.get_bibliotik_master().transinstance_set.all():
@@ -119,7 +119,7 @@ class Command(BaseCommand):
                 }
 
         new_torrents = {}
-        print 'Iterating locations...'
+        print('Iterating locations...')
         for location in DownloadLocation.objects.filter(zone=ReplicaSet.ZONE_BIBLIOTIK):
             for i in os.listdir(location.path):
                 torrent_id = int(i)
@@ -132,21 +132,21 @@ class Command(BaseCommand):
                     del current_torrents[torrent_id]
 
         to_add = list()
-        for batch_number, batch in enumerate(chunks(new_torrents.itervalues(), 100)):
-            print 'Requests status for batch {0}...'.format(batch_number)
-            batch_status = torrents_status(unicode(i['id']) for i in batch)
+        for batch_number, batch in enumerate(chunks(iter(new_torrents.values()), 100)):
+            print('Requests status for batch {0}...'.format(batch_number))
+            batch_status = torrents_status(str(i['id']) for i in batch)
             for row in batch_status:
                 if row['status'] == 'downloaded':
                     to_add.append(new_torrents[row['id']])
 
-        print 'Running second rsync...'
+        print('Running second rsync...')
         self.call_rsyncs()
 
         preferred_instance = best_instance[1]
         for row in to_add:
-            print 'Downloading torrent {0}'.format(row['id'])
+            print('Downloading torrent {0}'.format(row['id']))
             torrent_file = get_torrent(row['id'])
-            print 'Adding torrent {0}'.format(row['id'])
+            print('Adding torrent {0}'.format(row['id']))
             t_torrent = preferred_instance.client.add_torrent(
                 base64.b64encode(torrent_file),
                 download_dir=os.path.join(str(row['location'].path), str(row['id'])),
@@ -154,4 +154,4 @@ class Command(BaseCommand):
             )
             monitor_torrent(preferred_instance.client, t_torrent.id)
 
-        print 'Completed.'
+        print('Completed.')

@@ -1,5 +1,5 @@
 # Create your views here.
-from __future__ import unicode_literals
+
 import traceback
 
 from celery import states
@@ -22,7 +22,7 @@ from what_transcode.utils import get_trans_torrent, torrent_is_preemphasized, ge
 
 def request_is_allowed(request):
     return (
-        request.user.is_authenticated() and
+        request.user.is_authenticated and
         request.user.is_active and
         request.user.has_perm('what_transcode.add_transcoderequest')
     )
@@ -37,7 +37,7 @@ def request_get_what_user(request):
 
 
 def request_allow_retry(request):
-    return request.user.is_authenticated() and request.user.is_active and request.user.is_superuser
+    return request.user.is_authenticated and request.user.is_active and request.user.is_superuser
 
 
 def index(request):
@@ -102,7 +102,7 @@ def status_table(request):
             elif async_result.state == states.FAILURE:
                 t_r.show_retry_button = allow_retry
                 t_r.status = 'failed - {0}({1})'.format(type(async_result.result).__name__,
-                                                        async_result.result.message)
+                                                        async_result.result)
                 failed.append(t_r)
         what_client = get_what_client(request)
         t_r.status = t_r.status.replace(what_client.authkey, '<authkey>').replace(
@@ -236,18 +236,18 @@ def run_request_transcode(request, what_id):
             instance = ReplicaSet.get_what_master().get_preferred_instance()
             download_location = DownloadLocation.get_what_preferred()
             m_torrent = add_torrent(request, instance, download_location, what_id)
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 m_torrent.what_torrent.added_by = request.user
             else:
                 m_torrent.what_torrent.added_by = None
             m_torrent.what_torrent.tags = 'transcode'
             m_torrent.what_torrent.save()
 
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 log_user = request.user
             else:
                 log_user = None
-            LogEntry.add(log_user, u'action', u'Transcode What.CD user {0} added {1} to {2}'
+            LogEntry.add(log_user, 'action', 'Transcode What.CD user {0} added {1} to {2}'
                          .format(request_what_user, m_torrent, m_torrent.instance))
 
         return {
@@ -255,11 +255,11 @@ def run_request_transcode(request, what_id):
         }
     except Exception as ex:
         tb = traceback.format_exc()
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             current_user = request.user
         else:
             current_user = None
-        LogEntry.add(current_user, u'error', u'What user {0} tried adding what_id {1}. Error: {2}'
+        LogEntry.add(current_user, 'error', 'What user {0} tried adding what_id {1}. Error: {2}'
                      .format(request_what_user, what_id, ex), tb)
         return {
             'message': 'Error adding request: ' + str(ex)

@@ -1,11 +1,9 @@
-from __future__ import unicode_literals
+
 import logging
 import os
 from subprocess import call
 
 import os.path
-
-from qiller.utils import q_enc, q_dec
 
 from what_transcode.utils import pthify_torrent
 
@@ -15,12 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 def remove_bad_files(temp_dir):
-    for f in os.listdir(q_enc(temp_dir)):
-        f = q_dec(f)
+    for f in os.listdir(temp_dir):
         if f.lower() in BAD_FILES:
-            os.remove(q_enc(os.path.join(temp_dir, f)))
+            os.remove(os.path.join(temp_dir, f))
             logger.info('{0} file found. Removing.'.format(f))
-            os.remove(q_enc(os.path.join(temp_dir, f)))
+            os.remove(os.path.join(temp_dir, f))
 
 
 class TorrentMaker(object):
@@ -44,12 +41,12 @@ class TorrentMaker(object):
                 self.temp_dir
             ]
             logger.debug('Executing mktorrent: {0}'.format(args))
-            if call([q_enc(a) for a in args]) != 0:
+            if call([a for a in args]) != 0:
                 raise Exception('mktorrent returned non-zero')
-            with open(q_enc(torrent_path), 'rb') as f:
+            with open(torrent_path, 'rb') as f:
                 torrent_data = f.read()
             torrent_data = pthify_torrent(torrent_data)
-            with open(q_enc(torrent_path), 'wb') as f:
+            with open(torrent_path, 'wb') as f:
                 f.write(torrent_data)
         finally:
             self.unstash_func()

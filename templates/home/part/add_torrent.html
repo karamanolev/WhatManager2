@@ -23,7 +23,7 @@
 
 <script>
     $(function () {
-        var addTorrentUrl = '{% url 'what_json.views.add_torrent' %}';
+        var addTorrentUrl = '{% url 'what_json:add_torrent' %}';
 
         $('#text_what_id').on('input', function () {
             var id = getWhatId($(this).val());
@@ -50,9 +50,9 @@
                 csrfmiddlewaretoken: csrfToken
             },function (resp) {
                 if (resp.success) {
-                    redirectShortly('{% url 'home.views.torrents' %}');
+                    redirectShortly('{% url 'home:torrents' %}');
                 } else if (resp.error_code == 'already_added') {
-                    redirectShortly('{% url 'home.views.torrents' %}?search=' + encodeURIComponent(resp.torrent_id));
+                    redirectShortly('{% url 'home:torrents' %}?search=' + encodeURIComponent(resp.torrent_id));
                 } else {
                     alert(resp.error);
                     btnWhatDl.attr('disabled', false);

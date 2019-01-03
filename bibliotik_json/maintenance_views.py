@@ -59,5 +59,5 @@ def refresh_oldest_torrent(request):
         'success': True,
         'id': most_recent_id,
         'status': 'refreshed',
-        'retrieved': unicode(old_retrieved),
+        'retrieved': str(old_retrieved),
     }

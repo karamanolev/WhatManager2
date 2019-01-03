@@ -10,23 +10,23 @@ class Command(BaseCommand):
     help = 'Clears the database of what torrents, trans torrents, also removes all torrents from transmission'
 
     def handle(self, *args, **options):
-        print 'Deleting BookUpload...'
+        print('Deleting BookUpload...')
         BookUpload.objects.all().delete()
-        print 'Deleting TranscodeRequest...'
+        print('Deleting TranscodeRequest...')
         TranscodeRequest.objects.all().delete()
-        print 'Deleting WhatLoginCache...'
+        print('Deleting WhatLoginCache...')
         WhatLoginCache.objects.all().delete()
-        print 'Deleting WhatFileMetadataCache...'
+        print('Deleting WhatFileMetadataCache...')
         WhatFileMetadataCache.objects.all().delete()
-        print 'Deleting WhatFulltext...'
+        print('Deleting WhatFulltext...')
         WhatFulltext.objects.all().delete()
-        print 'Deleting TransTorrent...'
+        print('Deleting TransTorrent...')
         TransTorrent.objects.all().delete()
-        print 'Deleting WhatTorrent...'
+        print('Deleting WhatTorrent...')
         WhatTorrent.objects.all().delete()
         # Delete all torrents
         for instance in ReplicaSet.objects.get(zone='what.cd').transinstance_set.all():
-            print 'Fetching torrents from', instance.name
+            print('Fetching torrents from', instance.name)
             torrent_ids = [t.id for t in instance.client.get_torrents(arguments=['id'])]
-            print 'Removing torrents'
+            print('Removing torrents')
             instance.client.remove_torrent(torrent_ids)

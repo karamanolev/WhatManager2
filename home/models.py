@@ -23,7 +23,7 @@ from WhatManager2.settings import FREELEECH_EMAIL_TO, WHAT_CD_DOMAIN, FREELEECH_
     FREELEECH_EMAIL_FROM
 from WhatManager2.throttling import Throttler
 from WhatManager2.utils import match_properties, copy_properties, norm_t_torrent, html_unescape, \
-    wm_str, get_artists, wm_unicode
+    get_artists
 from home.info_holder import InfoHolder
 from what_meta.models import WhatTorrentGroup
 
@@ -40,8 +40,8 @@ class ReplicaSet(models.Model):
     zone = models.CharField(max_length=32)
     name = models.TextField()
 
-    def __unicode__(self):
-        return u'ReplicaSet({0}, {1})'.format(self.zone, self.name)
+    def __str__(self):
+        return 'ReplicaSet({0}, {1})'.format(self.zone, self.name)
 
     @property
     def is_master(self):
@@ -76,8 +76,8 @@ class DownloadLocation(models.Model):
     path = models.TextField()
     preferred = models.BooleanField(default=False)
 
-    def __unicode__(self):
-        return u'DownloadLocation({0}, {1}{2})'.format(
+    def __str__(self):
+        return 'DownloadLocation({0}, {1}{2})'.format(
             self.zone, self.path, ', preferred' if self.preferred else '')
 
     @cached_property
@@ -138,7 +138,7 @@ class TransInstance(models.Model):
             ('run_checks', 'Can run the validity checks.'),
         )
 
-    replica_set = models.ForeignKey(ReplicaSet)
+    replica_set = models.ForeignKey(ReplicaSet, on_delete=models.CASCADE)
     name = models.TextField()
     host = models.TextField()
     port = models.IntegerField()
@@ -146,13 +146,13 @@ class TransInstance(models.Model):
     username = models.TextField()
     password = models.TextField()
 
-    def __unicode__(self):
-        return u'TransInstance {0}({1}@{2}:{3})'.format(self.name, self.username,
+    def __str__(self):
+        return 'TransInstance {0}({1}@{2}:{3})'.format(self.name, self.username,
                                                         self.host, self.port)
 
     def full_description(self):
-        return u'TransInstance {0}(replica_set={1}, host={2}, rpc_port={3}, ' \
-               u'peer_port={4}, username={5}, password={6})' \
+        return 'TransInstance {0}(replica_set={1}, host={2}, rpc_port={3}, ' \
+               'peer_port={4}, username={5}, password={6})' \
             .format(self.name, self.replica_set, self.host, self.port, self.peer_port,
                     self.username, self.password)
 
@@ -181,8 +181,8 @@ class TransInstance(models.Model):
     def get_t_torrents(self, arguments):
         torrents = []
         locations = DownloadLocation.objects.filter(zone=self.replica_set.zone)
-        if u'downloadDir' not in arguments:
-            arguments.append(u'downloadDir')
+        if 'downloadDir' not in arguments:
+            arguments.append('downloadDir')
         for t in self.client.get_torrents(arguments=arguments):
             if any([l for l in locations if t.downloadDir.startswith(l.path)]):
                 norm_t_torrent(t)
@@ -234,19 +234,19 @@ class WhatFulltext(models.Model):
         info = ujson.loads(what_torrent.info)
 
         info_text = []
-        info_text.append(unicode(info['group']['id']))
+        info_text.append(str(info['group']['id']))
         info_text.append(info['group']['recordLabel'])
         info_text.append(info['group']['name'])
         info_text.append(info['group']['catalogueNumber'])
         if info['group']['musicInfo']:
-            for type, artists in info['group']['musicInfo'].items():
+            for type, artists in list(info['group']['musicInfo'].items()):
                 if artists:
                     artist_names = [a['name'] for a in artists]
                     info_text.append(', '.join(artist_names))
-        info_text.append(unicode(info['group']['year']))
+        info_text.append(str(info['group']['year']))
 
-        info_text.append(unicode(info['torrent']['id']))
-        info_text.append(unicode(info['torrent']['remasterYear']))
+        info_text.append(str(info['torrent']['id']))
+        info_text.append(str(info['torrent']['remasterYear']))
         info_text.append(info['torrent']['filePath'])
         info_text.append(info['torrent']['remasterCatalogueNumber'])
         info_text.append(info['torrent']['remasterRecordLabel'])
@@ -267,14 +267,13 @@ class WhatFulltext(models.Model):
         self.more_info = what_torrent.info
         self.save()
 
-    def __unicode__(self):
-        return u'WhatFulltext id={0}'.format(self.id)
+    def __str__(self):
+        return 'WhatFulltext id={0}'.format(self.id)
 
 
 class WhatTorrent(models.Model, InfoHolder):
     class Meta:
         permissions = (
-            ('view_whattorrent', 'Can view torrents.'),
             ('download_whattorrent', 'Can download and play torrents.'),
         )
 
@@ -284,8 +283,8 @@ class WhatTorrent(models.Model, InfoHolder):
     retrieved = models.DateTimeField(db_index=True)
     info = models.TextField()
     tags = models.TextField()
-    added_by = models.ForeignKey(User, null=True)
-    torrent_group = models.ForeignKey('what_meta.WhatTorrentGroup', null=True)
+    added_by = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+    torrent_group = models.ForeignKey('what_meta.WhatTorrentGroup', null=True, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
@@ -311,8 +310,8 @@ class WhatTorrent(models.Model, InfoHolder):
             pass
         super(WhatTorrent, self).delete(*args, **kwargs)
 
-    def __unicode__(self):
-        return u'WhatTorrent id={0} hash={1}'.format(self.id, self.info_hash)
+    def __str__(self):
+        return 'WhatTorrent id={0} hash={1}'.format(self.id, self.info_hash)
 
     @cached_property
     def master_trans_torrent(self):
@@ -339,9 +338,9 @@ class WhatTorrent(models.Model, InfoHolder):
     @staticmethod
     def get_or_none(request, info_hash=None, what_id=None):
         if info_hash and what_id:
-            raise Exception(u'Specify one.')
+            raise Exception('Specify one.')
         if not info_hash and not what_id:
-            raise Exception(u'Specify one.')
+            raise Exception('Specify one.')
         try:
             if info_hash:
                 return WhatTorrent.objects.get(info_hash=info_hash)
@@ -360,14 +359,14 @@ class WhatTorrent(models.Model, InfoHolder):
     @staticmethod
     def get_or_create(request, info_hash=None, what_id=None):
         if info_hash and what_id:
-            raise Exception(u'Specify one.')
+            raise Exception('Specify either an infohash OR an ID, not both.')
         if not info_hash and not what_id:
-            raise Exception(u'Specify one.')
+            raise Exception('You must specify an infohash or an ID.')
 
         try:
             if info_hash:
                 if len(info_hash) != 40:
-                    raise Exception(u'Invalid info hash.')
+                    raise Exception('Invalid info hash.')
                 return WhatTorrent.objects.get(info_hash=info_hash)
             else:
                 return WhatTorrent.objects.get(id=what_id)
@@ -383,7 +382,7 @@ class WhatTorrent(models.Model, InfoHolder):
             w_torrent = WhatTorrent(
                 id=int(data['torrent']['id']),
                 info_hash=data['torrent']['infoHash'],
-                torrent_file=base64.b64encode(torrent),
+                torrent_file=base64.b64encode(torrent).decode('utf-8'),
                 torrent_file_name=filename,
                 retrieved=timezone.now(),
                 info=ujson.dumps(data)
@@ -411,8 +410,8 @@ class TransTorrentBase(models.Model):
         ('torrent_error_string', 'errorString'),
     )
 
-    instance = models.ForeignKey(TransInstance)
-    location = models.ForeignKey(DownloadLocation)
+    instance = models.ForeignKey(TransInstance, on_delete=models.CASCADE)
+    location = models.ForeignKey(DownloadLocation, on_delete=models.CASCADE)
 
     info_hash = models.CharField(max_length=40)
     torrent_id = models.IntegerField(null=True)
@@ -436,50 +435,44 @@ class TransTorrentBase(models.Model):
 
 
 class TransTorrent(TransTorrentBase):
-    what_torrent = models.ForeignKey(WhatTorrent)
+    what_torrent = models.ForeignKey(WhatTorrent, on_delete=models.CASCADE)
 
     @property
     def path(self):
-        return os.path.join(self.location.path, unicode(self.what_torrent.id))
+        return os.path.join(self.location.path, str(self.what_torrent.id))
 
     def sync_files(self):
         if os.path.exists(self.path):
-            files = [wm_unicode(f) for f in os.listdir(self.path)]
+            files = [f for f in os.listdir(self.path)]
         else:
-            os.mkdir(self.path, 0777)
-            os.chmod(self.path, 0777)
+            os.mkdir(self.path, 0o777)
+            os.chmod(self.path, 0o777)
             files = []
 
         files_added = []
-        if not any(u'.torrent' in f for f in files):
-            files_added.append(u'torrent')
-            torrent_path = os.path.join(wm_str(self.path),
-                                        wm_str(self.what_torrent.torrent_file_name))
+        if not any('.torrent' in f for f in files):
+            files_added.append('torrent')
+            torrent_path = os.path.join(self.path, self.what_torrent.torrent_file_name)
             with open(torrent_path, 'wb') as file:
                 file.write(self.what_torrent.torrent_file_binary)
-            os.chmod(torrent_path, 0777)
-        if not any(u'ReleaseInfo2.txt' == f for f in files):
-            files_added.append(u'ReleaseInfo2.txt')
-            release_info_path = os.path.join(self.path.encode('utf-8'), u'ReleaseInfo2.txt')
-            with open(release_info_path.decode('utf-8'), 'w') as file:
+            os.chmod(torrent_path, 0o777)
+        if not any('ReleaseInfo2.txt' == f for f in files):
+            files_added.append('ReleaseInfo2.txt')
+            release_info_path = os.path.join(self.path, 'ReleaseInfo2.txt')
+            with open(release_info_path, 'w') as file:
                 file.write(self.what_torrent.info)
-            os.chmod(os.path.join(release_info_path.decode('utf-8')), 0777)
+            os.chmod(os.path.join(release_info_path), 0o777)
         if files_added:
-            LogEntry.add(None, u'info', u'Added files {0} to {1}'
+            LogEntry.add(None, 'info', 'Added files {0} to {1}'
                          .format(', '.join(files_added), self))
 
-    def __unicode__(self):
-        return u'TransTorrent(torrent_id={0}, what_id={1}, name={2})'.format(
+    def __str__(self):
+        return 'TransTorrent(torrent_id={0}, what_id={1}, name={2})'.format(
             self.torrent_id, self.what_torrent_id, self.torrent_name)
 
 
 class LogEntry(models.Model):
-    class Meta:
-        permissions = (
-            ('view_logentry', 'Can view the logs.'),
-        )
-
-    user = models.ForeignKey(User, null=True, related_name='wm_logentry')
+    user = models.ForeignKey(User, null=True, related_name='wm_logentry', on_delete=models.CASCADE)
     datetime = models.DateTimeField(auto_now_add=True, db_index=True)
     type = models.TextField()
     message = models.TextField()
@@ -492,7 +485,7 @@ class LogEntry(models.Model):
 
 
 class WhatFileMetadataCache(models.Model):
-    what_torrent = models.ForeignKey(WhatTorrent)
+    what_torrent = models.ForeignKey(WhatTorrent, on_delete=models.CASCADE)
     filename_sha256 = models.CharField(max_length=64, primary_key=True)
     filename = models.CharField(max_length=500)
     file_mtime = models.IntegerField()
@@ -527,7 +520,7 @@ class WhatFileMetadataCache(models.Model):
         return data
 
     def fill(self, filename, file_mtime):
-        metadata = mutagen.File(wm_str(filename), easy=True)
+        metadata = mutagen.File(filename, easy=True)
         if hasattr(metadata, 'pictures'):
             for p in metadata.pictures:
                 p.data = None
@@ -557,21 +550,19 @@ class WhatFileMetadataCache(models.Model):
         cache_lines = {c.filename_sha256: c for c in cache_lines}
 
         abs_rel_filenames = []
-        for dirpath, dirnames, filenames in os.walk(wm_str(torrent_path)):
-            unicode_dirpath = wm_unicode(dirpath)
-            unicode_filenames = [wm_unicode(f) for f in filenames]
-            for filename in unicode_filenames:
-                if os.path.splitext(filename)[1].lower() in [u'.flac', u'.mp3']:
-                    abs_path = os.path.join(unicode_dirpath, filename)
+        for dirpath, dirnames, filenames in os.walk(torrent_path):
+            for filename in filenames:
+                if os.path.splitext(filename)[1].lower() in ['.flac', '.mp3']:
+                    abs_path = os.path.join(dirpath, filename)
                     rel_path = os.path.relpath(abs_path, torrent_path)
                     abs_rel_filenames.append((abs_path, rel_path))
         abs_rel_filenames.sort(key=lambda f: f[1])
 
-        filename_hashes = {f[0]: hashlib.sha256(wm_str(f[1])).hexdigest() for f in
+        filename_hashes = {f[0]: hashlib.sha256(f[1].encode('utf-8')).hexdigest() for f in 
                            abs_rel_filenames}
         hash_set = set(filename_hashes.values())
         old_cache_lines = []
-        for cache_line in cache_lines.itervalues():
+        for cache_line in cache_lines.values():
             if cache_line.filename_sha256 not in hash_set:
                 old_cache_lines.append(cache_line)
         dirty_cache_lines = []
@@ -579,7 +570,7 @@ class WhatFileMetadataCache(models.Model):
         result = []
         for abs_path, rel_path in abs_rel_filenames:
             try:
-                file_mtime = os.path.getmtime(wm_str(abs_path))
+                file_mtime = os.path.getmtime(abs_path)
                 cache = cache_lines.get(filename_hashes[abs_path])
                 if cache is None:
                     cache = WhatFileMetadataCache(
@@ -596,7 +587,7 @@ class WhatFileMetadataCache(models.Model):
                 dirty_cache_lines.append(cache)
                 result.append(cache)
             except Exception as ex:
-                print 'Failed:', abs_path, ex
+                print('Failed:', abs_path, ex)
         if old_cache_lines or dirty_cache_lines:
             with transaction.atomic():
                 for cache_line in old_cache_lines:
@@ -640,7 +631,7 @@ class RateLimitExceededException(RequestException):
 
 
 def send_freeleech_email(message):
-    send_mail(u'Freeleech', message, FREELEECH_EMAIL_FROM, [FREELEECH_EMAIL_TO])
+    send_mail('Freeleech', message, FREELEECH_EMAIL_FROM, [FREELEECH_EMAIL_TO])
 
 
 class CustomWhatAPI:
@@ -658,8 +649,7 @@ class CustomWhatAPI:
     def _login(self):
         try:
             login_cache = WhatLoginCache.objects.get()
-            for cookie in pickle.loads(login_cache.cookies):
-                self.session.cookies.set_cookie(cookie)
+            self.session.cookies.update(login_cache.cookies)
             self.authkey = login_cache.authkey
             self.passkey = login_cache.passkey
             self.request('index')
@@ -684,7 +674,7 @@ class CustomWhatAPI:
             for cache in WhatLoginCache.objects.all():
                 cache.delete()
             login_cache = WhatLoginCache(
-                cookies=pickle.dumps([c for c in self.session.cookies]),
+                cookies=self.session.cookies,
                 authkey=self.authkey,
                 passkey=self.passkey
             )

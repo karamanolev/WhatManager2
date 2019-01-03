@@ -22,7 +22,7 @@
         var searchRow = $('#search_torrents_row');
         var query = $('#search input').val();
         searchRow.find('.widget-content').load(
-                '{% url 'home.parts.search_torrents' %}', {
+                '{% url 'home:search_torrents' %}', {
                     query: query,
                     csrfmiddlewaretoken: csrfToken
                 }, function () {

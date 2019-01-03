@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import models, migrations
 
@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True,
                                         primary_key=True)),
                 ('name', models.CharField(unique=True, max_length=200)),
-                ('artist', models.ForeignKey(to='what_meta.WhatArtist')),
+                ('artist', models.ForeignKey(to='what_meta.WhatArtist', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -25,13 +25,15 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='whatmetafulltext',
             name='artist_alias',
-            field=models.ForeignKey(null=True, to='what_meta.WhatArtistAlias', unique=True),
+            field=models.ForeignKey(null=True, to='what_meta.WhatArtistAlias', 
+                                    unique=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='whattorrentartist',
             name='artist_alias',
-            field=models.ForeignKey(to='what_meta.WhatArtistAlias', null=True),
+            field=models.ForeignKey(to='what_meta.WhatArtistAlias', 
+                                    null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(

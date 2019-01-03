@@ -67,13 +67,13 @@ def filesizeformat(value):
 
 @register.filter
 def tooltip_files_table(value):
-    result = [u'<table cellpadding="2">']
+    result = ['<table cellpadding="2">']
     for filename in value:
-        result.append(u'<tr><td>{0}</td><td style="text-align: right;">{1}</td></tr>'.format(
+        result.append('<tr><td>{0}</td><td style="text-align: right;">{1}</td></tr>'.format(
             filename['name'], filesizeformat(filename['size'])
         ))
-    result.append(u'</table>')
-    return u''.join(result)
+    result.append('</table>')
+    return ''.join(result)
 
 
 @register.filter('release_type_name')
@@ -83,12 +83,12 @@ def filter_release_type_name(value):
 
 @register.filter
 def what_cd_torrent_link(value):
-    return u'https://redacted.ch/torrents.php?torrentid={0}'.format(value)
+    return 'https://redacted.ch/torrents.php?torrentid={0}'.format(value)
 
 
 @register.filter
 def bibliotik_torrent_link(value):
-    return u'https://bibliotik.me/torrents/{0}'.format(value)
+    return 'https://bibliotik.me/torrents/{0}'.format(value)
 
 
 @register.filter

@@ -1,17 +1,21 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+from .views import (edit_upload, find_replace, index, make_torrent,
+                          new_upload, prepare, seed_upload, start_download,
+                          title_case, upload_cover, view_cover, view_spectral)
 
-urlpatterns = patterns(
-    '',
-    url(r'^$', 'qobuz2.views.index'),
-    url(r'^uploads/new$', 'qobuz2.views.new_upload'),
-    url(r'^uploads/(\d+)/edit$', 'qobuz2.views.edit_upload'),
-    url(r'^uploads/(\d+)/start_download$', 'qobuz2.views.start_download'),
-    url(r'^uploads/(\d+)/title_case$', 'qobuz2.views.title_case'),
-    url(r'^uploads/(\d+)/prepare$', 'qobuz2.views.prepare'),
-    url(r'^uploads/(\d+)/spectral$', 'qobuz2.views.view_spectral'),
-    url(r'^uploads/(\d+)/make_torrent$', 'qobuz2.views.make_torrent'),
-    url(r'^uploads/(\d+)/seed$', 'qobuz2.views.seed_upload'),
-    url(r'^uploads/(\d+)/cover$', 'qobuz2.views.view_cover'),
-    url(r'^uploads/(\d+)/upload_cover$', 'qobuz2.views.upload_cover'),
-    url(r'^uploads/(\d+)/find_replace$', 'qobuz2.views.find_replace'),
-)
+app_name = 'qobuz2'
+
+urlpatterns = [
+    url(r'^$', index, name='index'),
+    url(r'^uploads/new$', new_upload, name='new_upload'),
+    url(r'^uploads/(\d+)/edit$', edit_upload, name='edit_upload'),
+    url(r'^uploads/(\d+)/start_download$', start_download, name='start_download'),
+    url(r'^uploads/(\d+)/title_case$', title_case, name='title_case'),
+    url(r'^uploads/(\d+)/prepare$', prepare, name='prepare'),
+    url(r'^uploads/(\d+)/spectral$', view_spectral, name='view_spectral'),
+    url(r'^uploads/(\d+)/make_torrent$', make_torrent, name='make_torrent'),
+    url(r'^uploads/(\d+)/seed$', seed_upload, name='seed_upload'),
+    url(r'^uploads/(\d+)/cover$', view_cover, name='view_cover'),
+    url(r'^uploads/(\d+)/upload_cover$', upload_cover, name='upload_cover'),
+    url(r'^uploads/(\d+)/find_replace$', find_replace, name='find_replace'),
+]

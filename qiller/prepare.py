@@ -1,11 +1,9 @@
-from __future__ import unicode_literals
+
 import logging
 import os.path
 import shutil
 
 from mutagen.flac import FLAC
-
-from qiller.utils import q_enc
 
 
 logger = logging.getLogger(__name__)
@@ -14,7 +12,7 @@ logger = logging.getLogger(__name__)
 def conditional_rename(src, dst):
     if src != dst:
         logger.debug('Renaming {0} to {1}'.format(src, dst))
-        shutil.move(q_enc(src), q_enc(dst))
+        shutil.move(src, dst)
 
 
 class Preparer(object):
@@ -34,7 +32,7 @@ class Preparer(object):
     def prepare_track(self, album, track):
         temp_path = os.path.join(self.temp_dir, track.temp_filename)
         track_path = os.path.join(self.temp_dir, track.filename)
-        meta_file = FLAC(q_enc(temp_path))
+        meta_file = FLAC(temp_path)
         meta_file.clear()
         meta_file['album'] = album.title
         meta_file['albumartist'] = album.joined_artists

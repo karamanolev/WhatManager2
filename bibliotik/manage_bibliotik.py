@@ -22,12 +22,12 @@ def add_bibliotik_torrent(torrent_id, instance=None, location=None, bibliotik_cl
     with LockModelTables(BibliotikTransTorrent, TransInstance):
         try:
             existing_one = BibliotikTransTorrent.objects.get(info_hash=bibliotik_torrent.info_hash)
-            raise TorrentAlreadyAddedException(u'Already added (instance={0}, new_instance={1}, info_hash={2}).'.format(
+            raise TorrentAlreadyAddedException('Already added (instance={0}, new_instance={1}, info_hash={2}).'.format(
                  instance, existing_one.instance, bibliotik_torrent.info_hash))
         except BibliotikTransTorrent.DoesNotExist:
             pass
 
-        download_dir = os.path.join(location.path, unicode(bibliotik_torrent.id))
+        download_dir = os.path.join(location.path, str(bibliotik_torrent.id))
 
         def create_b_torrent():
             new_b_torrent = BibliotikTransTorrent(
@@ -53,8 +53,8 @@ def add_bibliotik_torrent(torrent_id, instance=None, location=None, bibliotik_cl
 
                 if not os.path.exists(download_dir):
                     os.mkdir(download_dir)
-                if not os.stat(download_dir).st_mode & 0777 == 0777:
-                    os.chmod(download_dir, 0777)
+                if not os.stat(download_dir).st_mode & 0o777 == 0o777:
+                    os.chmod(download_dir, 0o777)
 
                 norm_t_torrent(t_torrent)
                 b_torrent.sync_t_torrent(t_torrent)

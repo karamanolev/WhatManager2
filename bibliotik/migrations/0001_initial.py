@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import models, migrations
 
@@ -63,9 +63,10 @@ class Migration(migrations.Migration):
                 ('torrent_date_added', models.DateTimeField(null=True)),
                 ('torrent_error', models.IntegerField(null=True)),
                 ('torrent_error_string', models.TextField(null=True)),
-                ('bibliotik_torrent', models.ForeignKey(to='bibliotik.BibliotikTorrent')),
-                ('instance', models.ForeignKey(to='home.TransInstance')),
-                ('location', models.ForeignKey(to='home.DownloadLocation')),
+                ('bibliotik_torrent', models.ForeignKey(to='bibliotik.BibliotikTorrent', 
+                                                        on_delete=models.CASCADE)),
+                ('instance', models.ForeignKey(to='home.TransInstance', on_delete=models.CASCADE)),
+                ('location', models.ForeignKey(to='home.DownloadLocation', on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,

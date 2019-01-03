@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+
 import logging
 import os.path
 import re
@@ -14,7 +14,7 @@ def strip_path_chars(path):
 
 def time_text(seconds):
     assert type(seconds) == int
-    return u'{0}:{1:02}'.format(seconds // 60, seconds % 60)
+    return '{0}:{1:02}'.format(seconds // 60, seconds % 60)
 
 
 def ensure_file_dir_exists(file_path):
@@ -31,7 +31,7 @@ class FLACTester(object):
         file_path = os.path.join(self.temp_dir, track.temp_filename)
         logger.debug('Testing FLAC integrity for {0}'.format(file_path))
         args = ['flac', '-t', '--totally-silent', file_path]
-        if call([q_enc(a) for a in args]) != 0:
+        if call([a for a in args]) != 0:
             raise Exception('flac -t returned non-zero. Corrupt file?')
         logger.debug('FLAC integrity test complete'.format(file_path))
 
@@ -40,22 +40,6 @@ def download_test_spectral(downloader, flac_tester, spectrals, track):
     downloader.download_track(track)
     flac_tester.test(track)
     spectrals.generate_spectral(track)
-
-
-def q_enc(s):
-    if isinstance(s, unicode):
-        return s.encode('utf-8')
-    elif isinstance(s, str):
-        return s
-    raise Exception('Unknown string type: {0}'.format(type(s)))
-
-
-def q_dec(s):
-    if isinstance(s, str):
-        return s.decode('utf-8')
-    elif isinstance(s, unicode):
-        return s
-    raise Exception('Unknown string type: {0}'.format(type(s)))
 
 
 def retry_action(action):
@@ -68,12 +52,12 @@ def retry_action(action):
             i += 1
             if i == 3:
                 raise
-            print 'Failed with {0}, retrying...'.format(ex)
+            print('Failed with {0}, retrying...'.format(ex))
             time.sleep(3)
 
 
 records_words = ['records', 'recordings', 'production', 'productions', 'distribution', 'music']
-strip_fixes = ['(c)', ' c', ' c', u'\u00A9', 'inc.', 'ltd', 'ltd.', 'limited']
+strip_fixes = ['(c)', ' c', ' c', '\u00A9', 'inc.', 'ltd', 'ltd.', 'limited']
 
 
 def extract_label(copyright):

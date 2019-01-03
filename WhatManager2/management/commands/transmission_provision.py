@@ -7,12 +7,15 @@ import shutil
 import subprocess
 from optparse import make_option
 
-import WhatManager2.settings
-from WhatManager2.settings import TRANSMISSION_FILES_ROOT, TRANSMISSION_BIND_HOST
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
 
-from WhatManager2.utils import read_text, write_text
+import WhatManager2.settings
 from home import models
+from WhatManager2.settings import (TRANSMISSION_BIND_HOST,
+                                   TRANSMISSION_FILES_ROOT,
+                                   TRANSMISSION_PASSWORD)
+from WhatManager2.utils import read_text, write_text
 
 transmission_init_script_template = '''#!/bin/sh -e
 ### BEGIN INIT INFO
@@ -99,10 +102,10 @@ WantedBy=multi-user.target'''
 
 def discover_transmission():
     try:
-        return subprocess.check_output(['which', 'transmission-daemon']).strip()
+        return subprocess.check_output(['which', 'transmission-daemon']).strip().decode("utf-8")
     except subprocess.CalledProcessError:
-        raise Exception(u'transmission-daemon was not found. '
-                        u'Make sure "which transmission-daemon" returns the right thing.')
+        raise Exception('transmission-daemon was not found. '
+                        'Make sure "which transmission-daemon" returns the right thing.')
 
 
 def use_systemd():
@@ -205,7 +208,7 @@ def confirm():
     global use_confirm
     if not use_confirm:
         return
-    answer = raw_input('Enter y to continue: ')
+    answer = input('Enter y to continue: ')
     if answer != 'y':
         exit(1)
 
@@ -259,7 +262,7 @@ class TransInstanceManager(object):
         else:
             self.init_path = os.path.join('/etc/init.d', self.service_name)
         self.init_script = get_transmission_init_script(self.name, self.transmission_files_path)
-        self.init_script_perms = 0644 if use_systemd() else 0755
+        self.init_script_perms = 0o644 if use_systemd() else 0o755
         self.username = 'transmission-{0}'.format(self.name)
         self.settings_path = os.path.join(self.transmission_files_path, 'settings.json')
         self.settings_json = get_transmission_settings(
@@ -271,41 +274,41 @@ class TransInstanceManager(object):
 
     def write_settings(self):
         write_text(self.settings_path, self.settings_json)
-        os.chmod(self.settings_path, 0777)
+        os.chmod(self.settings_path, 0o777)
 
     def sync(self):
         if not os.path.isfile(self.init_path):
-            print 'Creating {0} file for {1}'.format('systemd unit' if use_systemd() else 'Upstart job',
-                                                     self.name)
+            print('Creating {0} file for {1}'.format('systemd unit' if use_systemd() else 'Upstart job',
+                                                     self.name))
             confirm()
             self.write_init_script()
         if self.init_script != read_text(self.init_path):
-            print 'Overwriting init script for {0}'.format(self.name)
+            print('Overwriting init script for {0}'.format(self.name))
             confirm()
             self.write_init_script()
-        if (os.stat(self.init_path).st_mode & 0777) != self.init_script_perms:
-            print 'Fixing init script permissions for {0}'.format(self.name)
+        if (os.stat(self.init_path).st_mode & 0o777) != self.init_script_perms:
+            print('Fixing init script permissions for {0}'.format(self.name))
             confirm()
             os.chmod(self.init_path, self.init_script_perms)
         if not user_exists(self.username):
-            print 'Creating user {0} for {1}'.format(self.username, self.name)
+            print('Creating user {0} for {1}'.format(self.username, self.name))
             confirm()
             create_system_user(self.username)
         if not os.path.isfile(self.settings_path):
-            print 'Creating transmission settings file for {0}'.format(self.name)
+            print('Creating transmission settings file for {0}'.format(self.name))
             confirm()
             if not os.path.isdir(self.transmission_files_path):
                 os.makedirs(self.transmission_files_path)
-                os.chmod(self.transmission_files_path, 0777)
+                os.chmod(self.transmission_files_path, 0o777)
             self.write_settings()
         if not check_transmission_settings(
                 self.settings_path, TRANSMISSION_BIND_HOST, self.instance.port,
                 self.instance.peer_port):
-            print 'Fixing transmission settings file for {0}'.format(self.name)
+            print('Fixing transmission settings file for {0}'.format(self.name))
             confirm()
             self.write_settings()
         if use_systemd():
-            print 'Enabling systemd unit for {0}'.format(self.name)
+            print('Enabling systemd unit for {0}'.format(self.name))
             confirm()
             self.exec_init_script('enable')
 
@@ -313,20 +316,20 @@ class TransInstanceManager(object):
         self.stop_daemon()
         # No equivalent for Upstart, so just do this for systemd
         if use_systemd():
-            print 'Disabling systemd unit for {0}'.format(self.name)
+            print('Disabling systemd unit for {0}'.format(self.name))
             confirm()
             self.exec_init_script('disable')
         if os.path.isdir(self.transmission_files_path):
-            print 'Deleting transmission files directory for {0}'.format(self.name)
+            print('Deleting transmission files directory for {0}'.format(self.name))
             confirm()
             shutil.rmtree(self.transmission_files_path)
         if user_exists(self.username):
-            print 'Deleting user {0} for {1}'.format(self.username, self.name)
+            print('Deleting user {0} for {1}'.format(self.username, self.name))
             confirm()
             delete_system_user(self.username)
         if os.path.isfile(self.init_path):
-            print 'Deleting {0} file for {1}'.format('systemd unit' if use_systemd() else 'Upstart job',
-                                                     self.name)
+            print('Deleting {0} file for {1}'.format('systemd unit' if use_systemd() else 'Upstart job',
+                                                     self.name))
             confirm()
             os.remove(self.init_path)
 
@@ -337,7 +340,7 @@ class TransInstanceManager(object):
             args = ['service', self.service_name, action]
 
         if subprocess.call(args) != 0:
-            print 'Warning! Service start returned non-zero. args={0}'.format(args)
+            print('Warning! Service start returned non-zero. args={0}'.format(args))
 
     def start_daemon(self):
         self.exec_init_script('start')
@@ -355,7 +358,7 @@ def ensure_replica_set_exists(zone):
     try:
         models.ReplicaSet.objects.get(zone=zone)
     except models.ReplicaSet.DoesNotExist:
-        print u'There is no replica set with the name {0}. I will create one.'.format(zone)
+        print('There is no replica set with the name {0}. I will create one.'.format(zone))
         confirm()
         replica_set = models.ReplicaSet(
             zone=zone,
@@ -367,6 +370,7 @@ def ensure_replica_set_exists(zone):
 def ensure_replica_sets_exist():
     ensure_replica_set_exists(models.ReplicaSet.ZONE_WHAT)
     ensure_replica_set_exists(models.ReplicaSet.ZONE_BIBLIOTIK)
+    ensure_replica_set_exists(models.ReplicaSet.ZONE_MYANONAMOUSE)
 
 
 # TODO: Implement it in a non-ugly way!
@@ -376,19 +380,78 @@ def apply_options(options):
 
 
 class Command(BaseCommand):
-    option_list = BaseCommand.option_list + (
-        make_option('--no-confirm',
+    help = 'Provisions transmission instances'
+
+    def add_arguments(self, parser):
+        parser.add_argument('--no-confirm',
                     action='store_false',
                     dest='confirm',
                     default=True,
-                    help='Do not ask for confirmation'),
-    )
-    help = 'Provisions transmission instances'
-
+                    help='Do not ask for confirmation')
+        
+        parser.add_argument('--new',
+                    action='store',
+                    dest='zone',
+                    default=None,
+                    help='Provision new instance')
+    
     def handle(self, *args, **options):
         apply_options(options)
         ensure_root()
         ensure_replica_sets_exist()
-        for instance in models.TransInstance.objects.order_by('name'):
-            manager = TransInstanceManager(instance)
-            manager.sync()
+        if options['zone'] is None:
+            for instance in models.TransInstance.objects.order_by('name'):
+                manager = TransInstanceManager(instance)
+                manager.sync()
+        else:
+            replica_set = models.ReplicaSet.objects.get(zone=options['zone'])
+            old_instances = replica_set.transinstance_set.order_by('-port').all()
+            if len(old_instances):
+                old_instance = old_instances[0]
+            else:
+                if replica_set.zone == models.ReplicaSet.ZONE_WHAT:
+                    zero_port = 9090
+                    zero_peer_port = 21412
+                elif replica_set.zone == models.ReplicaSet.ZONE_BIBLIOTIK:
+                    zero_port = 10090
+                    zero_peer_port = 22412
+                elif replica_set.zone == models.ReplicaSet.ZONE_MYANONAMOUSE:
+                    zero_port = 11090
+                    zero_peer_port = 23412
+                else:
+                    raise Exception('Unknown zone')
+                old_instance = models.TransInstance(
+                    replica_set=replica_set,
+                    name='{0}00'.format(replica_set.zone
+                                        .replace('.cd', '')
+                                        .replace('.org', '')
+                                        .replace('.net', '')
+                                        .replace('.me', '')
+                                        .replace('.ch', '')),
+                    host='127.0.0.1',
+                    port=zero_port,
+                    peer_port=zero_peer_port,
+                    username='transmission',
+                    password=TRANSMISSION_PASSWORD,
+                )
+            new_instance = models.TransInstance(
+                replica_set=old_instance.replica_set,
+                name='{0}{1:02}'.format(old_instance.name[:-2], int(old_instance.name[-2:]) + 1),
+                host=old_instance.host,
+                port=old_instance.port + 1,
+                peer_port=old_instance.peer_port + 1,
+                username=old_instance.username,
+                password=TRANSMISSION_PASSWORD,
+            )
+            print(new_instance.full_description())
+            print('Is this OK?')
+            confirm()
+            with transaction.atomic():
+                instance_manager = TransInstanceManager(new_instance)
+                instance_manager.sync()
+                new_instance.save()
+
+            print('Starting daemon...')
+            instance_manager.start_daemon()
+
+            print('Instance synced and saved.')

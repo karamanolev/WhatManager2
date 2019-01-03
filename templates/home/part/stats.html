@@ -2,6 +2,6 @@
 </div>
 
 <script>
-    var statsUrl = '{% url 'home.parts.stats' %}';
+    var statsUrl = '{% url 'home:part_stats' %}';
     var reloadTorrentStats = $('#site_stats_row').timedReload(statsUrl, 2000)
 </script>

@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+
 from datetime import datetime
 
 from qiller.utils import strip_path_chars, time_text, extract_label
@@ -16,8 +16,8 @@ WHAT_ARTIST_TYPES = {
 
 
 def fix_qobuz_artist_name(name):
-    assert type(name) is unicode
-    name = name.replace(u'Interpr\xe8tes Divers', 'Various Artists')
+    assert type(name) is str
+    name = name.replace('Interpr\xe8tes Divers', 'Various Artists')
     return name
 
 
@@ -87,11 +87,11 @@ class TrackMetadata(object):
         else:
             data_dict['fname'] = self.title
         if self.upload.media_total > 10:
-            name = u'{media_number:02d}.{track_number:02d}. {fname}.flac'.format(**data_dict)
+            name = '{media_number:02d}.{track_number:02d}. {fname}.flac'.format(**data_dict)
         elif self.upload.media_total > 1:
-            name = u'{media_number}.{track_number:02d}. {fname}.flac'.format(**data_dict)
+            name = '{media_number}.{track_number:02d}. {fname}.flac'.format(**data_dict)
         else:
-            name = u'{track_number:02d}. {fname}.flac'.format(**data_dict)
+            name = '{track_number:02d}. {fname}.flac'.format(**data_dict)
         return strip_path_chars(name)
 
     @property
@@ -224,7 +224,7 @@ class UploadMetadata(object):
         items = album_data['tracks']['items']
         for track_data in items:
             download_info = qobuz_api.get_file_url(track_data['id'])
-            assert download_info['mime_type'] == u'audio/flac', 'Track mime type is not audio/flac'
+            assert download_info['mime_type'] == 'audio/flac', 'Track mime type is not audio/flac'
             track_total = sum(t['media_number'] == track_data['media_number'] for t in items)
             assert sorted(t['track_number'] for t in items if
                           t['media_number'] == track_data['media_number']) == \
@@ -264,21 +264,21 @@ class UploadMetadata(object):
 
     def gen_description(self):
         lines = []
-        lines.append(u'{0} - {1} ({2})'.format(self.joined_artists, self.title, self.year))
+        lines.append('{0} - {1} ({2})'.format(self.joined_artists, self.title, self.year))
         if self.label:
-            lines.append(u'Label: {0}'.format(self.label))
+            lines.append('Label: {0}'.format(self.label))
         if self.genre:
-            lines.append(u'Genre: {0}'.format(self.genre))
-        lines.append(u'Duration: {0}'.format(self.duration_text))
+            lines.append('Genre: {0}'.format(self.genre))
+        lines.append('Duration: {0}'.format(self.duration_text))
         lines.append('')
         for track in self.tracks:
             if self.media_total > 1:
-                prefix = u'{0}.{1:02}'.format(track.media_number, track.track_number)
+                prefix = '{0}.{1:02}'.format(track.media_number, track.track_number)
             else:
-                prefix = u'{0:02}'.format(track.track_number)
+                prefix = '{0:02}'.format(track.track_number)
             if self.various_artists_mode:
                 track_title = '{0} - {1}'.format(track.joined_artists, track.title)
             else:
                 track_title = track.title
-            lines.append(u'{0}. {1} ({2})'.format(prefix, track_title, track.duration_text))
+            lines.append('{0}. {1} ({2})'.format(prefix, track_title, track.duration_text))
         return '\n'.join(lines)

@@ -37,7 +37,7 @@ class Command(BaseCommand):
                 except BadIdException:
                     continue
                 pth_group_id = pth_torrent['group']['id']
-                print 'Saving {} mapping to {}'.format(what_group_id, pth_group_id)
+                print('Saving {} mapping to {}'.format(what_group_id, pth_group_id))
                 TorrentGroupMapping.objects.create(
                     what_group_id=what_group_id,
                     pth_group_id=pth_group_id,

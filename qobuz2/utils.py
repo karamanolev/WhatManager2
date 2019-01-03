@@ -5,7 +5,7 @@ from WhatManager2.settings import MEDIA_ROOT
 
 
 def get_temp_dir(qobuz_id):
-    return os.path.join(MEDIA_ROOT, u'qobuz_uploads', str(qobuz_id))
+    return os.path.join(MEDIA_ROOT, 'qobuz_uploads', str(qobuz_id))
 
 
 def title(value):

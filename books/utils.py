@@ -5,9 +5,9 @@ isbn_regex = '^(97(8|9)-?)?\d{9}(\d|X)$'
 
 
 def fix_author(author):
-    parts = author.split(u', ')
+    parts = author.split(', ')
     if len(parts) == 2:
-        return parts[1] + u' ' + parts[0]
+        return parts[1] + ' ' + parts[0]
     return author
 
 

@@ -1,10 +1,5 @@
 import os
 
-import djcelery
-
-
-djcelery.setup_loader()
-
 WHAT_USER_ID = 123456
 WHAT_USERNAME = 'your RED username'
 WHAT_PASSWORD = 'your RED password'
@@ -29,7 +24,7 @@ TRANSMISSION_FILES_ROOT = '/mnt/tank/Torrent/transmission-daemon'
 # Transmission's ipv4 bind address. Leave as is or changed to specific ip.
 TRANSMISSION_BIND_HOST = '0.0.0.0'
 # Set this to true to use systemd rather than Upstart for Transmission daemon instances
-TRANSMISSION_USE_SYSTEMD = False
+TRANSMISSION_USE_SYSTEMD = True
 
 # You only need these if you are uploading books
 WHATIMG_USERNAME = 'whatimg username'
@@ -44,24 +39,25 @@ EMAIL_HOST_PASSWORD = 'password at gmail'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-FREELEECH_EMAIL_FROM = u'your own email@provider.com'
-FREELEECH_EMAIL_TO = u'wherever you want to receive mail@provider.com'
+FREELEECH_EMAIL_FROM = 'your own email@provider.com'
+FREELEECH_EMAIL_TO = 'wherever you want to receive mail@provider.com'
 # Less than this and you won't get an email.
 FREELEECH_EMAIL_THRESHOLD = 2
 # The script will only send emails if the current hostname is equals this.
-FREELEECH_HOSTNAME = u'NO_EMAILS'
+FREELEECH_HOSTNAME = 'NO_EMAILS'
 
 # You only need to set that if you'll be using the userscripts. Do not put a trailing slash
 USERSCRIPT_WM_ROOT = 'http://hostname.com'
 
 # You only need to set these if you are running the transcoder
-TRANSCODER_ADD_TORRENT_URL = 'http://hostname.com/json/add_torrent'
+TRANSCODER_ADD_TORRENT_URL = 'http://localhost/json/add_torrent'
 TRANSCODER_HTTP_USERNAME = 'http username'
 TRANSCODER_HTTP_PASSWORD = 'http password'
 TRANSCODER_TEMP_DIR = '/mnt/bulk/temp/whatup.celery.{0}'.format(os.getpid())
 TRANSCODER_ERROR_OUTPUT = '/mnt/bulk/temp/what_error.html'
-TRANSCODER_FORMATS = ['V0', '320']  # You can also add V2
-BROKER_URL = 'amqp://guest:guest@localhost:5672/'
+TRANSCODER_FORMATS = ['V0', '320']
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672/'
+CELERY_RESULT_BACKEND = 'amqp://guest@localhost//'
 
 # You only need to set these if you are running transmission_files_sync
 FILES_SYNC_HTTP_USERNAME = 'username'
@@ -79,15 +75,14 @@ WCD_PTH_SPECTRALS_HTML_PATH = '/path/to/target/folder/with/html/and/pngs'
 # what_transcode.add_transcoderequest - Adding transcode requests
 # home.run_checks = Running checks
 # home.view_transinstance_stats - Realtime stats viewing
-# queue.view_queueitem - Viewing the queue
-# queue.add_queueitem - Add to the queue
+# what_queue.view_queueitem - Viewing the queue
+# what_queue.add_queueitem - Add to the queue
 # what_profile.view_whatusersnapshot - Viewing the user profile
 # home.download_whattorrent - Downloading torrent zips
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 DATABASES = {
     'default': {
@@ -143,7 +138,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = 'static'
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
@@ -157,7 +152,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(BASE_DIR, 'static'),
+    #os.path.join(BASE_DIR, 'static'),
 )
 
 # List of finder classes that know how to find static files in
@@ -169,44 +164,61 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'FvvhvjFKYRxKR9Y7xSt883Ww'
+SECRET_KEY = b'FvvhvjFKYRxKR9Y7xSt883Ww'
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-    # 'django.template.loaders.eggs.Loader',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(os.path.dirname(__file__), '..', 'templates').replace('\\', '/')
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
+                # list if you haven't customized them:
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
+                'WhatManager2.context_processors.context_processor',
+            ],
+        },
+    },
+]
 
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'WhatManager2.middleware.HttpBasicAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
 
 ROOT_URLCONF = 'WhatManager2.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'WhatManager2.wsgi.application'
 
-TEMPLATE_DIRS = (os.path.join(os.path.dirname(__file__), '..', 'templates').replace('\\', '/'),)
-
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     # Django apps
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.admin',
+    # Web Server
+    'mod_wsgi.server',
     # Library apps
-    'djcelery',
     'bootstrapform',
     # WhatManager2 apps
     'WhatManager2',
@@ -214,7 +226,7 @@ INSTALLED_APPS = (
     'home',
     'what_json',
     'download',
-    'queue',
+    'what_queue',
     'what_profile',
     'what_transcode',
     'books',
@@ -224,7 +236,7 @@ INSTALLED_APPS = (
     'whatify',
     'qobuz2',
     'myanonamouse',
-)
+]
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -254,18 +266,6 @@ LOGGING = {
         },
     }
 }
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.core.context_processors.tz',
-    'django.contrib.messages.context_processors.messages',
-    'django.core.context_processors.request',
-    'WhatManager2.context_processors.context_processor',
-)
 
 DATETIME_FORMAT = 'Y-m-d H:i:s'
 

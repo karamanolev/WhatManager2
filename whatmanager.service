@@ -1,0 +1,11 @@
+[Unit]
+Description=WhatManager2 via mod_wsgi
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/etc/whatmanager-80/apachectl start
+ExecStop=/etc/whatmanager-80/apachectl stop
+
+[Install]
+WantedBy=multi-user.target

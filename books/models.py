@@ -35,16 +35,16 @@ class BookUpload(models.Model):
     bibliotik_torrent_file = models.BinaryField(null=True)
     what_torrent_file = models.BinaryField(null=True)
 
-    bibliotik_torrent = models.ForeignKey('bibliotik.BibliotikTorrent', null=True, blank=True)
-    what_torrent = models.ForeignKey('home.WhatTorrent', null=True, blank=True)
+    bibliotik_torrent = models.ForeignKey('bibliotik.BibliotikTorrent', null=True, blank=True, on_delete=models.CASCADE)
+    what_torrent = models.ForeignKey('home.WhatTorrent', null=True, blank=True, on_delete=models.CASCADE)
 
     @property
     def tag_list(self):
-        return [t.strip() for t in self.tags.split(u';')]
+        return [t.strip() for t in self.tags.split(';')]
 
     @tag_list.setter
     def tag_list(self, value):
-        self.tags = u';'.join(value)
+        self.tags = ';'.join(value)
 
     def populate_from_opf(self):
         pq = pyquery.PyQuery(self.opf_data.encode('utf-8'))
@@ -53,7 +53,7 @@ class BookUpload(models.Model):
             'opf': 'http://www.idpf.org/2007/opf',
         }
         self.author = ', '.join(utils.fix_author(creator.text()) for creator in
-                                pq('dc|creator', namespaces=nss).items())
+                                list(pq('dc|creator', namespaces=nss).items()))
         self.title = pq('dc|title', namespaces=nss).text()
         isbns = pq('dc|identifier[opf|scheme="ISBN"]:first', namespaces=nss)
         if len(isbns) > 0:
@@ -62,7 +62,7 @@ class BookUpload(models.Model):
         self.year = pq('dc|date', namespaces=nss).text()[:4]
         self.description = pq('dc|description', namespaces=nss).text()
         self.target_filename = what_transcode.utils.fix_pathname(
-            self.title + u' - ' + self.author + u'.' + self.format.lower())
+            self.title + ' - ' + self.author + '.' + self.format.lower())
 
 
 class BookUploadForm(ModelForm):

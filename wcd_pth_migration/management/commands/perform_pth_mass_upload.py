@@ -2,7 +2,7 @@ import os
 import shutil
 import time
 import ujson
-from HTMLParser import HTMLParser
+from html.parser import HTMLParser
 from base64 import b64decode
 
 import bencode
@@ -11,7 +11,6 @@ from django.core.management.base import BaseCommand
 from html2bbcode.parser import HTML2BBCode
 
 from WhatManager2.manage_torrent import add_torrent
-from WhatManager2.utils import wm_str
 from books.utils import call_mktorrent
 from home.models import ReplicaSet, get_what_client, DownloadLocation, WhatTorrent, \
     RequestException, \
@@ -33,7 +32,7 @@ dummy_request = lambda: None  # To hold the what object
 def extract_new_artists_importance(group_info):
     artists = []
     importance = []
-    for importance_key, artist_list in group_info['musicInfo'].items():
+    for importance_key, artist_list in list(group_info['musicInfo'].items()):
         importance_value = {
             'artists': 1,  # Main
             'with': 2,  # Guest
@@ -72,10 +71,8 @@ class TorrentMigrationJob(object):
         self.data = data
         self.what_torrent = self.data['what_torrent']
         self.what_torrent_info = ujson.loads(self.what_torrent['info'])
-        self.full_location = os.path.join(
-            wm_str(self.data['location']['path']),
-            str(self.what_torrent['id']),
-        )
+        self.full_location = os.path.join(self.data['location']['path'],
+            str(self.what_torrent['id']))
         self.torrent_dict = bencode.bdecode(b64decode(self.what_torrent['torrent_file']))
         self.torrent_name = self.torrent_dict['info']['name']
         self.torrent_new_name = self.torrent_name
@@ -92,7 +89,7 @@ class TorrentMigrationJob(object):
         self.full_new_location = None
 
     def check_valid(self):
-        print 'Verifying torrent data...'
+        print('Verifying torrent data...')
         try:
             if not torrentcheck.verify(self.torrent_dict['info'], self.full_location):
                 raise Exception('Torrent does not verify')
@@ -101,7 +98,7 @@ class TorrentMigrationJob(object):
                 what_torrent_id=self.what_torrent['id'],
                 status=WhatTorrentMigrationStatus.STATUS_FAILED_VALIDATION
             )
-            raw_input('Verification threw {}. Press enter to continue.'.format(ex))
+            input('Verification threw {}. Press enter to continue.'.format(ex))
             return False
         print('Hash matching')
         torrent_file_set = {'/'.join(f['path']) for f in self.torrent_dict['info']['files']}
@@ -113,22 +110,22 @@ class TorrentMigrationJob(object):
                     raise Exception(
                         'Extraneous file: {}/{}'.format(self.torrent_dir_path, file_path))
                 if filename.lower().endswith('.log'):
-                    print 'Candidate log file', abs_path
+                    print('Candidate log file', abs_path)
                     with open(abs_path, 'r') as log_f:
                         try:
                             self.log_files.add(LogFile(log_f.read()))
                         except UnrecognizedRippingLogException:
-                            print 'Skipping: unrecognized'
+                            print('Skipping: unrecognized')
                             pass
                         except InvalidRippingLogException:
-                            raw_input('Log file unrecognized!')
+                            input('Log file unrecognized!')
                     self.log_files_full_paths.append(abs_path)
         print('No extraneous files')
-        print 'Torrent verification complete'
+        print('Torrent verification complete')
         return True
 
     def mktorrent(self):
-        print 'Creating torrent file...'
+        print('Creating torrent file...')
         torrent_temp_filename = 'temp.torrent'
         try:
             os.remove(torrent_temp_filename)
@@ -141,8 +138,8 @@ class TorrentMigrationJob(object):
         with open(torrent_temp_filename, 'rb') as torrent_file:
             self.torrent_file_new_data = pthify_torrent(torrent_file.read())
             self.torrent_new_infohash = get_info_hash_from_data(self.torrent_file_new_data)
-            print 'New info hash is: ', self.torrent_new_infohash
-        print 'Torrent file created'
+            print('New info hash is: ', self.torrent_new_infohash)
+        print('Torrent file created')
 
     def retrieve_new_torrent(self, info_hash):
         if self.new_torrent is None:
@@ -204,10 +201,10 @@ class TorrentMigrationJob(object):
         payload_files.append(('file_input', ('torrent.torrent', self.torrent_file_new_data)))
         if self.what_torrent_info['torrent']['format'] == 'FLAC':
             for log_file_path in self.log_files_full_paths:
-                print 'Log file {}'.format(log_file_path)
-                print ''.join(list(open(log_file_path))[:4])
-                print
-                response = raw_input('Add to upload [y/n]: ')
+                print('Log file {}'.format(log_file_path))
+                print(''.join(list(open(log_file_path))[:4]))
+                print()
+                response = input('Add to upload [y/n]: ')
                 if response == 'y':
                     payload_files.append(('logfiles[]', ('logfile.log', open(log_file_path, 'rb'))))
                 elif response == 'n':
@@ -247,52 +244,52 @@ class TorrentMigrationJob(object):
             self.migration_status.status = WhatTorrentMigrationStatus.STATUS_UPLOADED
             self.migration_status.save()
         else:
-            print 'Ready with payload'
-            print ujson.dumps(self.payload, indent=4)
+            print('Ready with payload')
+            print(ujson.dumps(self.payload, indent=4))
 
     def get_total_size(self):
         return sum(f['length'] for f in self.torrent_dict['info']['files'])
 
     def print_info(self):
         if 'groupid' in self.payload:
-            print 'Part of existing torrent group'
-            print 'Artists:       ', ','.join(
+            print('Part of existing torrent group')
+            print('Artists:       ', ','.join(
                 artist['name'] for artist in
                 self.existing_new_group['group']['musicInfo']['artists']
-            )
-            print 'Album title:   ', self.existing_new_group['group']['name']
-            print 'Year:          ', self.existing_new_group['group']['year']
-            print 'Record label:  ', self.existing_new_group['group']['recordLabel']
-            print 'Catalog number:', self.existing_new_group['group']['catalogueNumber']
-            print 'Release type:  ', self.existing_new_group['group']['releaseType']
-            print
+            ))
+            print('Album title:   ', self.existing_new_group['group']['name'])
+            print('Year:          ', self.existing_new_group['group']['year'])
+            print('Record label:  ', self.existing_new_group['group']['recordLabel'])
+            print('Catalog number:', self.existing_new_group['group']['catalogueNumber'])
+            print('Release type:  ', self.existing_new_group['group']['releaseType'])
+            print()
         else:
-            print 'Artists:       ', ','.join(
+            print('Artists:       ', ','.join(
                 artist['name'] for artist, importance in zip(
                     self.payload['artists[]'], self.payload['importance[]'])
                 if importance == 1  # Main
-            )
-            print 'Album title:   ', self.payload['title']
-            print 'Year:          ', self.payload['year']
-            print 'Record label:  ', self.payload['record_label']
-            print 'Catalog number:', self.payload['catalogue_number']
-            print 'Release type:  ', self.payload['releasetype']
-            print
+            ))
+            print('Album title:   ', self.payload['title'])
+            print('Year:          ', self.payload['year'])
+            print('Record label:  ', self.payload['record_label'])
+            print('Catalog number:', self.payload['catalogue_number'])
+            print('Release type:  ', self.payload['releasetype'])
+            print()
         if 'remaster' in self.payload:
-            print '  Edition information'
-            print '  Year:          ', self.payload['remaster_year']
-            print '  Record label:  ', self.payload['remaster_record_label']
-            print '  Catalog number:', self.payload['remaster_catalogue_number']
-            print
-        print 'Scene:         ', 'yes' if 'scene' in self.payload else 'no'
-        print 'Format:        ', self.payload['format']
-        print 'Bitrate:       ', self.payload['bitrate']
-        print 'Media:         ', self.payload['media']
+            print('  Edition information')
+            print('  Year:          ', self.payload['remaster_year'])
+            print('  Record label:  ', self.payload['remaster_record_label'])
+            print('  Catalog number:', self.payload['remaster_catalogue_number'])
+            print()
+        print('Scene:         ', 'yes' if 'scene' in self.payload else 'no')
+        print('Format:        ', self.payload['format'])
+        print('Bitrate:       ', self.payload['bitrate'])
+        print('Media:         ', self.payload['media'])
         if 'groupid' not in self.payload:
-            print 'Tags:          ', self.payload['tags']
-            print 'Image:         ', self.payload['image']
-            print 'Album desc:    ', self.payload['album_desc']
-        print 'Release desc:  ', self.payload['release_desc']
+            print('Tags:          ', self.payload['tags'])
+            print('Image:         ', self.payload['image'])
+            print('Album desc:    ', self.payload['album_desc'])
+        print('Release desc:  ', self.payload['release_desc'])
 
     def find_existing_torrent_by_hash(self):
         try:
@@ -319,30 +316,30 @@ class TorrentMigrationJob(object):
                     mapping.pth_group_id,
                 ))
             existing_group_id = mapping.pth_group_id
-            print 'Found torrent group mapping with {}'.format(existing_group_id)
+            print('Found torrent group mapping with {}'.format(existing_group_id))
         except TorrentGroupMapping.DoesNotExist:
             pass
         except BadIdException:
-            print 'Mapping has gone bad, deleting...'
+            print('Mapping has gone bad, deleting...')
             mapping.delete()
 
         if existing_group_id is None:
             group_year = self.what_torrent_info['group']['year']
             group_name = html_parser.unescape(self.what_torrent_info['group']['name']).lower()
-            search_str = '{} {}'.format(wm_str(group_name), wm_str(str(group_year)))
+            search_str = '{} {}'.format(group_name, str(group_year))
             results = self.what.request('browse', searchstr=search_str)['response']['results']
             for result in results:
                 if html_parser.unescape(result['groupName']).lower() == group_name and \
                                 result['groupYear'] == group_year:
                     if not existing_group_id:
                         existing_group_id = result['groupId']
-                        print 'Found existing group', existing_group_id
+                        print('Found existing group', existing_group_id)
                     else:
-                        print 'Multiple matching existing groups!!!!!!!!!!'
+                        print('Multiple matching existing groups!!!!!!!!!!')
                         existing_group_id = None
                         break
         if existing_group_id is None:
-            existing_group_id = raw_input(u'Enter existing group id (empty if non-existent): ')
+            existing_group_id = input('Enter existing group id (empty if non-existent): ')
             if existing_group_id:
                 TorrentGroupMapping.objects.get_or_create(
                     what_group_id=self.what_torrent_info['group']['id'],
@@ -362,7 +359,7 @@ class TorrentMigrationJob(object):
                 if not existing_torrent_id:
                     existing_torrent_id = torrent['id']
                 else:
-                    raw_input('Warning: Multiple matching torrent sizes ({} and {})! '
+                    input('Warning: Multiple matching torrent sizes ({} and {})! '
                               'Taking first.'.format(
                         existing_torrent_id, torrent['id']))
         return existing_torrent_id
@@ -392,32 +389,32 @@ class TorrentMigrationJob(object):
                         self.what.request('torrentlog', torrentid=torrent['id'])['response']
                         }
                     if torrent_log_files == self.log_files:
-                        print 'Found matching log files with {}!!!'.format(torrent['id'])
+                        print('Found matching log files with {}!!!'.format(torrent['id']))
                         if not existing_torrent_id:
                             existing_torrent_id = torrent['id']
                             continue
                         else:
-                            print 'Multiple existing catalog numbers ({} and {})'.format(
-                                existing_torrent_id, torrent['id'])
-                            existing_torrent_id = raw_input('Enter torrent id if dup: ')
+                            print('Multiple existing catalog numbers ({} and {})'.format(
+                                existing_torrent_id, torrent['id']))
+                            existing_torrent_id = input('Enter torrent id if dup: ')
                     else:
                         if len(torrent_log_files.intersection(self.log_files)):
-                            raw_input('Log file sets are not exact matches, '
+                            input('Log file sets are not exact matches, '
                                       'but found matching log files between ours and {}!!!'.format(
                                 torrent['id']))
                 except InvalidRippingLogException:
-                    raw_input('Log file for {} invalid!'.format(torrent['id']))
+                    input('Log file for {} invalid!'.format(torrent['id']))
                 except UnrecognizedRippingLogException:
-                    raw_input('Log file for {} unrecognized!'.format(torrent['id']))
+                    input('Log file for {} unrecognized!'.format(torrent['id']))
 
             if original_catalog_number == torrent_catalog_number and matching_media_format:
                 if not existing_torrent_id:
                     existing_torrent_id = torrent['id']
                     continue
                 else:
-                    print 'Multiple existing catalog numbers ({} and {})'.format(
-                        existing_torrent_id, torrent['id'])
-                    existing_torrent_id = raw_input('Enter torrent id if dup: ')
+                    print('Multiple existing catalog numbers ({} and {})'.format(
+                        existing_torrent_id, torrent['id']))
+                    existing_torrent_id = input('Enter torrent id if dup: ')
 
         return existing_torrent_id
 
@@ -428,27 +425,27 @@ class TorrentMigrationJob(object):
         t_info = self.what_torrent_info['torrent']
         g_info = self.what_torrent_info['group']
         remaster = t_info['remastered']
-        print 'What id:      ', self.what_torrent['id']
-        print 'Title:        ', '; '.join(
+        print('What id:      ', self.what_torrent['id'])
+        print('Title:        ', '; '.join(
             a['name'] for a in g_info['musicInfo']['artists']), '-', html_parser.unescape(
-            g_info['name'])
-        print 'Year:         ', g_info['year']
-        print 'Media:        ', t_info['media']
-        print 'Format:       ', t_info['format']
-        print 'Bitrate:      ', t_info['encoding']
-        print 'Remaster:     ', 'yes ({})'.format(t_info['remasterYear']) if remaster else 'no'
-        print 'Label:        ', t_info['remasterRecordLabel'] if remaster else g_info['recordLabel']
-        print 'Cat no:       ', t_info['remasterCatalogueNumber'] if remaster else g_info[
-            'catalogueNumber']
-        print 'Remaster desc:', t_info['remasterTitle']
-        print 'Torrent name: ', self.torrent_name
-        print 'Torrent size: ', format_bytes_pth(self.get_total_size())
-        print
+            g_info['name']))
+        print('Year:         ', g_info['year'])
+        print('Media:        ', t_info['media'])
+        print('Format:       ', t_info['format'])
+        print('Bitrate:      ', t_info['encoding'])
+        print('Remaster:     ', 'yes ({})'.format(t_info['remasterYear']) if remaster else 'no')
+        print('Label:        ', t_info['remasterRecordLabel'] if remaster else g_info['recordLabel'])
+        print('Cat no:       ', t_info['remasterCatalogueNumber'] if remaster else g_info[
+            'catalogueNumber'])
+        print('Remaster desc:', t_info['remasterTitle'])
+        print('Torrent name: ', self.torrent_name)
+        print('Torrent size: ', format_bytes_pth(self.get_total_size()))
+        print()
 
         self.find_existing_torrent_by_hash()
         if self.new_torrent:
-            print 'Found existing torrent by hash ' + str(
-                self.new_torrent['torrent']['id']) + ' reseeding!!!'
+            print('Found existing torrent by hash ' + str(
+                self.new_torrent['torrent']['id']) + ' reseeding!!!')
             self.migration_status = WhatTorrentMigrationStatus.objects.create(
                 what_torrent_id=self.what_torrent['id'],
                 status=WhatTorrentMigrationStatus.STATUS_RESEEDED,
@@ -460,19 +457,19 @@ class TorrentMigrationJob(object):
         if self.existing_new_group:
             matching_torrent_id = self.find_matching_torrent_within_group()
             if matching_torrent_id:
-                print 'Found matching torrent id:', matching_torrent_id
+                print('Found matching torrent id:', matching_torrent_id)
                 response = 'reseed'
             else:
                 existing_torrent_id = self.find_existing_torrent_within_group()
                 if existing_torrent_id:
-                    print 'Found existing torrent id:', existing_torrent_id
+                    print('Found existing torrent id:', existing_torrent_id)
                     response = 'dup'
 
         if not response:
-            response = raw_input('Choose action [up/dup/skip/skipp/reseed/changetg]: ')
+            response = input('Choose action [up/dup/skip/skipp/reseed/changetg]: ')
         else:
             if response != 'reseed':
-                new_response = raw_input(response + '. Override: ')
+                new_response = input(response + '. Override: ')
                 if new_response:
                     response = new_response
 
@@ -484,7 +481,7 @@ class TorrentMigrationJob(object):
             return True
         elif response == 'reseed':
             if not matching_torrent_id:
-                matching_torrent_id = int(raw_input('Enter matching torrent id: '))
+                matching_torrent_id = int(input('Enter matching torrent id: '))
             existing_torrent = WhatTorrent.get_or_create(dummy_request, what_id=matching_torrent_id)
             existing_info = bencode.bdecode(existing_torrent.torrent_file_binary)
             success = False
@@ -493,7 +490,7 @@ class TorrentMigrationJob(object):
                     raise Exception('Torrent does not verify')
                 success = True
             except Exception as ex:
-                print 'Existing torrent does not verify with', ex
+                print('Existing torrent does not verify with', ex)
             if success:
                 self.new_torrent = self.what.request('torrent', id=matching_torrent_id)['response']
                 self.migration_status = WhatTorrentMigrationStatus.objects.create(
@@ -507,7 +504,7 @@ class TorrentMigrationJob(object):
         )
         if response == 'dup':
             if not existing_torrent_id:
-                existing_torrent_id = int(raw_input('Enter existing torrent id: '))
+                existing_torrent_id = int(input('Enter existing torrent id: '))
             existing_torrent = self.what.request('torrent', id=existing_torrent_id)['response']
             self.migration_status.status = WhatTorrentMigrationStatus.STATUS_DUPLICATE
             self.migration_status.pth_torrent_id = existing_torrent_id
@@ -523,7 +520,7 @@ class TorrentMigrationJob(object):
             self.migration_status.status = WhatTorrentMigrationStatus.STATUS_DUPLICATE
             self.migration_status.pth_torrent_id = matching_torrent_id
         elif response == 'changetg':
-            existing_group_id = raw_input(u'Enter existing group id (empty if non-existent): ')
+            existing_group_id = input('Enter existing group id (empty if non-existent): ')
             if existing_group_id:
                 self.existing_new_group = self.existing_new_group = self.what.request(
                     'torrentgroup', id=existing_group_id)['response']
@@ -537,7 +534,7 @@ class TorrentMigrationJob(object):
         new_id = self.new_torrent['torrent']['id']
         instance = ReplicaSet.get_what_master().get_preferred_instance()
         trans_torrent = add_torrent(dummy_request, instance, self.new_location_obj, new_id)
-        print 'Added to', trans_torrent.instance.name
+        print('Added to', trans_torrent.instance.name)
 
     def add_to_wm(self):
         for i in range(3):
@@ -545,7 +542,7 @@ class TorrentMigrationJob(object):
                 self._add_to_wm()
                 return
             except Exception:
-                print 'Error adding to wm, trying again in 5 sec...'
+                print('Error adding to wm, trying again in 5 sec...')
                 time.sleep(5)
         self._add_to_wm()
 
@@ -553,20 +550,20 @@ class TorrentMigrationJob(object):
         if self.what_torrent_info['torrent']['media'] == 'Blu-ray':
             self.what_torrent_info['torrent']['media'] = 'Blu-Ray'
         if not any(self.what_torrent_info['group']['tags']):
-            tags = raw_input('Enter tags (comma separated): ').split(',')
+            tags = input('Enter tags (comma separated): ').split(',')
             self.what_torrent_info['group']['tags'] = tags
         if len(self.what_torrent_info['group']['wikiBody']) < 10:
-            wiki_body = raw_input('Enter wiki body: ')
+            wiki_body = input('Enter wiki body: ')
             self.what_torrent_info['group']['wikiBody'] = wiki_body
         if 'tinypic.com' in self.what_torrent_info['group']['wikiImage'].lower():
             self.what_torrent_info['group']['wikiImage'] = ''
         if self.what_torrent_info['torrent']['remastered'] and not \
                 self.what_torrent_info['torrent']['remasterYear']:
-            remaster_year = raw_input('Enter remaster year: ')
+            remaster_year = input('Enter remaster year: ')
             self.what_torrent_info['torrent']['remasterYear'] = remaster_year
 
     def generate_spectrals(self):
-        print 'Generating spectrals...'
+        print('Generating spectrals...')
         generate_spectrals_for_dir(self.full_location)
 
     def save_torrent_group_mapping(self):
@@ -579,32 +576,32 @@ class TorrentMigrationJob(object):
         what_torrent_id = self.what_torrent['id']
 
         if self.what_torrent_info['group']['categoryName'] != 'Music':
-            print 'Skipping non-Music torrent', what_torrent_id
+            print('Skipping non-Music torrent', what_torrent_id)
             return
 
         if self.flac_only and self.what_torrent_info['torrent']['format'] != 'FLAC':
-            print 'Skipping non-FLAC torrent', what_torrent_id
+            print('Skipping non-FLAC torrent', what_torrent_id)
             return
 
         try:
             status = WhatTorrentMigrationStatus.objects.get(what_torrent_id=what_torrent_id)
             if status.status == WhatTorrentMigrationStatus.STATUS_COMPLETE:
-                print 'Skipping complete torrent', what_torrent_id
+                print('Skipping complete torrent', what_torrent_id)
                 return
             elif status.status == WhatTorrentMigrationStatus.STATUS_DUPLICATE:
-                print 'Skipping duplicate torrent', what_torrent_id
+                print('Skipping duplicate torrent', what_torrent_id)
                 return
             elif status.status == WhatTorrentMigrationStatus.STATUS_SKIPPED:
-                print 'Skipping skipped torrent', what_torrent_id
+                print('Skipping skipped torrent', what_torrent_id)
                 return
             elif status.status == WhatTorrentMigrationStatus.STATUS_SKIPPED_PERMANENTLY:
-                print 'Skipping permanently skipped torrent', what_torrent_id
+                print('Skipping permanently skipped torrent', what_torrent_id)
                 return
             elif status.status == WhatTorrentMigrationStatus.STATUS_FAILED_VALIDATION:
-                print 'Skipping failed validation torrent', what_torrent_id
+                print('Skipping failed validation torrent', what_torrent_id)
                 return
             elif status.status == WhatTorrentMigrationStatus.STATUS_RESEEDED:
-                print 'Skipping reseeded torrent', what_torrent_id
+                print('Skipping reseeded torrent', what_torrent_id)
                 return
             else:
                 raise Exception('Not sure what to do with status {} on {}'.format(
@@ -622,29 +619,29 @@ class TorrentMigrationJob(object):
             self.print_info()
             self.prepare_payload_files()
             self.generate_spectrals()
-            raw_input('Will perform upload (CHECK THE SPECTRALS)...')
+            input('Will perform upload (CHECK THE SPECTRALS)...')
             self.perform_upload()
         self.set_new_location()
         if self.REAL_RUN:
             os.makedirs(self.full_new_location)
-            shutil.move(wm_str(self.torrent_dir_path), wm_str(self.full_new_location))
+            shutil.move(self.torrent_dir_path, self.full_new_location)
             try:
-                recursive_chmod(self.full_new_location, 0777)
+                recursive_chmod(self.full_new_location, 0o777)
             except OSError:
-                print 'recursive_chmod failed'
+                print('recursive_chmod failed')
         else:
-            print 'os.makedirs({})'.format(self.full_new_location)
-            print 'shutil.move({}, {})'.format(self.torrent_dir_path, self.full_new_location)
-            print 'recursive_chmod({}, 0777)'.format(self.full_new_location)
+            print('os.makedirs({})'.format(self.full_new_location))
+            print('shutil.move({}, {})'.format(self.torrent_dir_path, self.full_new_location))
+            print('recursive_chmod({}, 0777)'.format(self.full_new_location))
         if self.REAL_RUN:
             self.add_to_wm()
             self.migration_status.status = WhatTorrentMigrationStatus.STATUS_COMPLETE
             self.migration_status.save()
             self.save_torrent_group_mapping()
         else:
-            print 'add_to_wm()'
-        print
-        print
+            print('add_to_wm()')
+        print()
+        print()
 
 
 class Command(BaseCommand):
@@ -654,11 +651,11 @@ class Command(BaseCommand):
         parser.add_argument('--flac-only', action='store_true', default=False)
 
     def handle(self, *args, **options):
-        print 'Initiating what client...'
+        print('Initiating what client...')
         what = get_what_client(dummy_request, True)
         index_response = what.request('index')
-        print 'Status:', index_response['status']
-        print 'Scanning replica sets...'
+        print('Status:', index_response['status'])
+        print('Scanning replica sets...')
         try:
             ReplicaSet.objects.get(zone='what.cd')
             raise Exception('Please delete your what.cd replica set now')
@@ -670,7 +667,7 @@ class Command(BaseCommand):
                 raise ReplicaSet.DoesNotExist()
         except ReplicaSet.DoesNotExist:
             raise Exception('Please get your PTH replica set ready')
-        print 'Scanning locations...'
+        print('Scanning locations...')
         location_mapping = {}
         with open('what_manager2_torrents.jsonl', 'rb') as torrents_input:
             for line in torrents_input:
@@ -681,22 +678,22 @@ class Command(BaseCommand):
                         new_location = DownloadLocationEquivalent.objects.get(
                             old_location=location_path).new_location
                     except DownloadLocationEquivalent.DoesNotExist:
-                        new_location = raw_input(
+                        new_location = input(
                             'Enter the new location to map to {}: '.format(location_path))
                         DownloadLocationEquivalent.objects.create(
                             old_location=location_path,
                             new_location=new_location,
                         )
                     location_mapping[location_path] = new_location
-        print 'Location mappings:'
-        for old_location, new_location in location_mapping.items():
+        print('Location mappings:')
+        for old_location, new_location in list(location_mapping.items()):
             try:
                 DownloadLocation.objects.get(zone='redacted.ch', path=new_location)
             except DownloadLocation.DoesNotExist:
                 raise Exception(
                     'Please create the {} location in the DB in zone redacted.ch'.format(
                         new_location))
-            print old_location, '=', new_location
+            print(old_location, '=', new_location)
         with open('what_manager2_torrents.jsonl', 'rb') as torrents_input:
             for line in torrents_input:
                 data = ujson.loads(line)

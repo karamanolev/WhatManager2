@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import models, migrations
 import django.core.validators
@@ -75,8 +75,10 @@ class Migration(migrations.Migration):
                 ('bibliotik_torrent', models.ForeignKey(
                     blank=True,
                     to='bibliotik.BibliotikTorrent',
-                    null=True)),
-                ('what_torrent', models.ForeignKey(blank=True, to='home.WhatTorrent', null=True)),
+                    null=True, 
+                    on_delete=models.CASCADE)),
+                ('what_torrent', models.ForeignKey(blank=True, to='home.WhatTorrent', 
+                                                   null=True, on_delete=models.CASCADE)),
             ],
             options={
             },

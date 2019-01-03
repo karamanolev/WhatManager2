@@ -1,9 +1,8 @@
-from __future__ import unicode_literals
+
 import os.path
 
 from pyquery.pyquery import PyQuery
 
-from qiller.utils import q_enc
 from qiller.what_api import WHAT_CD_DOMAIN
 
 from qobuz2.settings import QILLER_ERROR_OUTPUT
@@ -89,7 +88,7 @@ class WhatUploader(object):
 
     def _upload_in_group(self, group_id, remaster):
         payload_files = dict()
-        payload_files['file_input'] = ('torrent.torrent', open(q_enc(self.torrent_file_path), 'rb'))
+        payload_files['file_input'] = ('torrent.torrent', open(self.torrent_file_path, 'rb'))
 
         payload = dict()
         payload['submit'] = 'true'
@@ -154,7 +153,7 @@ class WhatUploader(object):
         if remaster:
             assert original_year, 'You need to specify original year with remaster'
         payload_files = dict()
-        payload_files['file_input'] = ('torrent.torrent', open(q_enc(self.torrent_file_path), 'rb'))
+        payload_files['file_input'] = ('torrent.torrent', open(self.torrent_file_path, 'rb'))
 
         payload = dict()
         payload['submit'] = 'true'

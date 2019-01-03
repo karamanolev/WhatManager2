@@ -12,7 +12,7 @@ from qiller.make_torrent import TorrentMaker
 from qiller.metadata import UploadMetadata
 from qiller.prepare import Preparer
 from qiller.spectrals import SpectralManager, SpectralUploader
-from qiller.utils import FLACTester, download_test_spectral, q_enc
+from qiller.utils import FLACTester, download_test_spectral
 from qiller.what_upload import WhatUploader
 
 
@@ -26,7 +26,7 @@ class QillerUpload(object):
     STATE_UPLOADED_WHAT = 5
 
     def __init__(self, temp_dir):
-        if os.path.exists(q_enc(temp_dir)):
+        if os.path.exists(temp_dir):
             raise Exception('Destination directory already exists. Run clean.')
         self.concurrency = self.DEFAULT_CONCURRENCY
         self.metadata = None
@@ -40,7 +40,7 @@ class QillerUpload(object):
         self.metadata = UploadMetadata()
         self.metadata.load_from_qobuz(qobuz_api, qobuz_album)
         self.state = self.STATE_INITIALIZED
-        os.mkdir(q_enc(temp_dir))
+        os.mkdir(temp_dir)
 
     def load_from_tidal(self, tidal_api, temp_dir, album_id):
         self.concurrency = 4
@@ -52,7 +52,7 @@ class QillerUpload(object):
         self.metadata = UploadMetadata()
         self.metadata.load_from_tidal(tidal_api, tidal_album, tidal_tracks)
         self.state = self.STATE_INITIALIZED
-        os.mkdir(q_enc(temp_dir))
+        os.mkdir(temp_dir)
 
     def download(self, temp_dir, high_color_spectrals):
         assert self.state == self.STATE_INITIALIZED, 'Can\'t download in current state'
@@ -69,16 +69,16 @@ class QillerUpload(object):
         self.state = self.STATE_DOWNLOADED
 
     def clean(self, temp_dir):
-        if os.path.exists(q_enc(temp_dir)):
-            shutil.rmtree(q_enc(temp_dir))
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
         self.state = self.STATE_INITIALIZED
 
     def prepare(self, temp_dir):
         assert self.state == self.STATE_DOWNLOADED, 'Can\'t prepare in current state'
         preparer = Preparer(temp_dir)
-        map(preparer.prepare_goodie, self.metadata.goodies)
-        map(preparer.prepare_image, self.metadata.images)
-        map(functools.partial(preparer.prepare_track, self.metadata), self.metadata.tracks)
+        list(map(preparer.prepare_goodie, self.metadata.goodies))
+        list(map(preparer.prepare_image, self.metadata.images))
+        list(map(functools.partial(preparer.prepare_track, self.metadata), self.metadata.tracks))
         self.state = self.STATE_PREPARED
 
     def make_torrent(self, temp_dir, announce):
@@ -103,7 +103,7 @@ class QillerUpload(object):
             raise Exception('Image already uploaded to {0}'.format(self.metadata.image_url))
         for image in self.metadata.images:
             if image.name == 'large':
-                with open(q_enc(os.path.join(temp_dir, image.filename)), 'rb') as f:
+                with open(os.path.join(temp_dir, image.filename), 'rb') as f:
                     url = whatimg.upload_image_from_memory(username, password, album_id, f.read())
                     self.metadata.image_url = url
                     return

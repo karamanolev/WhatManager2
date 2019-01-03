@@ -35,14 +35,14 @@ class QobuzUpload(models.Model):
     track_data_json = models.TextField()
     download_task_id = models.CharField(max_length=64, null=True)
     what_img_cover = models.CharField(max_length=256, null=True)
-    what_torrent = models.ForeignKey(WhatTorrent, null=True)
+    what_torrent = models.ForeignKey(WhatTorrent, null=True, on_delete=models.CASCADE)
 
     @cached_property
     def description_box(self):
         lines = []
-        lines.append(u'{0} - {1} ({2})'.format(self.artists, self.album_name, self.album_year))
-        lines.append(u'Label: {0}'.format(self.album_data['label']['name']))
-        lines.append(u'Genre: {0}'.format(
+        lines.append('{0} - {1} ({2})'.format(self.artists, self.album_name, self.album_year))
+        lines.append('Label: {0}'.format(self.album_data['label']['name']))
+        lines.append('Genre: {0}'.format(
             self.album_data['genre']['name']))
         lines.append('')
         track_number = 0
@@ -52,10 +52,10 @@ class QobuzUpload(models.Model):
                 track_number = 1
                 media_number = track['media_number']
             if self.album_data['tracks']['items'][-1]['media_number'] > 1:
-                prefix = u'{0}.{1:02}'.format(media_number, track_number)
+                prefix = '{0}.{1:02}'.format(media_number, track_number)
             else:
-                prefix = u'{0:02}'.format(track_number)
-            lines.append(u'{0}. {1} ({2}:{3:02})'.format(
+                prefix = '{0:02}'.format(track_number)
+            lines.append('{0}. {1} ({2}:{3:02})'.format(
                 prefix, self.track_data[i]['title'],
                 int(track['duration']) // 60,
                 int(track['duration']) % 60
@@ -78,7 +78,7 @@ class QobuzUpload(models.Model):
 
     @cached_property
     def torrent_name(self):
-        return u'{0} - {1} - {2} (WEB - FLAC - Lossless)'.format(
+        return '{0} - {1} - {2} (WEB - FLAC - Lossless)'.format(
             fix_filepath(self.artists),
             fix_filepath(self.album_name),
             fix_filepath(self.album_year)
@@ -86,7 +86,7 @@ class QobuzUpload(models.Model):
 
     @cached_property
     def temp_media_path(self):
-        return os.path.join(MEDIA_ROOT, u'qobuz_uploads', self.torrent_name)
+        return os.path.join(MEDIA_ROOT, 'qobuz_uploads', self.torrent_name)
 
     @cached_property
     def album_data(self):

@@ -43,7 +43,7 @@
         <script>
             var checksRow = $('#checks_row');
             function reloadChecks() {
-                checksRow.find('.widget-content').load('{% url 'home.parts.checks' %}');
+                checksRow.find('.widget-content').load('{% url 'home:part_checks' %}');
             }
             reloadChecks();
         </script>

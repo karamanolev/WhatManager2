@@ -21,7 +21,7 @@ LANGUAGES = ['English', 'Irish', 'German', 'French', 'Spanish', 'Italian', 'Lati
 
 def load_bibliotik_data(bibliotik_client, torrent_id):
     exception = None
-    for i in xrange(3):
+    for i in range(3):
         try:
             response = bibliotik_client.session.get(
                 BIBLIOTIK_GET_TORRENT_URL.format(torrent_id), allow_redirects=False)
@@ -30,7 +30,7 @@ def load_bibliotik_data(bibliotik_client, torrent_id):
                                 .format(response.status_code))
             return response.text
         except Exception as ex:
-            print u'Error while retrieving bibliotik data. Will retry: {0}'.format(ex)
+            print('Error while retrieving bibliotik data. Will retry: {0}'.format(ex))
             time.sleep(2)
             exception = ex
     raise exception
@@ -59,8 +59,8 @@ class BibliotikTorrent(models.Model):
     def publisher_list(self):
         return self.publisher.split(';')
 
-    def __unicode__(self):
-        return u'BibliotikTorrent id={0} hash={1}'.format(self.id, self.info_hash)
+    def __str__(self):
+        return 'BibliotikTorrent id={0} hash={1}'.format(self.id, self.info_hash)
 
     def import_bibliotik_data(self, bibliotik_client):
         self.html_page = load_bibliotik_data(bibliotik_client, self.id)
@@ -69,44 +69,44 @@ class BibliotikTorrent(models.Model):
     def parse_html_page(self):
         pq = PyQuery(self.html_page)
         authors = []
-        for author in pq('p#creatorlist a').items():
+        for author in list(pq('p#creatorlist a').items()):
             authors.append(author.text())
         self.author = ', '.join(authors)
         self.title = pq('h1#title').text()
         if not self.title:
-            raise Exception(u'Title should not be empty.')
+            raise Exception('Title should not be empty.')
         self.category = pq('h1#title > img:first-child').attr('title')
         details = pq('p#details_content_info').text().split(', ')
         assert len(details) and details[0]
         self.format = details[0]
         details = details[1:]
-        if self.category == u'Ebooks':
-            assert self.format in EBOOK_FORMATS, u'Unknown eBook format {0}'.format(self.format)
-        elif self.category == u'Applications':
+        if self.category == 'Ebooks':
+            assert self.format in EBOOK_FORMATS, 'Unknown eBook format {0}'.format(self.format)
+        elif self.category == 'Applications':
             pass
-        elif self.category == u'Articles':
+        elif self.category == 'Articles':
             pass
-        elif self.category == u'Audiobooks':
+        elif self.category == 'Audiobooks':
             pass
-        elif self.category == u'Comics':
+        elif self.category == 'Comics':
             pass
-        elif self.category == u'Journals':
+        elif self.category == 'Journals':
             pass
-        elif self.category == u'Magazines':
+        elif self.category == 'Magazines':
             pass
         else:
-            raise Exception(u'Unknown category {0}'.format(self.category))
-        if details[0] == u'Retail':
+            raise Exception('Unknown category {0}'.format(self.category))
+        if details[0] == 'Retail':
             self.retail = True
             details = details[1:]
         else:
             self.retail = False
-        if details[0].endswith(u'pages'):
-            self.pages = int(details[0][:-len(u'pages') - 1])
+        if details[0].endswith('pages'):
+            self.pages = int(details[0][:-len('pages') - 1])
             details = details[1:]
         else:
             self.pages = 0
-        if details[0] == u'Unabridged' or details[0] == u'Abridged':
+        if details[0] == 'Unabridged' or details[0] == 'Abridged':
             details = details[1:]
         if details[0].split(' ')[0] in LANGUAGES:
             parts = details[0].split(' ')
@@ -114,16 +114,16 @@ class BibliotikTorrent(models.Model):
             self.language = parts[0]
             parts = parts[1:]
             if len(parts):
-                assert parts[0][0] == '(' and parts[0][-1] == ')', u'Unknown string after language'
+                assert parts[0][0] == '(' and parts[0][-1] == ')', 'Unknown string after language'
                 self.isbn = parts[0][1:-1]
                 parts = parts[1:]
             else:
                 self.isbn = ''
         else:
             self.language = ''
-        assert len(details) == 0, u'All details must be parsed: {0}'.format(', '.join(details))
+        assert len(details) == 0, 'All details must be parsed: {0}'.format(', '.join(details))
         self.cover_url = pq('div#sidebar > a[rel="lightbox"] > img').attr('src') or ''
-        self.tags = ', '.join(i.text() for i in pq('span.taglist > a').items())
+        self.tags = ', '.join(i.text() for i in list(pq('span.taglist > a').items()))
         publisher_year = pq('p#published').text()
         if publisher_year:
             assert publisher_year.startswith('Published '), \
@@ -131,9 +131,9 @@ class BibliotikTorrent(models.Model):
             publisher_year = publisher_year[len('Published '):]
             if publisher_year.startswith('by '):
                 publisher_year = publisher_year[len('by '):]
-                self.publisher = ';'.join(i.text() for i in pq('p#published > a').items())
+                self.publisher = ';'.join(i.text() for i in list(pq('p#published > a').items()))
                 assert self.publisher, 'Publisher can not be empty'
-                publisher_mod = ' , '.join(i.text() for i in pq('p#published > a').items())
+                publisher_mod = ' , '.join(i.text() for i in list(pq('p#published > a').items()))
                 assert publisher_year.startswith(publisher_mod), \
                     'publisher_year does not start with self.publisher'
                 publisher_year = publisher_year[len(publisher_mod) + 1:]
@@ -168,7 +168,7 @@ class BibliotikTorrent(models.Model):
             return torrent
 
     def download_torrent_file(self, bibliotik_client):
-        for i in xrange(3):
+        for i in range(3):
             try:
                 self._download_torrent_file(bibliotik_client)
                 return
@@ -187,14 +187,14 @@ class BibliotikTorrent(models.Model):
 
 
 class BibliotikTransTorrent(TransTorrentBase):
-    bibliotik_torrent = models.ForeignKey(BibliotikTorrent)
+    bibliotik_torrent = models.ForeignKey(BibliotikTorrent, on_delete=models.CASCADE)
 
     @property
     def path(self):
-        return os.path.join(self.location.path, unicode(self.bibliotik_torrent.id))
+        return os.path.join(self.location.path, str(self.bibliotik_torrent.id))
 
-    def __unicode__(self):
-        return u'BibliotikTransTorrent(torrent_id={0}, bibliotik_id={1}, name={2})'.format(
+    def __str__(self):
+        return 'BibliotikTransTorrent(torrent_id={0}, bibliotik_id={1}, name={2})'.format(
             self.torrent_id, self.bibliotik_torrent_id, self.torrent_name)
 
 
@@ -203,7 +203,7 @@ class BibliotikFulltext(models.Model):
     more_info = models.TextField()
 
     def update(self, bibliotik_torrent):
-        info = u'{0} - {1}'.format(bibliotik_torrent.author, bibliotik_torrent.title)
+        info = '{0} - {1}'.format(bibliotik_torrent.author, bibliotik_torrent.title)
         more_info = ' '.join([
             ', '.join(bibliotik_torrent.publisher_list),
             bibliotik_torrent.isbn,

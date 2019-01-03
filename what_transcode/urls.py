@@ -1,10 +1,12 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+from .views import index, status_table, request_transcode, request_retry, update
 
-urlpatterns = patterns(
-    '',
-    url(r'^$', 'what_transcode.views.index'),
-    url(r'^status_table$', 'what_transcode.views.status_table'),
-    url(r'^request$', 'what_transcode.views.request_transcode'),
-    url(r'^request_retry$', 'what_transcode.views.request_retry'),
-    url(r'^update$', 'what_transcode.views.update'),
-)
+app_name = 'what_transcode'
+
+urlpatterns = [
+    url(r'^$', index, name='index'),
+    url(r'^status_table$', status_table, name='status_table'),
+    url(r'^request$', request_transcode, name='request_transcode'),
+    url(r'^request_retry$', request_retry, name='request_retry'),
+    url(r'^update$', update, name='update'),
+]

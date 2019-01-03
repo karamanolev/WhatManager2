@@ -71,7 +71,7 @@ class MAMClient(object):
         return self._request(process_url(url), try_login=True)
 
     def download_torrent(self, torrent_url):
-        for i in xrange(3):
+        for i in range(3):
             try:
                 r = self.request(torrent_url)
                 if 'application/x-bittorrent' in r.headers['content-type']:
@@ -81,7 +81,7 @@ class MAMClient(object):
                 else:
                     raise Exception('Wrong status_code or content-type')
             except Exception as ex:
-                print u'Error while download MAM torrent. Will retry: {0}'.format(ex)
+                print('Error while download MAM torrent. Will retry: {0}'.format(ex))
                 time.sleep(3)
                 download_exception = ex
         raise download_exception

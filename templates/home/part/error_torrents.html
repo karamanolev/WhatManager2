@@ -21,7 +21,7 @@
         $.executeAndRepeat(20000, function (scheduleNext) {
             var errorRow = $('#error_torrents_row');
 
-            errorRow.find('.widget-content').load('{% url 'home.parts.error_torrents' %}', function () {
+            errorRow.find('.widget-content').load('{% url 'home:error_torrents' %}', function () {
                 scheduleNext();
                 var count = errorRow.find('.widget-content table').data('torrent-count');
                 if (count) {

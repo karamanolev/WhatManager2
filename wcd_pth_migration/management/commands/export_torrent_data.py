@@ -21,7 +21,7 @@ class Command(BaseCommand):
         what_replica = ReplicaSet.objects.get(zone='what.cd', name='master')
         counter = 0
         for instance in what_replica.transinstance_set.all():
-            print 'Process instance', instance.name
+            print('Process instance', instance.name)
             t_torrents = instance.transtorrent_set.all().select_related('what_torrent', 'location')
             for t_torrent in t_torrents:
                 output.write(json.dumps({
@@ -32,5 +32,5 @@ class Command(BaseCommand):
                 output.write('\n')
                 counter += 1
                 if counter % 1000 == 0:
-                    print 'Done', counter
-        print 'Total done:', counter
+                    print('Done', counter)
+        print('Total done:', counter)

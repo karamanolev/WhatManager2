@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+
 import logging
 import os
 import os.path
@@ -8,7 +8,7 @@ from subprocess import call
 from PIL import Image
 import imgurpython
 
-from qiller.utils import time_text, ensure_file_dir_exists, q_enc, retry_action
+from qiller.utils import time_text, ensure_file_dir_exists, retry_action
 
 
 logger = logging.getLogger(__name__)
@@ -26,19 +26,19 @@ class SpectralManager(object):
         return os.path.join(os.path.dirname(self.temp_dir), 'spectrals.{0}'.format(pid))
 
     def stash(self):
-        shutil.move(q_enc(self.spectrals_dir), q_enc(self.stash_dir))
+        shutil.move(self.spectrals_dir, self.stash_dir)
 
     def unstash(self):
-        shutil.move(q_enc(self.stash_dir), q_enc(self.spectrals_dir))
+        shutil.move(self.stash_dir, self.spectrals_dir)
 
     def get_filenames(self, track):
         basename = os.path.splitext(track.filename)[0]
         return (
             (
-                os.path.join(self.spectrals_dir, u'{0}.full.png'.format(basename)),
-                os.path.join(self.spectrals_dir, u'{0}.zoom.png'.format(basename)),
+                os.path.join(self.spectrals_dir, '{0}.full.png'.format(basename)),
+                os.path.join(self.spectrals_dir, '{0}.zoom.png'.format(basename)),
             ),
-            os.path.join(self.spectrals_dir, u'{0}.png'.format(basename))
+            os.path.join(self.spectrals_dir, '{0}.png'.format(basename))
         )
 
     def _generate_temp_spectral(self, track, filenames):
@@ -55,7 +55,7 @@ class SpectralManager(object):
         ]
         if self.high_color:
             args.append('-h')
-        if call([q_enc(a) for a in args]) != 0:
+        if call([a for a in args]) != 0:
             raise Exception('sox returned non-zero')
         assert track.duration >= 4, 'Track is shorter than 4 seconds'
         zoom_start = time_text(min(40, track.duration - 4))
@@ -65,7 +65,7 @@ class SpectralManager(object):
         ]
         if self.high_color:
             args.append('-h')
-        if call([q_enc(a) for a in args]) != 0:
+        if call([a for a in args]) != 0:
             raise Exception('sox returned non-zero')
 
     def generate_spectral(self, track):
@@ -73,12 +73,12 @@ class SpectralManager(object):
         self._generate_temp_spectral(track, filenames[0])
         self._merge_spectrals(filenames[0], filenames[1])
         for temp_spectral in filenames[0]:
-            os.remove(q_enc(temp_spectral))
+            os.remove(temp_spectral)
 
 
     @staticmethod
     def _merge_spectrals(paths, dest_path):
-        images = map(Image.open, [q_enc(p) for p in paths])
+        images = list(map(Image.open, [p for p in paths]))
         try:
             result_width = max(i.size[0] for i in images)
             result_height = sum(i.size[1] for i in images)
@@ -88,7 +88,7 @@ class SpectralManager(object):
             for image in images:
                 result.paste(image, (0, current_y, image.size[0], current_y + image.size[1]))
                 current_y += image.size[1]
-            result.save(q_enc(dest_path), 'PNG')
+            result.save(dest_path, 'PNG')
         finally:
             for image in images:
                 image.close()
@@ -106,7 +106,7 @@ class SpectralUploader(object):
         resp = []
 
         def do_upload():
-            resp.append(self.imgur_client.upload_from_path(q_enc(spectral_path)))
+            resp.append(self.imgur_client.upload_from_path(spectral_path))
 
         retry_action(do_upload)
         track.spectral_url = resp[0]['link']

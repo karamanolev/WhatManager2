@@ -17,12 +17,12 @@ from what_transcode.utils import get_info_hash_from_data
 
 def load_mam_data(mam_client, torrent_id):
     exception = None
-    for i in xrange(3):
+    for i in range(3):
         try:
             response = mam_client.request(MAM_GET_TORRENT_URL.format(torrent_id))
             return response.text
         except Exception as ex:
-            print u'Error while retrieving MAM data. Will retry: {0}'.format(ex)
+            print('Error while retrieving MAM data. Will retry: {0}'.format(ex))
             time.sleep(2)
             exception = ex
     raise exception
@@ -45,8 +45,8 @@ class MAMTorrent(models.Model):
     torrent_file = models.BinaryField(null=True)
     torrent_size = models.BigIntegerField()
 
-    def __unicode__(self):
-        return u'MAMTorrent id={0} hash={1}'.format(self.id, self.info_hash)
+    def __str__(self):
+        return 'MAMTorrent id={0} hash={1}'.format(self.id, self.info_hash)
 
     def import_mam_data(self, mam_client):
         self.html_page = load_mam_data(mam_client, self.id)
@@ -57,9 +57,9 @@ class MAMTorrent(models.Model):
         main_table = pq('#mainBody > table.coltable')
 
         def find_row(text):
-            for c in main_table.find('td:first-child').items():
+            for c in list(main_table.find('td:first-child').items()):
                 if c.text() == text:
-                    return c.nextAll().items().next()
+                    return next(list(c.nextAll().items()))
 
         def find_row_text(text, default=''):
             row = find_row(text)
@@ -104,7 +104,7 @@ class MAMTorrent(models.Model):
             return torrent
 
     def download_torrent_file(self, mam_client):
-        for i in xrange(3):
+        for i in range(3):
             try:
                 self._download_torrent_file(mam_client)
                 return
@@ -123,14 +123,14 @@ class MAMTorrent(models.Model):
 
 
 class MAMTransTorrent(TransTorrentBase):
-    mam_torrent = models.ForeignKey(MAMTorrent)
+    mam_torrent = models.ForeignKey(MAMTorrent, on_delete=models.CASCADE)
 
     @property
     def path(self):
-        return os.path.join(self.location.path, unicode(self.mam_torrent_id))
+        return os.path.join(self.location.path, str(self.mam_torrent_id))
 
-    def __unicode__(self):
-        return u'MAMTransTorrent(torrent_id={0}, mam_id={1}, name={2})'.format(
+    def __str__(self):
+        return 'MAMTransTorrent(torrent_id={0}, mam_id={1}, name={2})'.format(
             self.torrent_id, self.mam_torrent_id, self.torrent_name)
 
 

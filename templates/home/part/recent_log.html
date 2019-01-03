@@ -21,7 +21,7 @@
         </div>
     </div>
     <script>
-        var recentLogUrl = '{% url 'home.parts.recent_log' %}';
+        var recentLogUrl = '{% url 'home:recent_log' %}';
 
         var reloadRecentLog = $('#recent_log_row .widget-content').timedReload(recentLogUrl, 5000, function () {
         }, function () {

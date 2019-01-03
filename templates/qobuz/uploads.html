@@ -8,7 +8,7 @@
     </div>
     <div id="breadcrumb">
         <a href="#" title="Go to Home" class="tip-bottom"><i class="fa fa-home"></i> Home</a>
-        <a href="{% url 'qobuz.views.uploads' %}" class="current">Qobuz Uploads</a>
+        <a href="{% url 'qobuz:uploads' %}" class="current">Qobuz Uploads</a>
     </div>
 
     <div class="container-fluid">
@@ -21,7 +21,7 @@
                             <h5>Current Uploads</h5>
 
                             <div class="buttons">
-                                <a class="btn" href="{% url 'qobuz.views.new_upload' %}">
+                                <a class="btn" href="{% url 'qobuz:new_upload' %}">
                                     <i class="fa fa-upload"></i>
                                     New Upload
                                 </a>
@@ -47,7 +47,7 @@
                                         {{ upload.artists }}
                                     </td>
                                     <td>
-                                        <a href="{% url 'qobuz.views.edit_upload' upload.id %}">
+                                        <a href="{% url 'qobuz:edit_upload' upload.id %}">
                                             {{ upload.album_name }}
                                         </a>
                                     </td>

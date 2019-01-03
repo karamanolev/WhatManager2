@@ -28,7 +28,7 @@ def execute_chain(chain_options):
 
     for p in processes:
         if p.returncode != 0:
-            print p.returncode
+            print(p.returncode)
             raise Exception('Subprocess returned non-zero')
 
 
@@ -38,7 +38,7 @@ def transcode_file(source_file, dest_file, source_media, bitrate):
     if source_media == 'SACD':
         assert source_samplerate >= 88200
         target_samplerate = 44100
-        print 'Source is SACD, will resample to {0}'.format(target_samplerate)
+        print('Source is SACD, will resample to {0}'.format(target_samplerate))
     else:
         target_samplerate = {
             44100: None,
@@ -48,7 +48,7 @@ def transcode_file(source_file, dest_file, source_media, bitrate):
             176400: 44100,
             192000: 48000,
         }[source_samplerate]
-        print 'Source is NOT SACD, will resample to {0}'.format(target_samplerate)
+        print('Source is NOT SACD, will resample to {0}'.format(target_samplerate))
 
     try:
         os.makedirs(os.path.dirname(dest_file))
@@ -75,7 +75,7 @@ def transcode_file(source_file, dest_file, source_media, bitrate):
                        str(target_samplerate), 'dither']
         chain_options = [flac_options, sox_options, lame_options]
 
-    print 'Chain is', chain_options
+    print('Chain is', chain_options)
     execute_chain(chain_options)
 
     if not os.path.isfile(dest_file) or os.path.getsize(dest_file) < 1024:
@@ -88,6 +88,6 @@ def transcode_file(source_file, dest_file, source_media, bitrate):
         mp3file = mutagen.File(dest_file, easy=True)
         mp3file.add_tags()
     for tag in flacfile:
-        if tag in EasyID3.valid_keys.keys():
+        if tag in list(EasyID3.valid_keys.keys()):
             mp3file[tag] = flacfile[tag]
     mp3file.save()

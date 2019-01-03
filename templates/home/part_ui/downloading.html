@@ -15,7 +15,7 @@
             <td>
                 {% if t|type_name == 'TransTorrent' %}
                     <a href="{{ t.what_torrent_id|what_cd_torrent_link }}" target="_blank"><i class="fa fa-external-link" style="margin:2px"></i></a>
-                    <a href="{% url 'download.views.delete_torrent' t.what_torrent_id %}" onclick="return confirm('Are you sure you want to delete this torrent and all its data?')">
+                    <a href="{% url 'download:delete_torrent' t.what_torrent_id %}" onclick="return confirm('Are you sure you want to delete this torrent and all its data?')">
                         <i class="fa fa-trash-o" style="margin:2px; color:red"></i>
                     </a>
                 {% elif t|type_name == 'BibliotikTransTorrent' %}

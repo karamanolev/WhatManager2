@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+
 from contextlib import closing
 import logging
 import os
@@ -6,7 +6,7 @@ import os.path
 
 import requests
 
-from qiller.utils import ensure_file_dir_exists, retry_action, q_enc
+from qiller.utils import ensure_file_dir_exists, retry_action
 
 
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def stream_download(destination, response):
     ensure_file_dir_exists(destination)
-    with open(q_enc(destination), 'wb') as f:
+    with open(destination, 'wb') as f:
         for chunk in response.iter_content(4096):
             f.write(chunk)
 
@@ -30,7 +30,7 @@ def stream_reconstruct_download(destination, url):
     assert response.status_code == 200, 'OPTIONS did not return 200'
     offset = 0
     length = 4 * 2 ** 32  # 4MB chunks
-    with open(q_enc(destination), 'wb') as f:
+    with open(destination, 'wb') as f:
         while offset < length:
             with closing(session.get(url, stream=True, headers={
                 'Range': 'bytes={0}-{1}'.format(offset, offset + 2 ** 20 - 1),
@@ -44,7 +44,7 @@ def stream_reconstruct_download(destination, url):
 
 class Downloader(object):
     def __init__(self, temp_dir):
-        if not os.path.exists(q_enc(temp_dir)):
+        if not os.path.exists(temp_dir):
             raise Exception('Destination directory does not exist.')
         self.temp_dir = temp_dir
 

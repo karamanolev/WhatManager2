@@ -1,33 +1,31 @@
 [[source]]
+name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-name = "pypi"
-
-[packages]
-bencode = ">=1.0"
-django-celery = ">=3.0.23"
-mutagen = ">=1.22"
-pyquery = ">=1.2.4"
-pytz = ">=2013.7"
-transmissionrpc = ">=0.10"
-requests = ">=2.0.0"
-kombu = "<4.0.0,>=3.0.15"
-billiard = ">=3.3.0.17"
-django-bootstrap-form = ">=3.1"
-sqlparse = ">=0.1.11"
-ujson = ">=1.33"
-celery = "<4.0"
-"html2bbcode" = "==2.3.2"
-imgurpython = "==1.1.7"
-numpy = "==1.11.2"
-Django = "<1.9,>=1.8.17"
-MySQL-python = ">=1.2.4"
-Pillow = "==3.4.2"
 
 [dev-packages]
 pylint = "*"
-rope = "*"
 yapf = "*"
+rope = "*"
+
+[packages]
+django = "*"
+django-bootstrap-form = "*"
+ujson = "*"
+mutagen = "*"
+requests = "*"
+transmissionrpc = "*"
+pyquery = "*"
+bencode-py = "*"
+celery = "*"
+numpy = "*"
+pillow = "*"
+imgurpython = "*"
+sqlparse = "*"
+html2bbcode = "*"
+mod-wsgi-httpd = "*"
+mod-wsgi = "*"
+mysqlclient = "*"
 
 [requires]
-python_version = "2.7"
+python_version = "3.6"

@@ -1,8 +1,10 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+from .views import upload_book, refresh_ui, cache_worker
 
-urlpatterns = patterns(
-    '',
-    url(r'^uploads/(\d+)/bibliotik/upload$', 'bibliotik.views.upload_book'),
-    url(r'^bibliotik/refresh_ui$', 'bibliotik.views.refresh_ui'),
-    url(r'^bibliotik/cache_worker$', 'bibliotik.views.cache_worker'),
-)
+app_name = 'bibliotik'
+
+urlpatterns = [
+    url(r'^uploads/(\d+)/bibliotik/upload$', upload_book, name='upload_book'),
+    url(r'^bibliotik/refresh_ui$', refresh_ui, name='refresh_ui'),
+    url(r'^bibliotik/cache_worker$', cache_worker, name='cache_worker'),
+]

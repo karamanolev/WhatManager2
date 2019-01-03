@@ -12,7 +12,6 @@ from django.views.decorators.http import last_modified
 
 from WhatManager2.management.commands import import_external_what_torrent
 from WhatManager2.settings import WHAT_ANNOUNCE, WHATIMG_USERNAME, WHATIMG_PASSWORD
-from WhatManager2.utils import wm_str
 from home.info_holder import WHAT_RELEASE_TYPES
 from home.models import RequestException, get_what_client, WhatTorrent
 from qiller.upload import QillerUpload
@@ -37,7 +36,7 @@ state_data = {
     'STATE_DONE': STATE_DONE,
 }
 
-reverse_state_data = {i[1]: i[0] for i in state_data.items()}
+reverse_state_data = {i[1]: i[0] for i in list(state_data.items())}
 
 
 def get_image_files(qiller):
@@ -58,7 +57,7 @@ def get_image_last_modified(subpath):
             qobuz_upload = QobuzUpload.objects.get(id=upload_id)
             dest_path = os.path.join(get_temp_dir(qobuz_upload.upload.metadata.id), subpath,
                                      os.path.basename(request.GET['path']))
-            s = os.path.getmtime(wm_str(dest_path))
+            s = os.path.getmtime(dest_path)
             return datetime.datetime.utcfromtimestamp(s)
         except Exception:
             raise
@@ -73,7 +72,7 @@ def view_spectral(request, upload_id):
         qobuz_upload = QobuzUpload.objects.get(id=upload_id)
         dest_path = os.path.join(get_temp_dir(qobuz_upload.upload.metadata.id), 'spectrals',
                                  os.path.basename(request.GET['path']))
-        f = open(wm_str(dest_path), 'rb')
+        f = open(dest_path, 'rb')
         return HttpResponse(f, content_type='image/png')
     except Exception:
         return HttpResponseNotFound()
@@ -85,7 +84,7 @@ def view_cover(request, upload_id):
         qobuz_upload = QobuzUpload.objects.get(id=upload_id)
         dest_path = os.path.join(get_temp_dir(qobuz_upload.upload.metadata.id),
                                  os.path.basename(request.GET['path']))
-        f = open(wm_str(dest_path), 'rb')
+        f = open(dest_path, 'rb')
         return HttpResponse(f, content_type='image/jpeg')
     except Exception:
         return HttpResponseNotFound()
@@ -123,8 +122,8 @@ def new_upload(request):
                     upload = QobuzUpload(state=qiller.state)
                     upload.set_upload(qiller)
                     upload.save()
-                    os.chmod(temp_dir, 0777)
-                    return redirect(edit_upload, upload.id)
+                    os.chmod(temp_dir, 0o777)
+                    return redirect('qobuz2:edit_upload', upload.id)
                 except RequestException:
                     form.add_error('album_id', 'Cannot fetch Qobuz album')
     else:
@@ -147,7 +146,7 @@ def edit_upload(request, upload_id):
     elif upload.state == QillerUpload.STATE_TORRENT_CREATED:
         return edit_upload_whatcd(request, upload)
     elif upload.state == STATE_DONE:
-        return redirect(index)
+        return redirect('qobuz2:index')
 
 
 @atomic
@@ -157,7 +156,7 @@ def upload_cover(request, upload_id):
     temp_dir = get_temp_dir(upload.upload.metadata.id)
     qiller = upload.upload
     do_upload_cover(upload, temp_dir, qiller)
-    return redirect(edit_upload, upload_id)
+    return redirect('qobuz2:edit_upload', upload_id)
 
 
 def do_upload_cover(upload, temp_dir, qiller):
@@ -215,7 +214,7 @@ def edit_upload_whatcd(request, upload):
                 do_upload()
         else:
             raise Exception('Unknown type')
-        return redirect(seed_upload, upload.id)
+        return redirect('qobuz2:seed_upload', upload.id)
     data = {
         'upload': upload,
         'spectrals': get_spectral_files(upload.upload),
@@ -230,11 +229,11 @@ def seed_upload(request, upload_id):
     qobuz_upload = QobuzUpload.objects.get(id=upload_id)
     temp_dir = get_temp_dir(qobuz_upload.upload.metadata.id)
     torrent_path = os.path.join(temp_dir, qobuz_upload.upload.metadata.torrent_name + '.torrent')
-    assert os.path.isfile(wm_str(torrent_path))
+    assert os.path.isfile(torrent_path)
     info_hash = get_info_hash(torrent_path)
     what_torrent = WhatTorrent.get_or_create(request, info_hash=info_hash)
     command = import_external_what_torrent.Command()
-    command.handle(wm_str(temp_dir), wm_str(torrent_path), base_dir=False)
+    command.handle(data_dir=temp_dir, torrent_file=torrent_path, base_dir=False)
     try:
         run_request_transcode(request, what_torrent.id)
     except Exception:
@@ -243,7 +242,7 @@ def seed_upload(request, upload_id):
     qiller.state = STATE_DONE
     qobuz_upload.set_upload(qiller)
     qobuz_upload.save()
-    return redirect(edit_upload, upload_id)
+    return redirect('qobuz2:edit_upload', upload_id)
 
 
 def edit_upload_prepared(request, upload):
@@ -326,7 +325,7 @@ def title_case(request, upload_id):
 
     qobuz_upload.set_upload(qiller)
     qobuz_upload.save()
-    return redirect(edit_upload, upload_id)
+    return redirect('qobuz2:edit_upload', upload_id)
 
 
 @atomic
@@ -337,7 +336,7 @@ def prepare(request, upload_id):
     qiller.prepare(get_temp_dir(qiller.metadata.id))
     qobuz_upload.set_upload(qiller)
     qobuz_upload.save()
-    return redirect(edit_upload, upload_id)
+    return redirect('qobuz2:edit_upload', upload_id)
 
 
 @atomic
@@ -348,7 +347,7 @@ def make_torrent(request, upload_id):
     qiller.make_torrent(get_temp_dir(qiller.metadata.id), WHAT_ANNOUNCE)
     qobuz_upload.set_upload(qiller)
     qobuz_upload.save()
-    return redirect(edit_upload, upload_id)
+    return redirect('qobuz2:edit_upload', upload_id)
 
 
 @atomic
@@ -358,7 +357,7 @@ def start_download(request, upload_id):
     if qobuz_upload.download_task_id is not None:
         qobuz_upload.download_task_id = None
     tasks.start_qiller_download(qobuz_upload)
-    return redirect(edit_upload, upload_id)
+    return redirect('qobuz2:edit_upload', upload_id)
 
 
 @atomic
@@ -374,4 +373,4 @@ def find_replace(request, upload_id):
         track.title = track.title.replace(str_find, str_replace).strip()
     qobuz_upload.set_upload(qiller)
     qobuz_upload.save()
-    return redirect(edit_upload, upload_id)
+    return redirect('qobuz2:edit_upload', upload_id)

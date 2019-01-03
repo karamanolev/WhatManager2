@@ -27,7 +27,7 @@
 </div>
 
 <script>
-    $.get('{% url 'what_profile.parts.buffer_up_down_data' %}', function (data) {
+    $.get('{% url 'what_profile:buffer_up_down_data' %}', function (data) {
         $.plot('#buffer_chart', [
             {
                 label: 'Buffer (1.05)',

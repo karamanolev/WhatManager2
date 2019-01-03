@@ -6,6 +6,12 @@ from django.http.response import HttpResponse
 
 
 class HttpBasicAuthMiddleware(object):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        return self.get_response(request)
+    
     def get_response_401(self):
         response = HttpResponse('Unauthorized\r\n')
         response.status_code = 401
@@ -27,9 +33,9 @@ class HttpBasicAuthMiddleware(object):
             if len(authorization) == 2:
                 # NOTE: We are only support basic authentication for now.
                 if authorization[0].lower() == "basic":
-                    username, password = base64.b64decode(authorization[1]).split(':')
+                    username, password = base64.b64decode(authorization[1]).decode('utf-8').split(':')
 
-                    if request.user.is_authenticated():
+                    if request.user.is_authenticated:
                         if request.user.get_username() == username:
                             return
 

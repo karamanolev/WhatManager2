@@ -17,7 +17,7 @@ def qiller_download(celery_task, qobuz_album_id):
         qiller.download(temp_dir, True)
         upload.set_upload(qiller)
         for item in os.listdir(temp_dir):
-            recursive_chmod(os.path.join(temp_dir, item), 0777)
+            recursive_chmod(os.path.join(temp_dir, item), 0o777)
         upload.save()
     finally:
         connection.close()
@@ -27,6 +27,6 @@ def start_qiller_download(qobuz_upload):
     if qobuz_upload.download_task_id is not None:
         raise Exception('There is already a task assigned.')
     async_result = qiller_download.delay(qobuz_upload.id)
-    print async_result.id
+    print(async_result.id)
     qobuz_upload.download_task_id = async_result.id
     qobuz_upload.save()

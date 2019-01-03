@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.http import urlquote
 
 from WhatManager2.utils import get_artists, get_artists_list
@@ -14,7 +14,7 @@ from whatify.utils import extended_artists_to_music_info
 def get_image_cache_url(url):
     if url is None:
         return None
-    return reverse('what_meta.views.image') + u'?url=' + urlquote(url, '')
+    return reverse('what_meta.views.image') + '?url=' + urlquote(url, '')
 
 
 def get_artist_alias_dict(artist_alias, *args, **kwargs):
@@ -33,7 +33,7 @@ def get_artist_dict(artist, include_all=False):
     if include_all:
         assert not artist.is_shell, 'Can not get torrents for a shell artist'
         torrent_groups = {t['groupId']: t for t in artist.info['torrentgroup']}
-        torrent_groups_have = get_torrent_groups_have(torrent_groups.keys(), True)
+        torrent_groups_have = get_torrent_groups_have(list(torrent_groups.keys()), True)
         torrent_groups = list(torrent_groups.values())
         torrent_groups.sort(key=lambda g: g['groupYear'], reverse=True)
 

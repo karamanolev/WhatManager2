@@ -6,11 +6,6 @@ from django.utils.functional import cached_property
 
 
 class WhatUserSnapshot(models.Model):
-    class Meta:
-        permissions = (
-            ('view_whatusersnapshot', 'Can view the user profile.'),
-        )
-
     user_id = models.IntegerField()
     datetime = models.DateTimeField(auto_now_add=True, db_index=True)
     uploaded = models.BigIntegerField()
