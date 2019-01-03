@@ -35,7 +35,7 @@ def sync_instance_db(request, instance):
 
     for hash, m_torrent in list(m_torrents.items()):
         if hash not in t_torrents:
-            m_torrent_path = m_torrent.path.encode('utf-8')
+            m_torrent_path = m_torrent.path
 
             messages = []
             with transaction.atomic():
