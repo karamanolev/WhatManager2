@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 
 from __future__ import unicode_literals
-import time
-
-from django.core.management.base import BaseCommand
 
 import requests
+import time
+from django.core.management.base import BaseCommand
 
 from WhatManager2.utils import wm_unicode
-
 from home.models import get_what_client
 from what_transcode.tasks import TranscodeSingleJob
 
@@ -43,11 +41,15 @@ def report_progress(msg):
 class Command(BaseCommand):
     help = 'Help you create a torrent and add it to WM'
 
+    def add_arguments(self, parser):
+        parser.add_argument('source_dir', required=True, help='Source directory for the torrent.')
+
     def handle(self, *args, **options):
-        if len(args) != 1:
+        source_dir = wm_unicode(options['source_dir'])
+        if not source_dir:
             print u'Pass only the source directory.'
             return 1
-        source_dir = wm_unicode(args[0])
+
         if source_dir.endswith('/'):
             source_dir = source_dir[:-1]
 
