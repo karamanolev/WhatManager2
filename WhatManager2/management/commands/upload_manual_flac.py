@@ -42,7 +42,7 @@ class Command(BaseCommand):
     help = 'Help you create a torrent and add it to WM'
 
     def add_arguments(self, parser):
-        parser.add_argument('source_dir', required=True, help='Source directory for the torrent.')
+        parser.add_argument('source_dir', help='Source directory for the torrent.')
 
     def handle(self, *args, **options):
         source_dir = wm_unicode(options['source_dir'])
