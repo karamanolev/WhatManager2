@@ -1,0 +1,16 @@
+red:
+    container_name: 'trans_red_'
+    image: dperson/transmission
+    networks:
+        - default
+        - trans_mgmt
+    volumes:
+        - type: volume
+          source: red
+          target: /var/lib/transmission-daemon
+        - type: bind
+          source: *music-path
+          target: *music-path
+    ports:
+    environment: *red-settings
+    restart: unless-stopped

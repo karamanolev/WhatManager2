@@ -1,0 +1,39 @@
+version: '3.4'
+
+x-settings:
+    - &timezone 'GMT'
+    - &userid 1000
+    - &groupid 1000
+    - &transmission-password ''
+    - &music-path '/mnt/music-dl'
+
+x-red-settings: &red-settings
+    # For a list of all available options see:
+    # https://github.com/transmission/transmission/wiki/Editing-Configuration-Files#options
+    TRUSER: 'transmission'
+    TRPASSWD: *transmission-password
+    USERID: *userid
+    GROUPID: *groupid
+    TZ: *timezone
+    TR_BLOCKLIST_URL: 'http://127.0.0.1'
+    TR_MAX_PEERS_GLOBAL: 300
+    TR_DHT_ENABLED: 'false'
+    TR_PEX_ENABLED: 'false'
+    TR_RATIO_LIMIT_ENABLED: 'false'
+    TR_DOWNLOAD_DIR: *music-path
+    TR_INCOMPLETE_DIR_ENABLED: 'false'
+    TR_SPEED_LIMIT_DOWN: 1024
+    TR_SPEED_LIMIT_DOWN_ENABLED: 'true'
+    TR_SPEED_LIMIT_UP: 1024
+    TR_SPEED_LIMIT_UP_ENABLED: 'true'
+    TR_ALT_SPEED_DOWN: 2048
+    TR_ALT_SPEED_UP: 2048
+    TR_ALT_SPEED_TIME_ENABLED: 'false'
+    TR_ALT_SPEED_TIME_BEGIN: 420 #  7:00, minutes from midnight
+    TR_ALT_SPEED_TIME_END: 1380  # 23:00
+    TR_ALT_SPEED_TIME_DAY: 127   # All days: 127, Weekdays: 62, Weekends: 65
+    TR_START_ADDED_TORRENTS: 'false'
+    TR_DOWNLOAD_QUEUE_ENABLED: 'true'
+    TR_DOWNLOAD_QUEUE_SIZE: 2
+    TR_SCRAPE_PAUSED_TORRENTS_ENABLED: 'false'
+

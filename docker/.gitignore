@@ -1,0 +1,7 @@
+conf/app/*
+!conf/app/settings.template.py
+conf/db/*
+!conf/db/charset.cnf
+conf/web/*
+!conf/web/default.template.conf
+!conf/web/generate-nginx-config

@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -e
+
+path=$(echo "$URL_PATH" | tr -s /)
+
+if [ "$path" != / ] && [ -n "$path" ]; then
+	path=$(echo "$path" | sed -E 's#/+$##');
+
+	CUSTOM_LOCATION_SETTINGS=\
+"
+		# Needed if WM is hosted on a custom location instead of root.
+		uwsgi_param SCRIPT_NAME ${path};
+		uwsgi_modifier1 30;
+"
+else
+	path=
+fi
+
+export URL_PATH=$path CUSTOM_LOCATION_SETTINGS
+
+envsubst \
+	< /mnt/config/default.template.conf \
+	> /etc/nginx/conf.d/default.conf

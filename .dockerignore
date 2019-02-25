@@ -1,0 +1,8 @@
+.git
+.idea
+.travis.yml
+deps/
+docker/
+setup.sh
+setup_transmission-2.92.sh
+!docker/images/app/
