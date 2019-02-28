@@ -7,7 +7,7 @@ sys.setdefaultencoding( 'utf-8' )
 import os
 import shutil
 import time
-from subprocess import call
+import subprocess
 
 import requests
 from celery import task
@@ -53,13 +53,14 @@ def get_dest_upload_dir():
 
 class TranscodeSingleJob(object):
     def __init__(self, what, what_torrent, report_progress, source_dir, bitrate,
-                 torrent_temp_dir=None, transcoder_temp_dir=None):
+                 format, torrent_temp_dir=None, transcoder_temp_dir=None):
         self.what = what
         self.force_warnings = False
         self.what_torrent = what_torrent
         self.report_progress = report_progress
         self.source_dir = source_dir
         self.bitrate = bitrate
+        self.format = format
         if torrent_temp_dir is None:
             self.torrent_temp_dir = os.path.join(transcoder_temp_dir, self.directory_name)
         else:
@@ -77,7 +78,7 @@ class TranscodeSingleJob(object):
             '-o', self.torrent_file_path,
             self.torrent_temp_dir,
         ]
-        if call(['mktorrent'] + args) != 0:
+        if subprocess.call(['mktorrent'] + args) != 0:
             raise Exception('mktorrent returned non-zero')
         with open(self.torrent_file_path, 'rb') as f:
             torrent_data = f.read()
@@ -166,8 +167,8 @@ class TranscodeSingleJob(object):
             name = name[:67] + '...'
         media = torrent['torrent']['media']
         year = torrent['torrent']['remasterYear'] or torrent['group']['year']
-        return fix_pathname('{0} - {1} - {2} ({3} - MP3 - {4})'.format(
-            artists, name, year, media, self.bitrate.upper()
+        return fix_pathname('{0} - {1} - {2} ({3} - {4} - {5})'.format(
+            artists, name, year, media, self.format, self.bitrate.upper()
         ))
 
     def upload_torrent(self):
@@ -182,18 +183,26 @@ class TranscodeSingleJob(object):
         payload['auth'] = self.what.authkey
         payload['type'] = 'Music'
         payload['groupid'] = torrent['group']['id']
-        payload['format'] = 'MP3'
+        payload['format'] = self.format
         payload['bitrate'] = {
             'V0': 'V0 (VBR)',
             'V2': 'V2 (VBR)',
             '320': '320',
+            'Lossless': 'Lossless',
+            '16BITFLAC': 'Lossless',
         }[self.bitrate]
         payload['media'] = torrent['torrent']['media']
-        payload[
-            'release_desc'] = 'Made with LAME 3.99.3 with -h using karamanolev\'s auto transcoder' \
-                              ' from RED Torrent ID {0}.'.format(
-            torrent['torrent']['id']) + ' Resampling or bit depth change (if needed) ' \
-                                        'was done using SoX.'
+
+        if self.format != 'MP3':
+            flac_version = subprocess.check_output("flac -v", shell=True)
+            payload['release_desc'] = 'Made with ' + flac_version.rstrip()
+        else:
+            lame_version = subprocess.check_output("lame -? | grep -oP '([0-9]+\.[0-9]+\.[0-9]+)'", shell=True)
+            payload['release_desc'] = 'Made with LAME ' + lame_version.rstrip() + ' with -h'
+
+        payload['release_desc'] += ' using karamanolev\'s auto transcoder' \
+                                   ' from https://redacted.ch/torrents.php?torrentid={0}'.format(torrent['torrent']['id'])
+
 
         if torrent['torrent']['remastered']:
             payload['remaster'] = 'on'
@@ -249,7 +258,7 @@ class TranscodeSingleJob(object):
         elif num_channels > 2:
             raise Exception('Not a 2-channel file.')
 
-        dest_rel_path = os.path.relpath(source_path, self.source_dir)[:-4] + 'mp3'
+        dest_rel_path = os.path.relpath(source_path, self.source_dir)[:-4] + self.format.lower()
         dest_rel_path = norm_dest_path(os.path.basename(self.torrent_temp_dir), dest_rel_path)
         dest_path = os.path.join(self.torrent_temp_dir, dest_rel_path)
         dest_path = os.path.join(os.path.dirname(dest_path),
@@ -320,7 +329,6 @@ class TranscodeJob(object):
         self.force_warnings = False
         self.force_v0 = False
         self.force_320 = False
-
     def report_progress(self, progress):
         print 'Progress: {0}'.format(progress)
         if self.celery_task:
@@ -378,9 +386,16 @@ class TranscodeJob(object):
             del mp3_ids['320']
         for bitrate in TRANSCODER_FORMATS:
             if bitrate not in mp3_ids:
+		dest_format = "MP3"
+		if bitrate == '16BITFLAC':
+		    if 'Lossless' in mp3_ids:
+                        print '16bit FLAC already exists, skipping'
+			continue
+		    else:
+		        dest_format = 'FLAC'
                 single_job = TranscodeSingleJob(self.what, self.what_torrent, self.report_progress,
                                                 self.source_dir,
-                                                bitrate, transcoder_temp_dir=temp_dir)
+                                                bitrate, dest_format, transcoder_temp_dir=temp_dir)
                 single_job.force_warnings = self.force_warnings
                 single_job.run()
                 print 'Uploaded {0}'.format(bitrate.upper())

@@ -56,6 +56,7 @@ def transcode_file(source_file, dest_file, source_media, bitrate):
         pass
 
     flac_options = ['flac', '-d', '-c', source_file]
+    flac_24bit_options = ['flac', '--best', '-', '-o', dest_file]
     lame_options = ['lame', '-h']
     if bitrate == '320':
         lame_options += ['--cbr', '-b', '320']
@@ -63,17 +64,25 @@ def transcode_file(source_file, dest_file, source_media, bitrate):
         lame_options += ['-V', '0']
     elif bitrate == 'V2':
         lame_options += ['-V', '2']
+    elif bitrate == '16BITFLAC':
+        lame_options = []
     else:
         raise Exception('Unknown bitrate')
     lame_options += ['-', dest_file]
 
     if target_samplerate is None and source_bit_depth == 16:
-        chain_options = [flac_options, lame_options]
+	if bitrate == '16BITFLAC':
+            raise Exception('release is already 16bit, not transcoding')
+	else:
+            chain_options = [flac_options, lame_options]
     else:
         target_samplerate = target_samplerate or source_samplerate
         sox_options = ['sox', '-t', 'wav', '-', '-b', '16', '-t', 'wav', '-', 'rate', '-v', '-L',
                        str(target_samplerate), 'dither']
-        chain_options = [flac_options, sox_options, lame_options]
+	if bitrate=='16BITFLAC':
+            chain_options = [flac_options, sox_options, flac_24bit_options]
+	else:
+            chain_options = [flac_options, sox_options, lame_options]
 
     print 'Chain is', chain_options
     execute_chain(chain_options)
@@ -82,12 +91,19 @@ def transcode_file(source_file, dest_file, source_media, bitrate):
         raise Exception('Missing output file or is less than 1K')
 
     flacfile = FLAC(source_file)
-    try:
-        mp3file = EasyID3(dest_file)
-    except mutagen.id3.ID3NoHeaderError:
-        mp3file = mutagen.File(dest_file, easy=True)
-        mp3file.add_tags()
-    for tag in flacfile:
-        if tag in EasyID3.valid_keys.keys():
-            mp3file[tag] = flacfile[tag]
-    mp3file.save()
+
+    if bitrate == '16BITFLAC':
+        destFlacFile = FLAC(dest_file)
+        for tag in flacfile:
+            destFlacFile[tag] = flacfile[tag]
+        destFlacFile.save()
+    else:
+        try:
+            mp3file = EasyID3(dest_file)
+        except mutagen.id3.ID3NoHeaderError:
+            mp3file = mutagen.File(dest_file, easy=True)
+            mp3file.add_tags()
+    	for tag in flacfile:
+            if tag in EasyID3.valid_keys.keys():
+                mp3file[tag] = flacfile[tag]
+    	mp3file.save()
